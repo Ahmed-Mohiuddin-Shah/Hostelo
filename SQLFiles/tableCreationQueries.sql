@@ -218,9 +218,10 @@ CREATE TABLE
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
 
+
 CREATE TABLE
     User(
-        username VARCHAR(35) NOT NULL,
-        password VARCHAR(8) PRIMARY KEY,
+        username VARCHAR(35) PRIMARY KEY,
+        password VARCHAR(8) NOT NULL,
         role VARCHAR(20) NOT NULL
     );

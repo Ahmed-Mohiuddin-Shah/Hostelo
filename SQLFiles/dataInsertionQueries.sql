@@ -420,3 +420,11 @@ VALUES ('I1', '2'), ('I2', '1'), ('I3', '3'), ('I4', '1'), ('I5', '2');
 INSERT INTO
     HasAppliance (appliance_id, student_id)
 VALUES ('1', 100123), ('2', 100245), ('3', 100367), ('4', 100489), ('5', 100510);
+
+INSERT INTO
+    User(username, password, role)
+VALUES ('admin', 'admin', 'admin'), ('staff', 'staff', 'staff'), (
+        'student',
+        'student',
+        'student'
+    );
