@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Body, Depends, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.model import UserSchema, UserLoginSchema
 from app.auth.auth_bearer import JWTBearer
@@ -26,6 +27,16 @@ cursor.execute("USE Hostelo")
 
 app = FastAPI()
 
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.post("/auth/signin", tags=["Authentication"])
 async def sign_in(request: Request):  # Add the "username" parameter
     request_json = await request.json()
@@ -40,7 +51,7 @@ async def sign_in(request: Request):  # Add the "username" parameter
         else:
             return signJWT(str(users[0][0]))  # Convert the argument to a string
     
-    return {"msg": "Username does not exist OR password is incorrect"}
+    return {"msg": "Username incorrect/does not exist OR password is incorrect"}
 
 @app.post("/auth/test", tags=["Authentication"])
 async def test(request: Request):
