@@ -5,6 +5,8 @@ import "./satoshi.css";
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 
+import "react-toastify/dist/ReactToastify.css";
+
 import Loader from "@/components/common/Loader";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
