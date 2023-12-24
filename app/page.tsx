@@ -20,7 +20,6 @@ export default function Home() {
   if (!authContext.isLoggedIn) {
     redirect("/auth/signin");
   }
-
   return (
     <>
       <ECommerce />

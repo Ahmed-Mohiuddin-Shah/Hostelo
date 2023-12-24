@@ -1,13 +1,14 @@
 "use client";
-import React from "react";
+import React, { useContext } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { FaUser, FaLock, FaSpinner } from "react-icons/fa6";
 import { Metadata } from "next";
 import axios from "axios";
-import { verifyJWT } from "@/libs/auth";
 import { ToastContainer, toast } from "react-toastify";
+import { AuthContext } from "@/contexts/UserAuthContext";
+import { useRouter } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Signin | Hostel Management System",
@@ -16,6 +17,8 @@ export const metadata: Metadata = {
 
 const SignIn: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const signinContext = useContext(AuthContext);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,8 +33,8 @@ const SignIn: React.FC = () => {
       username,
       password,
     });
-    const data = await res.data;
 
+    const data = await res.data;
     if (!data.status) {
       toast.error(data.msg);
       passwordInput.value = "";
@@ -40,11 +43,20 @@ const SignIn: React.FC = () => {
     }
 
     const token = data.token;
-    console.log(token);
+    const isLoggedIn = await signinContext.login(token);
 
+    if (!isLoggedIn) {
+      toast.error("Invalid Token");
+      passwordInput.value = "";
+      setIsSubmitting(false);
+      return;
+    }
+
+    toast.success("Login Successful");
     setIsSubmitting(false);
     usernameInput.value = "";
     passwordInput.value = "";
+    router.push("/");
   };
 
   return (
