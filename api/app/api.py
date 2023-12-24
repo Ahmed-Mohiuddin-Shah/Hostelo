@@ -1,13 +1,12 @@
+import time
 from fastapi import FastAPI, Body, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.model import UserSchema, UserLoginSchema
 from app.auth.auth_bearer import JWTBearer
-from app.auth.auth_handler import signJWT, decodeJWT
-
-
+from app.auth.auth_handler import signAndGetJWT, decodeJWT
 
 #################################################
+
 from decouple import config
 from mysql.connector import connect, Error
 
@@ -38,22 +37,27 @@ app.add_middleware(
 )
 
 @app.post("/auth/signin", tags=["Authentication"])
-async def sign_in(request: Request):  # Add the "username" parameter
+async def sign_in(request: Request):
     request_json = await request.json()
     query = f"SELECT * FROM `user` WHERE `username`='{request_json.get('username')}' AND `password`='{request_json.get('password')}'"
     cursor.execute(query)
 
-    users = cursor.fetchall()
-
-    if len(users) > 0:
-        if len(users) > 1:
-            return {"msg": "More than one user with the same username and password"}
-        else:
-            return signJWT(str(users[0][0]))  # Convert the argument to a string
+    user = cursor.fetchone()
+    if user is None:
+        return {
+            "status": False,
+            "msg": "Username or password is incorrect"
+        }
     
-    return {"msg": "Username incorrect/does not exist OR password is incorrect"}
+    username, _, role = user
+    token = signAndGetJWT({"username": username, "role": role})
+    return {
+        "status": True,
+        "msg": "Login successful",
+        "token": token
+    }
 
-@app.post("/auth/test", tags=["Authentication"])
+@app.post("/auth/test-token", tags=["Authentication"])
 async def test(request: Request):
     request_json = await request.json()
     token = request_json.get('token')
