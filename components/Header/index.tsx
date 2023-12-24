@@ -62,7 +62,6 @@ const Header = (props: {
             </button>
           )}
 
-          {/* <!-- Hamburger Toggle BTN --> */}
           <Link
             className="flex items-center gap-2 flex-shrink-0 lg:hidden"
             href="/"
@@ -141,7 +140,7 @@ const Header = (props: {
             {authContext.isLoggedIn && (
               <>
                 <DropdownNotification />
-                <DropdownMessage />
+                {/* <DropdownMessage /> */}
               </>
             )}
           </ul>

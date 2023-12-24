@@ -2,14 +2,10 @@
 
 import ECommerce from "@/components/Dashboard/E-commerce";
 import Loader from "@/components/common/Loader";
-import { AuthContext } from "@/contexts/UserAuthContext";
 import useAuth from "@/hooks/useAuth";
-import useColorMode from "@/hooks/useColorMode";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { Metadata } from "next";
-import { redirect, useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
-import { ToastContainer } from "react-toastify";
+import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export const metadata: Metadata = {
   title: "Hostelo | Hostel Management System",
