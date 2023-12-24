@@ -4,19 +4,22 @@ import DropdownMessage from "./DropdownMessage";
 import DropdownNotification from "./DropdownNotification";
 import DropdownUser from "./DropdownUser";
 import Image from "next/image";
-import { AuthContextType } from "@/contexts/UserAuthContext";
+import useAuth from "@/hooks/useAuth";
+import { useContext } from "react";
+import { AuthContext } from "@/contexts/UserAuthContext";
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
-  context: AuthContextType;
 }) => {
+  const authContext = useContext(AuthContext);
+
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
           {/* <!-- Hamburger Toggle BTN --> */}
-          {props.context.isLoggedIn && (
+          {authContext.isLoggedIn && (
             <button
               aria-controls="sidebar"
               onClick={(e) => {
@@ -65,8 +68,8 @@ const Header = (props: {
             href="/"
           >
             <Image
-              width={32}
-              height={32}
+              width={120}
+              height={50}
               src={"/images/logo/logo.svg"}
               alt="Logo"
             />
@@ -135,7 +138,7 @@ const Header = (props: {
             <DarkModeSwitcher />
             {/* <!-- Dark Mode Toggler --> */}
 
-            {props.context.isLoggedIn && (
+            {authContext.isLoggedIn && (
               <>
                 <DropdownNotification />
                 <DropdownMessage />
@@ -144,7 +147,7 @@ const Header = (props: {
           </ul>
 
           {/* <!-- User Area --> */}
-          {props.context.isLoggedIn && <DropdownUser />}
+          {authContext.isLoggedIn && <DropdownUser />}
           {/* <!-- User Area --> */}
         </div>
       </div>

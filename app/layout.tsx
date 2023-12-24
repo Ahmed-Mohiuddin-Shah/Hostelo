@@ -2,12 +2,10 @@
 import "./globals.css";
 import "./data-tables-css.css";
 import "./satoshi.css";
-import { useState, useEffect, useContext } from "react";
+import "react-toastify/dist/ReactToastify.css";
+import { useState, useContext } from "react";
 import axios from "axios";
 
-import "react-toastify/dist/ReactToastify.css";
-
-import Loader from "@/components/common/Loader";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { AuthContext, AuthContextProvider } from "@/contexts/UserAuthContext";
@@ -19,7 +17,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const context = useContext(AuthContext);
+  const authContext = useContext(AuthContext);
+
   const apiURL = getAPIURL();
   axios.defaults.baseURL = apiURL;
 
@@ -53,7 +52,6 @@ export default function RootLayout({
               <Sidebar
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
-                context={context}
               />
               {/* <!-- ===== Sidebar End ===== --> */}
 
@@ -63,7 +61,6 @@ export default function RootLayout({
                 <Header
                   sidebarOpen={sidebarOpen}
                   setSidebarOpen={setSidebarOpen}
-                  context={context}
                 />
                 {/* <!-- ===== Header End ===== --> */}
 
