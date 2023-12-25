@@ -37,3 +37,21 @@ Manager would be able to switch rooms of the students. The manager would also be
 npm install
 npm run dev
 ```
+
+## How to Configure and Run API Server
+
+- Create a .env file inside the api folder
+- Inside the .env folder paste the following:
+  ```bash
+  mySQLServerIP = "0.0.0.0"
+  apiUserName = "dummyValue"
+  apiPassword = "dummyValue"
+
+  secret = veryDummyKey
+  algorithm = HS256
+  ```
+- Then replace the dummy values with your own
+- Then run the main.py file in the api folder file using following command:
+  ```bash
+  python main.py
+  ```
