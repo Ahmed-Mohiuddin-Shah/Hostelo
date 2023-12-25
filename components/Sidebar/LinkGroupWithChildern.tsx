@@ -9,6 +9,7 @@ interface LinkGroupWithChildrenProps {
   setSidebarExpanded: (arg0: boolean) => void;
   groupName: string;
   items: LinkGroupItem[];
+  basePath: string;
   GroupIcon: React.ElementType;
 }
 interface LinkGroupItem {
@@ -22,6 +23,7 @@ export default function LinkGroupWithChildren({
   groupName,
   items,
   GroupIcon,
+  basePath,
 }: LinkGroupWithChildrenProps) {
   const pathname = usePathname();
   return (
@@ -63,11 +65,9 @@ export default function LinkGroupWithChildren({
                 {items.map((item, i) => (
                   <li key={i}>
                     <Link
-                      href={`/${groupName.toLowerCase()}${item.path}`}
+                      href={`${basePath}${item.path}`}
                       className={`group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ${
-                        pathname ===
-                          `/${groupName.toLowerCase()}${item.path}` &&
-                        "text-white"
+                        pathname === `${basePath}${item.path}` && "text-white"
                       } `}
                     >
                       {item.name}
