@@ -1,10 +1,8 @@
-from fastapi import APIRouter, Body, Depends, HTTPException, Request
-
-from app.auth.auth_bearer import JWTBearer
-from app.auth.auth_handler import signAndGetJWT, decodeJWT
-
-from decouple import config
+from fastapi import APIRouter, Body, Depends, Request
+from decouple import config # type: ignore
 from mysql.connector import connect, Error
+
+from app.auth.auth_handler import signAndGetJWT, decodeJWT
 
 try:
   connection = connect(
@@ -18,9 +16,9 @@ except Error as e:
 cursor = connection.cursor()
 cursor.execute("USE Hostelo")
 
-router = APIRouter()
+auth_router = APIRouter()
 
-@router.post("/auth/signin", tags=["Authentication"])
+@auth_router.post("/signin", tags=["Authentication"])
 async def sign_in(request: Request):
     request_json = await request.json()
     query = f"SELECT * FROM `user` WHERE `username`='{request_json.get('username')}' AND `password`='{request_json.get('password')}'"
@@ -41,7 +39,7 @@ async def sign_in(request: Request):
         "token": token
     }
 
-@router.post("/auth/validate-token", tags=["Authentication"])
+@auth_router.post("/validate-token", tags=["Authentication"])
 async def validate_tokem(request: Request):
     request_json = await request.json()
     token = request_json.get('token')

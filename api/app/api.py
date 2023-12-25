@@ -1,12 +1,7 @@
-import time
-from fastapi import  FastAPI, Body, Depends, HTTPException, Request
+from fastapi import  FastAPI, Body, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes.authentication import router
-
-#################################################
-
-#################################################
-
+from app.routes.authentication import auth_router
+from app.routes.students import students_router
 
 origins = ["*"]
 
@@ -21,7 +16,9 @@ def get_application() -> FastAPI:
     allow_headers=["*"],
 )
 
-    application.include_router(router, prefix="/api")
+    application.include_router(auth_router, prefix="/api/auth")
+    application.include_router(students_router, prefix="/api/students")
+
 
     return application
 
