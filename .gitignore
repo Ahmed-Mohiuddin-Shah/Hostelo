@@ -42,3 +42,6 @@ __pycache__/
 
 # .env ignore
 /api/.env
+
+# .vscode ignore
+.vscode/
