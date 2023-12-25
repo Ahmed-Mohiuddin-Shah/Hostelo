@@ -100,7 +100,7 @@ async def add_room(request: Request):
     
 @rooms_router.get("/all-rooms", tags=["Rooms"])
 async def get_all_rooms(request: Request):
-    query = "SELECT * FROM `room` NATURAL JOIN `roomtype`"
+    query = "SELECT `room_number`, `type_name` FROM `room` NATURAL JOIN `roomtype` ORDER BY `room_number` ASC"
     
     try:
         cursor.execute(query)
@@ -118,4 +118,47 @@ async def get_all_rooms(request: Request):
         "msg": "Get all rooms successful"
     }
 
-#testing commit
+@rooms_router.get("/rooms/{room_number}", tags=["Rooms"])
+async def get_room(request: Request, room_number: int):
+    query = f"SELECT `room_number`, `type_name` FROM `room` NATURAL JOIN `roomtype` WHERE `room_number` = '{room_number}'"
+    
+    try:
+        cursor.execute(query)
+    except:
+        return {
+            "status": False,
+            "msg": "Unable to get room"
+        }
+
+    room = cursor.fetchone()
+
+    return {
+        "data": room,
+        "status": True,
+        "msg": "Get room successful"
+    }
+
+@rooms_router.delete("/delete-room/{room_number}", tags=["Rooms"])
+async def delete_room(room_number):
+    query = f"SELECT COUNT(*) FROM `room` WHERE `room_number` = '{room_number}'"
+    cursor.execute(query)
+    room_exists = cursor.fetchone()
+    if room_exists[0] == 0: # type: ignore
+        return {
+            "status": False,
+            "msg": "Room does not exist"
+        }
+
+    query = f"DELETE FROM `room` WHERE `room_number` = '{room_number}'"
+    try:
+        cursor.execute(query)
+        connection.commit() # type:ignore
+        return {
+            "status": True,
+            "msg": "Room deleted successfully"
+        }
+    except:
+        return {
+            "status": False,
+            "msg": "Unable to delete room"
+        }
