@@ -98,3 +98,22 @@ async def add_room(request: Request):
             "msg": "Unable to add room"
         }
     
+@rooms_router.get("/all-rooms", tags=["Rooms"])
+async def get_all_rooms(request: Request):
+    query = "SELECT * FROM `room` NATURAL JOIN `roomtype`"
+    
+    try:
+        cursor.execute(query)
+    except:
+        return {
+            "status": False,
+            "msg": "Unable to get rooms"
+        }
+
+    rooms = cursor.fetchall()
+
+    return {
+        "data": rooms,
+        "status": True,
+        "msg": "Get all rooms successful"
+    }
