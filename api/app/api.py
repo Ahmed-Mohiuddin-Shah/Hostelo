@@ -3,14 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes.authentication import auth_router
 from app.routes.students import students_router
 
-origins = ["*"]
-
 def get_application() -> FastAPI:
     application = FastAPI(title="Hostelo API", debug=True)
 
     application.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
