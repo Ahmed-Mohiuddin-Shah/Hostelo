@@ -23,7 +23,7 @@ interface ComplaintInterface {
   text: string;
 }
 
-const ECommerce: React.FC = () => {
+const Dashboard: React.FC = () => {
   const [totalStudents, setTtotalStudents] = useState<number>(0);
   const [freeSlots, setFreeSlots] = useState<number>(0);
   const [numberOfAssets, setNumberOfAssets] = useState<number>(0);
@@ -176,4 +176,4 @@ const ECommerce: React.FC = () => {
   );
 };
 
-export default ECommerce;
+export default Dashboard;
