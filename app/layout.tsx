@@ -2,11 +2,14 @@
 import "./globals.css";
 import "./data-tables-css.css";
 import "./satoshi.css";
-import { useState, useEffect } from "react";
-import Loader from "@/components/common/Loader";
+import "react-toastify/dist/ReactToastify.css";
+import { useState, useContext } from "react";
+import axios from "axios";
 
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
+import { AuthContext, AuthContextProvider } from "@/contexts/UserAuthContext";
+import { getAPIURL } from "@/libs/api";
 
 export default function RootLayout({
   children,
@@ -14,22 +17,38 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const authContext = useContext(AuthContext);
 
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
+  const apiURL = getAPIURL();
+  axios.defaults.baseURL = apiURL;
 
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/images/favicons/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/images/favicons/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/images/favicons/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/images/favicons/site.webmanifest" />
+      </head>
       <body suppressHydrationWarning={true}>
-        <div className="dark:bg-boxdark-2 dark:text-bodydark">
-          {loading ? (
-            <Loader />
-          ) : (
+        <AuthContextProvider>
+          <div className="dark:bg-boxdark-2 dark:text-bodydark">
             <div className="flex h-screen overflow-hidden">
-              {/* <!-- ===== Sidebar Start ===== --> */}
+              {/* <!--   ===== Sidebar Start ===== --> */}
               <Sidebar
                 sidebarOpen={sidebarOpen}
                 setSidebarOpen={setSidebarOpen}
@@ -55,8 +74,8 @@ export default function RootLayout({
               </div>
               {/* <!-- ===== Content Area End ===== --> */}
             </div>
-          )}
-        </div>
+          </div>
+        </AuthContextProvider>
       </body>
     </html>
   );
