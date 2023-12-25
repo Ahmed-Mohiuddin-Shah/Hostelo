@@ -1,6 +1,6 @@
 "use client";
 
-import ECommerce from "@/components/Dashboard/E-commerce";
+import Dashboard from "@/components/Dashboard";
 import Loader from "@/components/common/Loader";
 import useAuth from "@/hooks/useAuth";
 import { Metadata } from "next";
@@ -27,5 +27,5 @@ export default function Home() {
     return <>{redirect("/auth/signin")}</>;
   }
 
-  return <>{isLoading ? <Loader /> : <ECommerce />}</>;
+  return <>{isLoading ? <Loader /> : <Dashboard />}</>;
 }
