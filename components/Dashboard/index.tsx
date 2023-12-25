@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import DataTable from "../Tables/DataTable";
 import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
 
 interface MessOffStudentInterface {
   studentId: string;
@@ -42,17 +43,40 @@ const Dashboard: React.FC = () => {
   // Get data from api related to dashboard
   useEffect(() => {
     const getTotalStudents = async () => {
-      const res = await axios.get("/api/students/number-of-students");
-      const data = await res.data;
-      console.log(data);
+      let data;
+      try {
+        const res = await axios.get("/api/students/number-of-students");
+        data = await res.data;
+      } catch (error) {
+        toast.error("Unable to connect to server.");
+        throw error;
+      }
+
+      if (data.status) {
+        setTtotalStudents(data.data.count);
+      } else {
+        console.log(data.msg);
+      }
+
       // setTtotalStudents(res.data.total);
     };
 
     const getFreeSlotsInRooms = async () => {
-      const res = await axios.get("/api/rooms/number-of-free-slots");
-      const data = await res.data;
-      console.log(data);
-      // setFreeSlotsInRooms(res.data.total);
+      let data;
+
+      try {
+        const res = await axios.get("/api/rooms/number-of-free-slots");
+        data = await res.data;
+      } catch (error) {
+        toast.error("Unable to connect to server.");
+        throw error;
+      }
+
+      if (data.status) {
+        setFreeSlots(data.data.count);
+      } else {
+        console.log(data.msg);
+      }
     };
 
     const getNumberOfAssets = async () => {
@@ -172,6 +196,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 };
