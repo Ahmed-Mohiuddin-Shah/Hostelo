@@ -16,7 +16,7 @@ try:
 except Error as e:
     print(e)
 
-cursor = connection.cursor()
+cursor = connection.cursor() # type: ignore
 cursor.execute("USE Hostelo")
 
 print("Connected to MySQL Server")
@@ -71,4 +71,30 @@ async def get_total_free_slots(request: Request):
 
 @rooms_router.post("/add-room", tags=["Rooms"])
 async def add_room(request: Request):
-    pass
+    request_json = await request.json()
+    room_number = request_json["room_number"] #type: ignore
+    room_type = request_json["room_type"] #type: ignore
+
+    query = f"SELECT COUNT(*) FROM `room` WHERE `room_number` = '{room_number}'"
+    cursor.execute(query)
+    room_exists = cursor.fetchone()
+    if room_exists[0] != 0: # type: ignore
+        return {
+            "status": False,
+            "msg": "Room already exists"
+        }
+
+    query = f"INSERT INTO `room` (`room_number`, `type_id`) VALUES ('{room_number}', '{room_type}')"
+    try:
+        cursor.execute(query)
+        connection.commit() # type:ignore
+        return {
+            "status": True,
+            "msg": "Room added successfully"
+        }
+    except:
+        return {
+            "status": False,
+            "msg": "Unable to add room"
+        }
+    
