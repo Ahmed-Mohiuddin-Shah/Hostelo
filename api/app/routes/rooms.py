@@ -26,7 +26,8 @@ print("Connected to MySQL Server")
 @rooms_router.get("/room-types", tags=["Students"])
 async def get_room_types(request: Request):
 
-    cursor.execute("SELECT * FROM `roomtype`")
+    query = "SELECT * FROM `roomtype`"
+    cursor.execute(query)
     room_types = cursor.fetchall()
 
     return {
