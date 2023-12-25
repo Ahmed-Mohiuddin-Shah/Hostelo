@@ -1,11 +1,15 @@
 from fastapi import APIRouter, Body, Depends, Request
+from app.auth.auth_handler import signAndGetJWT, decodeJWT
+
+auth_router = APIRouter()
+
+########################################################
+
 from decouple import config # type: ignore
 from mysql.connector import connect, Error
 
-from app.auth.auth_handler import signAndGetJWT, decodeJWT
-
 try:
-  connection = connect(
+    connection = connect(
         host = config("mySQLServerIP"),
         user = config("apiUserName"),
         password = config("apiPassword")
@@ -16,12 +20,16 @@ except Error as e:
 cursor = connection.cursor()
 cursor.execute("USE Hostelo")
 
-auth_router = APIRouter()
+print("Connected to MySQL Server")
+
+########################################################
+
 
 @auth_router.post("/signin", tags=["Authentication"])
 async def sign_in(request: Request):
     request_json = await request.json()
     query = f"SELECT * FROM `user` WHERE `username`='{request_json.get('username')}' AND `password`='{request_json.get('password')}'"
+    
     cursor.execute(query)
 
     user = cursor.fetchone()

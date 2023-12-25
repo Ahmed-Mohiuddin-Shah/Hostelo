@@ -2,6 +2,7 @@ from fastapi import  FastAPI, Body, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.authentication import auth_router
 from app.routes.students import students_router
+from app.routes.rooms import rooms_router
 
 def get_application() -> FastAPI:
     application = FastAPI(title="Hostelo API", debug=True)
@@ -16,7 +17,7 @@ def get_application() -> FastAPI:
 
     application.include_router(auth_router, prefix="/api/auth")
     application.include_router(students_router, prefix="/api/students")
-
+    application.include_router(rooms_router, prefix="/api/rooms")
 
     return application
 
