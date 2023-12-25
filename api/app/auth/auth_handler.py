@@ -2,14 +2,14 @@ import time
 from typing import Dict
 
 import jwt
-from decouple import config
+from decouple import config # type: ignore
 
 
 JWT_SECRET = config("secret")
 JWT_ALGORITHM = config("algorithm")
 
 
-def signAndGetJWT(data: Dict) -> Dict[str, str]:
+def signAndGetJWT(data: Dict) -> str:
     payload = {
         **data,
         "expires": time.time() + 600
@@ -27,3 +27,11 @@ def decodeJWT(token: str) -> dict:
         return {
             "error": "Invalid token"
         }
+    
+def getRole(token: str) -> str:
+    decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    return decoded_token["role"]
+
+def getUsername(token: str) -> str:
+    decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    return decoded_token["username"]
