@@ -81,8 +81,6 @@ export default function Page() {
       throw error;
     }
 
-    console.log(data);
-
     if (data === null) {
       toast.error("Unable to get response from server.");
       return;
