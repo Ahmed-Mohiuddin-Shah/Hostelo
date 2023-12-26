@@ -27,14 +27,14 @@ print("Connected to MySQL Server")
 
 @mess_router.get("/mess-off-students", tags=["Mess"])
 async def get_mess_off_students(request: Request):
-    cursor.execute(f"SELECT `student_id`,`name`,`room_number`, (SELECT `end_date`-`start_date` AS `daysOFF` FROM `messoff`) from `student` WHERE EXISTS( SELECT `student_id` FROM `student` JOIN `messoff` USING (`student_id`) JOIN `room` USING (`room_number`))")
+    cursor.execute(f"SELECT `student_id`,`name`,`room_number`, `end_date` FROM `student` NATURAL JOIN `messoff` WHERE `end_date` > CURRENT_DATE() ORDER BY `end_date` DESC")
     result = cursor.fetchall()
-    if result:
+    if result != None:
         return{
                 "status": True,
                 "msg": "Retrieval successful",
                 "data": {
-                    "recent complaints": result
+                    "students": result
                 }
         }
     else:

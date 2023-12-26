@@ -27,9 +27,7 @@ print("Connected to MySQL Server")
 
 @complaints_router.get("/number-of-active-complaints", tags=["Complaints"])
 async def get_active_complaints_count(request: Request):
-    request_json = await request.json()
-
-    cursor.execute(f"SELECT COUNT(`complaint_id`) FROM `complaintandquery`WHERE EXISTS(SELECT `student_id` FROM `student` JOIN ON`student_id` FROM `complaintandquery` AND `status`= `pending`)")
+    cursor.execute(f"SELECT COUNT(`complaint_id`) FROM `complaintandquery` WHERE EXISTS(SELECT `student_id` FROM `student` JOIN `complaintandquery` USING (`student_id`) WHERE `status`= 'pending')")
     result = cursor.fetchall()
 
     if result:
@@ -48,9 +46,7 @@ async def get_active_complaints_count(request: Request):
 
 @complaints_router.get("/recent-complaints", tags=["Complaints"])
 async def get_recent_complaints(request: Request):
-    request_json = await request.json()
-    
-    cursor.execute(f"SELECT `name`,`description` FROM `student`,`complaintandquery` WHERE EXISTS( SELECT `student_id` FROM `student` JOIN ON `student_id` FROM `complaintandquery`)")
+    cursor.execute(f"SELECT `name`,`description` FROM `student`,`complaintandquery` WHERE EXISTS( SELECT `student_id` FROM `student` JOIN `complaintandquery` USING (`student_id`))")
     recent_complaints = cursor.fetchall() 
            
     if len(recent_complaints) <= 2: 
@@ -58,7 +54,7 @@ async def get_recent_complaints(request: Request):
                   "status": True,
                   "msg": "Retrieval successful",
                   "data": {
-                    "recent complaints": recent_complaints 
+                    "recent_complaints": recent_complaints 
                 }
                }
     else:
@@ -68,7 +64,7 @@ async def get_recent_complaints(request: Request):
                   "status": True,
                   "msg": "Retrieval successful",
                   "data": {
-                    "recent complaints": result
+                    "recent_complaints": result
                    }
                 }
     else:
