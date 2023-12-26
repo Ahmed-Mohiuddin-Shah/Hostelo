@@ -130,23 +130,16 @@ async def get_available_student_slots(request: Request):
                        `student_id` FROM `complaintandquery`)")
         recent_complaints = cursor.fetchall()
            
-        if recent_complaints <= 5:
-            recent_complaints = cursor.fetchall()
-            if recent_complaints:   
-               return {
+        if len(recent_complaints) <= 2: 
+            return {
                   "status": True,
                   "msg": "Retrieval successful",
                   "data": {
                     "recent complaints": recent_complaints 
-                   }
+                }
                }
-            else:
-                return {
-                "status" : False,
-                "msg" : "Retrieval Not Successful"
-            } 
         else:
-            result = recent_complaints[-1:5:1]
+            result = recent_complaints[-2:]
             if result:
                 return{
                   "status": True,
