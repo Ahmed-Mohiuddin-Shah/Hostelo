@@ -2,19 +2,6 @@ from fastapi import APIRouter, Body, Depends, Request
 from mysql.connector import connect, Error
 from decouple import config # type: ignore
 
-try:
-  connection = connect(
-        host = config("mySQLServerIP"),
-        user = config("apiUserName"),
-        password = config("apiPassword")
-    )
-except Error as e:
-    print(e)
-
-cursor = connection.cursor()
-cursor.execute("USE Hostelo")
-
-
 students_router = APIRouter()
 
 ########################################################
@@ -31,7 +18,7 @@ try:
 except Error as e:
     print(e)
 
-cursor = connection.cursor()
+cursor = connection.cursor() # type: ignore
 cursor.execute("USE Hostelo")
 
 print("Connected to MySQL Server")
