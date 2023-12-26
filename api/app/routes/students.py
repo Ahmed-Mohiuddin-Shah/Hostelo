@@ -77,4 +77,26 @@ async def get_available_student_slots(request: Request):
        return {
           "status" : False,
           "msg" : "Retrieval Not Successful"
-       }       
+       }  
+
+    @students_router.get("/students/no-of assets", tags=["Student"])  
+    async def get_assets(request: Request):
+       request_json = await request.json
+       cursor.execute(f"SELECT COUNT(number) FROM `asset`")
+       total_assets = cursor.fetchone()
+
+       if total_assets:
+           return {
+                "status": True,
+                "msg": "Retrieval successful",
+                "data": {
+                    "count": total_assets
+                }
+            }
+       else:
+            return {
+                "status" : False,
+                "msg" : "Retrieval Not Successful"
+            }  
+       
+       
