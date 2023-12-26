@@ -3,6 +3,7 @@ import "./globals.css";
 import "./data-tables-css.css";
 import "./satoshi.css";
 import "react-toastify/dist/ReactToastify.css";
+import "sweetalert2/src/sweetalert2.scss";
 import { useState, useContext } from "react";
 import axios from "axios";
 
