@@ -44,3 +44,4 @@ async def validate_tokem(request: Request):
     request_json = await request.json()
     token = request_json.get('token')
     return decodeJWT(token)
+
