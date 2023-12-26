@@ -1,3 +1,5 @@
+-- Active: 1703074437870@@26.94.210.229@3306@hostelo
+
 USE Hostelo;
 
 CREATE TABLE
@@ -232,3 +234,23 @@ CREATE TABLE
         password VARCHAR(8) NOT NULL,
         role VARCHAR(20) NOT NULL
     );
+
+USE Hostelo;
+
+ALTER TABLE
+    studentaddress DROP COLUMN state,
+    DROP COLUMN city,
+    DROP COLUMN street;
+
+ALTER TABLE studentaddress
+ADD
+    COLUMN permanent_address VARCHAR(100) NOT NULL;
+
+ALTER TABLE studentaddress
+ADD
+    COLUMN temporary_address VARCHAR(100) NOT NULL;
+
+ALTER TABLE student MODIFY COLUMN CNIC VARCHAR(15) NOT NULL;
+
+ALTER TABLE
+    studentphoneno MODIFY COLUMN phone_number VARCHAR(16) NOT NULL;
