@@ -49,7 +49,7 @@ async def get_recent_complaints(request: Request):
     request_json = await request.json()
     
     cursor.execute(f"SELECT `name`,`description` FROM `student`,`complaintandquery` WHERE EXISTS( SELECT `student_id` FROM `student` JOIN ON `student_id` FROM `complaintandquery`)")
-    recent_complaints = cursor.fetchall()
+    recent_complaints = cursor.fetchall() 
            
     if len(recent_complaints) <= 2: 
         return {
@@ -74,7 +74,6 @@ async def get_recent_complaints(request: Request):
                 "status" : False,
                 "msg" : "Retrieval Not Successful"
             } 
-
 @students_router.get("/mess-off-students", tags=["Student"])
 async def get_mess_off_students(request: Request):
     request_json = request.json()
@@ -86,6 +85,30 @@ async def get_mess_off_students(request: Request):
                 "msg": "Retrieval successful",
                 "data": {
                     "recent complaints": result
+                }
+        }
+    else:
+        return {
+                "status" : False,
+                "msg" : "Retrieval Not Successful"
+        } 
+
+@students_router.get("/number-of-active-complaints", tags=["Student"])
+async def get_active_complaints_count(request: Request):
+    request_json = await request.json()
+
+    cursor.execute(f"SELECT COUNT(`complaint_id`) FROM `complaintandquery`
+                        WHERE EXISTS(
+                       SELECT `student_id` FROM `student` JOIN ON
+                       `student_id` FROM `complaintandquery` AND `status`= `pending`)")
+    result = cursor.fetchall()
+
+    if result:
+         return{
+                "status": True,
+                "msg": "Retrieval successful",
+                "data": {
+                    "count": result
                 }
         }
     else:
