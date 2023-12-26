@@ -292,12 +292,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </h3>
 
             <ul className="mb-6 flex flex-col gap-1.5">
-              {/* <!-- Menu Item Dashboard --> */}
-
-              {/* <!-- Menu Item Dashboard --> */}
-
-              {/* Dashboard menu button */}
-
               {links.map((link, i) => {
                 if (link.children) {
                   return (
@@ -305,6 +299,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       sidebarExpanded={sidebarExpanded}
                       setSidebarExpanded={setSidebarExpanded}
                       groupName={link.name}
+                      basePath={link.path}
                       items={link.children}
                       GroupIcon={link.Icon}
                       key={i}

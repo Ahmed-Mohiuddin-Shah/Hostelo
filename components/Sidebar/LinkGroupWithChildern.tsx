@@ -9,6 +9,7 @@ interface LinkGroupWithChildrenProps {
   setSidebarExpanded: (arg0: boolean) => void;
   groupName: string;
   items: LinkGroupItem[];
+  basePath: string;
   GroupIcon: React.ElementType;
 }
 interface LinkGroupItem {
@@ -22,13 +23,12 @@ export default function LinkGroupWithChildren({
   groupName,
   items,
   GroupIcon,
+  basePath,
 }: LinkGroupWithChildrenProps) {
   const pathname = usePathname();
   return (
     <SidebarLinkGroup
-      activeCondition={
-        pathname === `/${groupName}` || pathname.includes(groupName)
-      }
+      activeCondition={pathname === basePath || pathname.includes(basePath)}
     >
       {(handleClick, open) => {
         return (
@@ -36,8 +36,7 @@ export default function LinkGroupWithChildren({
             <Link
               href="#"
               className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                (pathname === `/${groupName}` ||
-                  pathname.includes(groupName)) &&
+                (pathname === basePath || pathname.includes(basePath)) &&
                 "bg-graydark dark:bg-meta-4"
               }`}
               onClick={(e) => {
@@ -63,11 +62,9 @@ export default function LinkGroupWithChildren({
                 {items.map((item, i) => (
                   <li key={i}>
                     <Link
-                      href={`/${groupName.toLowerCase()}${item.path}`}
+                      href={`${basePath}${item.path}`}
                       className={`group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ${
-                        pathname ===
-                          `/${groupName.toLowerCase()}${item.path}` &&
-                        "text-white"
+                        pathname === `${basePath}${item.path}` && "text-white"
                       } `}
                     >
                       {item.name}
