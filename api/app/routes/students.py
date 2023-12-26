@@ -100,7 +100,7 @@ async def get_active_complaints_count(request: Request):
     cursor.execute(f"SELECT COUNT(`complaint_id`) FROM `complaintandquery`
                         WHERE EXISTS(
                        SELECT `student_id` FROM `student` JOIN ON
-                       `student_id` FROM `complaintandquery` AND `status`= `pending`)")
+                       `student_id` FROM `complaintandquery` )AND status= pending")
     result = cursor.fetchall()
 
     if result:
@@ -109,6 +109,29 @@ async def get_active_complaints_count(request: Request):
                 "msg": "Retrieval successful",
                 "data": {
                     "count": result
+                }
+        }
+    else:
+        return {
+                "status" : False,
+                "msg" : "Retrieval Not Successful"
+        }
+
+@students_router.get("/mess-on-date", tags=["Student"])
+async def get_mess_on_date(request: Request):
+    request_json = await request.json()
+
+    cursor.execute(f"""SELECT DATE_ADD(messoff.end_date, INTERVAL 1 DAY) as mess_on_date  
+ from messoff JOIN student ON student.student_id=messoff.student_id""")
+    
+    result = cursor.fetchall()
+
+    if result:
+        return{
+                "status": True,
+                "msg": "Retrieval successful",
+                "data": {
+                    "MESS_ON_DATE": result
                 }
         }
     else:
