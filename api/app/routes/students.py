@@ -97,10 +97,7 @@ async def get_mess_off_students(request: Request):
 async def get_active_complaints_count(request: Request):
     request_json = await request.json()
 
-    cursor.execute(f"SELECT COUNT(`complaint_id`) FROM `complaintandquery`
-                        WHERE EXISTS(
-                       SELECT `student_id` FROM `student` JOIN ON
-                       `student_id` FROM `complaintandquery` AND `status`= `pending`)")
+    cursor.execute(f"SELECT COUNT(`complaint_id`) FROM `complaintandquery` WHERE EXISTS( SELECT `student_id` FROM `student` JOIN ON `student_id` FROM `complaintandquery` AND `status`= `pending`)")
     result = cursor.fetchall()
 
     if result:
