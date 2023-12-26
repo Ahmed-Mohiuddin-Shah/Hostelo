@@ -25,7 +25,7 @@ print("Connected to MySQL Server")
 
 ########################################################
 
-@assets_router.get("/number-of-assets", tags=["Student"])
+@assets_router.get("/number-of-assets", tags=["Assets"])
 async def get_total_students(request: Request):
     query  = f"SELECT `quantity` FROM `Asset` "
     cursor.execute(query)
