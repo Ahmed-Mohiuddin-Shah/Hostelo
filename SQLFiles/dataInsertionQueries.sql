@@ -276,7 +276,7 @@ VALUES (
 
 INSERT INTO
     Asset (number, name, quantity)
-VALUES (1, 'Bed', '50'), (2, 'Desk', '10'), (3, 'Computer', '20'), (4, 'Table', '5'), (5, 'Chair', '15');
+VALUES (1, 'Bed', 50), (2, 'Desk', 10), (3, 'Computer', 20), (4, 'Table', 5), (5, 'Chair', 15);
 
 INSERT INTO
     RoomType (type_id, type_name)
