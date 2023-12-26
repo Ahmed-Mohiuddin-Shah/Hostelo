@@ -39,3 +39,6 @@ next-env.d.ts
 /api/app/auth/__pycache__
 __pycache__/
 .mypy_cache/
+
+# .env ignore
+/api/.env
