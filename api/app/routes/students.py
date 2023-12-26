@@ -120,3 +120,44 @@ async def get_available_student_slots(request: Request):
                 "msg" : "Retrieval Not Successful"
             }  
        
+    @students_router.get("/recent-complaints", tags=["Student"])
+    async def get_recent_complaints(request: Request):
+        request_json = await request.json()
+
+        cursor.execute(f"SELECT `name`,`description` FROM `student`,`complaintandquery`
+                        WHERE EXISTS(
+                       SELECT `student_id` FROM `student` JOIN ON
+                       `student_id` FROM `complaintandquery`)")
+        recent_complaints = cursor.fetchall()
+           
+        if recent_complaints <= 5:
+            recent_complaints = cursor.fetchall()
+            if recent_complaints:   
+               return {
+                  "status": True,
+                  "msg": "Retrieval successful",
+                  "data": {
+                    "recent complaints": recent_complaints 
+                   }
+               }
+            else:
+                return {
+                "status" : False,
+                "msg" : "Retrieval Not Successful"
+            } 
+        else:
+            result = recent_complaints[-1:5:1]
+            if result:
+                return{
+                  "status": True,
+                  "msg": "Retrieval successful",
+                  "data": {
+                    "recent complaints": result
+                   }
+                }
+            else:
+                return {
+                "status" : False,
+                "msg" : "Retrieval Not Successful"
+            } 
+       
