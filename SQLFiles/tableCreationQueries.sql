@@ -115,12 +115,20 @@ CREATE TABLE
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
 
+USE Hostelo;
+
+DROP TABLE IF EXISTS Asset;
+
 CREATE TABLE
     Asset (
         number INT PRIMARY KEY,
         name VARCHAR (25),
-        quantity VARCHAR (150)
+        quantity INTEGER
     );
+
+ALTER TABLE `asset` CHANGE `quantity` `quantity` int DEFAULT 0;
+
+UPDATE Asset ADD CONSTRAINT ck_quantity CHECK (quantity >= 0);
 
 CREATE TABLE
     ComplaintAndQuery (
@@ -217,7 +225,6 @@ CREATE TABLE
         PRIMARY KEY(date, student_id),
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
-
 
 CREATE TABLE
     User(
