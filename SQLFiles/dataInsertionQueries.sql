@@ -428,3 +428,13 @@ VALUES ('admin', 'admin', 'admin'), ('staff', 'staff', 'staff'), (
         'student',
         'student'
     );
+
+UPDATE studentaddress
+SET
+    permanent_address = "Quetta"
+WHERE address_id = "A1";
+
+UPDATE studentaddress
+SET
+    temporary_address = "Quetta"
+WHERE address_id = "A1";
