@@ -17,7 +17,7 @@ cursor.execute("USE Hostelo")
 
 students_router = APIRouter()
 
-@students_router.get("/students/no-of-students", tags=["Student"])
+@students_router.get("/number-of-students", tags=["Student"])
 async def get_total_students(request: Request):
     request_json = await request.json
     query  = f"SELECT COUNT(student_id) FROM `Student` "
@@ -39,7 +39,7 @@ async def get_total_students(request: Request):
           "msg" : "Retrieval Not Successful"
        }
     
-@students_router.get("/students/available-student-slots", tags=["Student"])           
+@students_router.get("/number-of-free-slots", tags=["Student"])           
 async def get_available_student_slots(request: Request):
     request_json = await request.json
     query = f"SELECT COUNT(`single(attach bath)`) AS No_ofSingle_Rooms
@@ -79,18 +79,18 @@ async def get_available_student_slots(request: Request):
           "msg" : "Retrieval Not Successful"
        }  
 
-    @students_router.get("/students/no-of assets", tags=["Student"])  
+    @students_router.get("/number-of-assets", tags=["Student"])  
     async def get_assets(request: Request):
        request_json = await request.json
        cursor.execute(f"SELECT COUNT(number) FROM `asset`")
        total_assets = cursor.fetchone()
-
-       if total_assets:
+       result = total_students[0]
+       if result:
            return {
                 "status": True,
                 "msg": "Retrieval successful",
                 "data": {
-                    "count": total_assets
+                    "count": result
                 }
             }
        else:
@@ -98,5 +98,4 @@ async def get_available_student_slots(request: Request):
                 "status" : False,
                 "msg" : "Retrieval Not Successful"
             }  
-       
        
