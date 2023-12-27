@@ -75,12 +75,10 @@ CREATE TABLE
         medical_id CHAR (2),
         dept_id CHAR (2),
         room_number INT,
-        staff_id CHAR (2),
         FOREIGN KEY (address_id) REFERENCES studentAddress(address_id),
         FOREIGN KEY (medical_id) REFERENCES studentMedicalRecord(medical_id),
         FOREIGN KEY (dept_id) REFERENCES Department(dept_id),
-        FOREIGN KEY (room_number) REFERENCES Room(room_number),
-        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
+        FOREIGN KEY (room_number) REFERENCES Room(room_number)
     );
 
 CREATE TABLE
@@ -262,3 +260,7 @@ ALTER TABLE parent MODIFY COLUMN phone_number VARCHAR(16) NOT NULL;
 ALTER TABLE relative MODIFY COLUMN CNIC VARCHAR(15) NOT NULL;
 
 ALTER TABLE user ADD COLUMN image_path VARCHAR(500) NOT NULL;
+
+ALTER TABLE student DROP CONSTRAINT student_ibfk_5;
+
+ALTER TABLE student DROP COLUMN staff_id CASCADE;
