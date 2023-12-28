@@ -1,29 +1,9 @@
 from fastapi import APIRouter, Body, Depends, Request
 from mysql.connector import connect, Error
 from decouple import config # type: ignore
+from app.my_sql_connection_cursor import cursor # type: ignore
 
 mess_router = APIRouter()
-
-########################################################
-
-from decouple import config # type: ignore
-from mysql.connector import connect, Error
-
-try:
-    connection = connect(
-        host = config("mySQLServerIP"),
-        user = config("apiUserName"),
-        password = config("apiPassword")
-    )
-except Error as e:
-    print(e)
-
-cursor = connection.cursor() # type: ignore
-cursor.execute("USE Hostelo")
-
-print("Connected to MySQL Server")
-
-########################################################
 
 @mess_router.get("/mess-off-students", tags=["Mess"])
 async def get_mess_off_students(request: Request):

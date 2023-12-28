@@ -1,29 +1,9 @@
 from fastapi import APIRouter, Body, Depends, Request
 from mysql.connector import connect, Error
 from decouple import config # type: ignore
+from app.my_sql_connection_cursor import cursor # type: ignore
 
 assets_router = APIRouter()
-
-########################################################
-
-from decouple import config # type: ignore
-from mysql.connector import connect, Error
-
-try:
-    connection = connect(
-        host = config("mySQLServerIP"),
-        user = config("apiUserName"),
-        password = config("apiPassword")
-    )
-except Error as e:
-    print(e)
-
-cursor = connection.cursor() # type: ignore
-cursor.execute("USE Hostelo")
-
-print("Connected to MySQL Server")
-
-########################################################
 
 @assets_router.get("/number-of-assets", tags=["Assets"])
 async def get_total_students(request: Request):

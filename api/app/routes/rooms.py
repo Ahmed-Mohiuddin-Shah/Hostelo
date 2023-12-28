@@ -1,28 +1,8 @@
 import re
 from fastapi import APIRouter, Body, Depends, Request
+from app.my_sql_connection_cursor import cursor # type: ignore
 
 rooms_router = APIRouter()
-
-########################################################
-
-from decouple import config # type: ignore
-from mysql.connector import connect, Error
-
-try:
-    connection = connect(
-        host = config("mySQLServerIP"),
-        user = config("apiUserName"),
-        password = config("apiPassword")
-    )
-except Error as e:
-    print(e)
-
-cursor = connection.cursor() # type: ignore
-cursor.execute("USE Hostelo")
-
-print("Connected to MySQL Server")
-
-########################################################
 
 @rooms_router.get("/room-types", tags=["Rooms"])
 async def get_room_types(request: Request):

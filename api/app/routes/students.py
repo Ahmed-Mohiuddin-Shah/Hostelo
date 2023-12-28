@@ -2,32 +2,12 @@ from fastapi import APIRouter, Body, Depends, Request
 from mysql.connector import connect, Error
 from decouple import config # type: ignore
 from app.mail_server import mailServer # type: ignore
+from app.my_sql_connection_cursor import cursor # type: ignore  
 
 import string
 import secrets
 
 students_router = APIRouter()
-
-########################################################
-
-from decouple import config # type: ignore
-from mysql.connector import connect, Error
-
-try:
-    connection = connect(
-        host = config("mySQLServerIP"),
-        user = config("apiUserName"),
-        password = config("apiPassword")
-    )
-except Error as e:
-    print(e)
-
-cursor = connection.cursor() # type: ignore
-cursor.execute("USE Hostelo")
-
-print("Connected to MySQL Server")
-
-########################################################
 
 @students_router.get("/number-of-students", tags=["Student"])
 async def get_total_students(request: Request):
@@ -206,3 +186,27 @@ async def add_student(request: Request):
         "msg": "Student added successfully"
     }
 
+@students_router.get("/get-all-students", tags=["Student"])
+async def get_all_students(request: Request):
+    query = "SELECT * FROM `student`"
+
+    try:
+        cursor.execute(query)
+        students = cursor.fetchall()
+    except:
+        return {
+            "status": False,
+            "msg": "Unable to get students"
+        }
+
+    if students:
+        return {
+            "status": True,
+            "msg": "Retrieval successful",
+            "data": students
+        }
+    else:
+        return {
+            "status": False,
+            "msg": "Retrieval not successful"
+        }
