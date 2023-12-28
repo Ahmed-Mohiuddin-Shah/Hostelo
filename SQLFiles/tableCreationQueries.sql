@@ -40,8 +40,10 @@ CREATE TABLE
 CREATE TABLE
     RoomType (
         type_id INT PRIMARY KEY,
-        type_name VARCHAR (35) NOT NULL
+        type_name VARCHAR (35) NOT NULL slots INT NOT NULL
     );
+
+ALTER TABLE roomtype ADD COLUMN slots INT NOT NULL;
 
 CREATE TABLE
     Room (
@@ -71,15 +73,20 @@ CREATE TABLE
         sem INT NOT NULL CHECK (
             sem BETWEEN 1 AND 10
         ),
+        department VARCHAR(20),
         address_id CHAR (2),
         medical_id CHAR (2),
-        dept_id CHAR (2),
         room_number INT,
         FOREIGN KEY (address_id) REFERENCES studentAddress(address_id),
         FOREIGN KEY (medical_id) REFERENCES studentMedicalRecord(medical_id),
-        FOREIGN KEY (dept_id) REFERENCES Department(dept_id),
         FOREIGN KEY (room_number) REFERENCES Room(room_number)
     );
+
+ALTER TABLE student DROP CONSTRAINT student_ibfk_3;
+
+ALTER TABLE student DROP COLUMN dept_id;
+
+ALTER TABLE student ADD COLUMN department VARCHAR(20) NOT NULL;
 
 CREATE TABLE
     StudentPhoneNo (
