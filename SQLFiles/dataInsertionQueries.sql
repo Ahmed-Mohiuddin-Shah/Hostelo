@@ -428,3 +428,31 @@ VALUES ('admin', 'admin', 'admin'), ('staff', 'staff', 'staff'), (
         'student',
         'student'
     );
+
+UPDATE studentaddress
+SET
+    permanent_address = "Quetta"
+WHERE address_id = "A1";
+
+UPDATE studentaddress
+SET
+    temporary_address = "Quetta"
+WHERE address_id = "A1";
+
+UPDATE messoff SET student_id = 1 WHERE request_date = "2023-01-01";
+
+INSERT INTO messoff
+VALUES (
+        "2023-12-26",
+        "2023-12-27",
+        "2023-12-30",
+        100123
+    );
+
+INSERT INTO messoff
+VALUES (
+        STR_TO_DATE("2023,12,26", '%Y,%m,%d'),
+        STR_TO_DATE("2023,12,27", '%Y,%m,%d'),
+        STR_TO_DATE("2023,12,30", '%Y,%m,%d'),
+        100245
+    );

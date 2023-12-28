@@ -17,7 +17,7 @@ try:
 except Error as e:
     print(e)
 
-cursor = connection.cursor()
+cursor = connection.cursor() #type: ignore
 cursor.execute("USE Hostelo")
 
 print("Connected to MySQL Server")
