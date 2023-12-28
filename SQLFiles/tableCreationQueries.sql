@@ -4,15 +4,18 @@ USE Hostelo;
 
 CREATE TABLE
     StudentAddress (
-        address_id CHAR (2) PRIMARY KEY,
-        state VARCHAR (35) NOT NULL,
-        city VARCHAR (35) NOT NULL,
-        street VARCHAR (20) NOT NULL
+        address_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+        permament_address VARCHAR (100) NOT NULL,
+        temporary_address VARCHAR (100) NOT NULL
     );
+
+ALTER TABLE student DROP CONSTRAINT student_ibfk_1;
+
+DROP TABLE studentaddress;
 
 CREATE TABLE
     StudentMedicalRecord (
-        medical_id CHAR (2) PRIMARY KEY,
+        medical_id INTEGER PRIMARY KEY AUTO_INCREMENT,
         problem VARCHAR (20),
         description VARCHAR (75),
         regular_medicine VARCHAR (20),
@@ -30,6 +33,10 @@ CREATE TABLE
             )
         )
     );
+
+DROP TABLE studentmedicalrecord;
+
+ALTER TABLE student DROP CONSTRAINT student_ibfk_2;
 
 CREATE TABLE
     Department (

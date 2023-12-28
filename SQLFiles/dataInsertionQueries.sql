@@ -1,37 +1,16 @@
 USE Hostelo;
 
 INSERT INTO
-    StudentAddress (address_id, state, city, street)
-VALUES (
-        'A1',
-        'California',
-        'Los Angeles',
-        '123 Main Street'
-    ), (
-        'A2',
-        'New York',
-        'New York City',
-        '456 Broadway Avenue'
-    ), (
-        'A3',
-        'Texas',
-        'Houston',
-        '789 Oak Lane'
-    ), (
-        'A4',
-        'Florida',
-        'Miami',
-        '101 Palm Street'
-    ), (
-        'A5',
-        'Illinois',
-        'Chicago',
-        '202 Pine Avenue'
-    );
+    StudentAddress (
+        permament_address,
+        temporary_address
+    )
+VALUES ('Islamabad', 'Islamabad'), ('Lahore', 'Lahore'), ('Karachi', 'Karachi'), ('Peshawar', 'Peshawar'), ('Quetta', 'Quetta');
+
+)
 
 INSERT INTO
     StudentMedicalRecord (
-        medical_id,
         problem,
         description,
         regular_medicine,
@@ -39,35 +18,30 @@ INSERT INTO
         blood_group
     )
 VALUES (
-        'M1',
         'Allergy',
         'Description1',
         'Antihistamine',
         'Y',
         'A+'
     ), (
-        'M2',
         'Asthma',
         'Description2',
         'Bronchodilator',
         'N',
         'B-'
     ), (
-        'M3',
         'Flu',
         'Description3',
         'Acetaminophen',
         'N',
         'O+'
     ), (
-        'M4',
         'Injury',
         'Description4',
         'Pain Reliever',
         'N',
         'AB+'
     ), (
-        'M5',
         'Hypertension',
         'Description5',
         'Antihypertensive',
