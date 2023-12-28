@@ -258,7 +258,7 @@ INSERT INTO
 VALUES (1, 'Bed', 50), (2, 'Desk', 10), (3, 'Computer', 20), (4, 'Table', 5), (5, 'Chair', 15);
 
 INSERT INTO
-    RoomType (type_id, type_name)
+    RoomType (type_id, type_name, slots)
 VALUES (1, 'Single (Attach Bath)', 1), (
         2,
         'Double (Community Bath)',
@@ -445,3 +445,5 @@ VALUES (
         STR_TO_DATE("2023,12,30", '%Y,%m,%d'),
         100245
     );
+
+UPDATE user SET image_path = "" WHERE username = "admin";
