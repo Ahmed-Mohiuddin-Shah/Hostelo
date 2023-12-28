@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import useAuth from "@/hooks/useAuth";
 import Loader from "@/components/common/Loader";
+import Swal from "sweetalert2";
 
 export const metadata: Metadata = {
   title: "Signin | Hostel Management System",
@@ -34,12 +35,21 @@ const SignIn: React.FC = () => {
     const username = usernameInput.value;
     const password = passwordInput.value;
 
-    const res = await axios.post("/api/auth/signin", {
-      username,
-      password,
-    });
+    let data;
 
-    const data = await res.data;
+    try {
+      const res = await axios.post("/api/auth/signin", {
+        username,
+        password,
+      });
+      data = await res.data;
+    } catch (error) {
+      toast.error("Unable to connect to server.");
+      passwordInput.value = "";
+      setIsSubmitting(false);
+      return;
+    }
+
     if (!data.status) {
       toast.error(data.msg);
       passwordInput.value = "";
@@ -66,10 +76,22 @@ const SignIn: React.FC = () => {
   };
 
   const handleLogOut = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    signinContext.logout();
-    setLocalToken("");
-    router.push("/");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out of the system.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, log me out!",
+      cancelButtonText: "No, keep me logged in",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        signinContext.logout();
+        setLocalToken("");
+        router.push("/");
+      }
+    });
   };
 
   if (auth === null) {
@@ -260,12 +282,12 @@ const SignIn: React.FC = () => {
                         className="mb-2.5 block font-medium text-black dark:text-white"
                         htmlFor="signinUsername"
                       >
-                        Username
+                        User ID
                       </label>
                       <div className="relative">
                         <input
                           type="text"
-                          placeholder="Enter your username"
+                          placeholder="Enter your user ID"
                           id="signinUsername"
                           name="username"
                           className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
