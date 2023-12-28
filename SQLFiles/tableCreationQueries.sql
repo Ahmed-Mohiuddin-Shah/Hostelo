@@ -80,10 +80,13 @@ CREATE TABLE
         room_number INT,
         FOREIGN KEY (address_id) REFERENCES studentAddress(address_id),
         FOREIGN KEY (medical_id) REFERENCES studentMedicalRecord(medical_id),
-        FOREIGN KEY (room_number) REFERENCES Room(room_number)
+        FOREIGN KEY (room_number) REFERENCES Room(room_number),
+        CONSTRAINT ck_email CHECK (email LIKE '%@%')
     );
 
 ALTER TABLE student ADD COLUMN email VARCHAR(150) NOT NULL;
+
+ALTER TABLE student ADD UNIQUE (email);
 
 ALTER TABLE student
 ADD

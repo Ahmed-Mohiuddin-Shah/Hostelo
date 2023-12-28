@@ -198,6 +198,11 @@ VALUES (
         'S5'
     );
 
+UPDATE student
+SET
+    email = "example4@gmail.com"
+WHERE student_id = 100510;
+
 INSERT INTO
     StudentPhoneNo (phone_number, student_id)
 VALUES (11122233333, 100123), (44455556666, 100245), (77778889999, 100367), (12345367890, 100489), (98765543210, 100510);
@@ -280,7 +285,17 @@ VALUES (1, 'Bed', 50), (2, 'Desk', 10), (3, 'Computer', 20), (4, 'Table', 5), (5
 
 INSERT INTO
     RoomType (type_id, type_name)
-VALUES (1, 'Single'), (2, 'Double'), (3, 'Triple'), (4, 'Double (attach bath)'), (5, 'Double (community bath)');
+VALUES (1, 'Single (Attach Bath)', 1), (
+        2,
+        'Double (Community Bath)',
+        2
+    ), (
+        3,
+        'Triple (Community Bath)',
+        3
+    ), (4, 'Double (Attach Bath)', 2);
+
+UPDATE roomtype SET slots = 2 WHERE type_id = 4;
 
 INSERT INTO
     ComplaintAndQuery (
@@ -449,7 +464,7 @@ VALUES (
         100123
     );
 
-INSERT INTO messoff
+INSERT INTO messoffroom
 VALUES (
         STR_TO_DATE("2023,12,26", '%Y,%m,%d'),
         STR_TO_DATE("2023,12,27", '%Y,%m,%d'),
