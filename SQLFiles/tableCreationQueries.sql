@@ -65,6 +65,7 @@ CREATE TABLE
         student_id INT PRIMARY KEY,
         CNIC BIGINT NOT NULL UNIQUE,
         name VARCHAR (35) NOT NULL,
+        email VARCHAR (150) NOT NULL UNIQUE,
         gender CHAR (7) NOT NULL CHECK (
             gender IN ('M', 'F', 'XMALE', 'XFEMALE')
         ),
@@ -81,6 +82,12 @@ CREATE TABLE
         FOREIGN KEY (medical_id) REFERENCES studentMedicalRecord(medical_id),
         FOREIGN KEY (room_number) REFERENCES Room(room_number)
     );
+
+ALTER TABLE student ADD COLUMN email VARCHAR(150) NOT NULL;
+
+ALTER TABLE student
+ADD
+    CONSTRAINT ck_email CHECK (email LIKE '%@%');
 
 ALTER TABLE student DROP CONSTRAINT student_ibfk_3;
 
