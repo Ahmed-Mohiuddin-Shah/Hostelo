@@ -1,3 +1,4 @@
+import re
 from fastapi import APIRouter, Body, Depends, Request
 
 rooms_router = APIRouter()
@@ -67,7 +68,7 @@ async def get_total_free_slots(request: Request):
        return {
           "status" : False,
           "msg" : "Retrieval Not Successful"
-       } 
+       }
 
 @rooms_router.post("/add-room", tags=["Rooms"])
 async def add_room(request: Request):
@@ -190,3 +191,31 @@ async def update_room(room_number, request: Request):
             "status": False,
             "msg": "Unable to update room"
         }
+    
+@rooms_router.get("/all-free-rooms", tags=["Rooms"])
+async def get_all_free_rooms(request: Request):
+    query1 = "SELECT room_number FROM room WHERE room_number NOT IN ( SELECT room_number FROM student )"
+    query2 = "SELECT room_number, type_id, ( slots - COUNT(DISTINCT room_number) ) AS availableSlots FROM student JOIN room USING (room_number) JOIN roomtype USING (type_id) GROUP BY room_number HAVING availableSlots > 0;"
+    
+    try:
+        rooms_with_free_slots = []
+        cursor.execute(query1)
+        result1 = cursor.fetchall();
+        for i in result1:
+            rooms_with_free_slots.append(i[0])
+        cursor.execute(query2)
+        result2 = cursor.fetchall();
+        for i in result2:
+            rooms_with_free_slots.append(i[0])
+        rooms_with_free_slots.sort()
+    except:
+        return {
+            "status": False,
+            "msg": "Unable to get rooms"
+        }
+
+    return {
+        "data": rooms_with_free_slots,
+        "status": True,
+        "msg": "Get all free rooms successful"
+    }
