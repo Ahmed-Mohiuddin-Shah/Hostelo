@@ -39,8 +39,8 @@ async def sign_in(request: Request):
             "msg": "Username or password is incorrect"
         }
     
-    username, _, role = user
-    token = signAndGetJWT({"username": username, "role": role})
+    username, _, role, image_url = user
+    token = signAndGetJWT({"username": username, "role": role, "image_url": image_url})
     return {
         "status": True,
         "msg": "Login successful",
