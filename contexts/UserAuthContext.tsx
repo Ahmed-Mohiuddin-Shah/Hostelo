@@ -4,6 +4,7 @@ import React, { createContext, useState } from "react";
 interface AuthUserInfo {
   username: string;
   role: string;
+  image_url?: string;
   expires: number;
 }
 
@@ -41,6 +42,7 @@ const AuthContextProvider = ({
       username: dataInToken.username as string,
       role: dataInToken.role as string,
       expires: dataInToken.exp as number,
+      image_url: dataInToken.image_url as string,
     };
 
     setToken(token);
