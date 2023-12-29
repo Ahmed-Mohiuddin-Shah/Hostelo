@@ -956,13 +956,15 @@ export default function StudentForm({
         )}
         {isEditing ? "Save" : "Add"} Student
       </button>
-      <button
-        className="rounded inline-flex items-center justify-center gap-2.5 bg-meta-6 py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 col-span-12 md:col-span-4 xl:col-span-3"
-        disabled={isSubmitting}
-        onClick={onCancel}
-      >
-        Cancel
-      </button>
+      {isEditing && (
+        <button
+          className="rounded inline-flex items-center justify-center gap-2.5 bg-meta-6 py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 col-span-12 md:col-span-4 xl:col-span-3"
+          disabled={isSubmitting}
+          onClick={onCancel}
+        >
+          Cancel
+        </button>
+      )}
     </form>
   );
 }

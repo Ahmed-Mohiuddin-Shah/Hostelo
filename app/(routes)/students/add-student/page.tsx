@@ -109,7 +109,6 @@ export default function Page() {
       "student_name",
       "department",
       "problem",
-      "description",
       "regular_medicine",
       "father_name",
       "mother_name",
@@ -199,9 +198,15 @@ export default function Page() {
       }
     }
 
-    const response = await axios.post("/api/students/add-student", formData);
-    const data = await response.data;
-    console.log(data.status);
+    let data;
+    try {
+      const response = await axios.post("/api/students/add-student", formData);
+      data = await response.data;
+    } catch (error) {
+      toast.error("Error adding student");
+      console.log(error);
+      setIsSubmitting(false);
+    }
 
     if (!data.status) {
       toast.error(data.msg);
