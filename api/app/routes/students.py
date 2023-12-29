@@ -13,7 +13,7 @@ students_router = APIRouter()
 
 @students_router.get("/number-of-students", tags=["Student"])
 async def get_total_students(request: Request):
-    query  = f"SELECT COUNT(student_id) FROM `Student` "
+    query  = f"SELECT COUNT(`student_id`) FROM `Student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
     cursor.execute(query)
 
     total_students = cursor.fetchone()
@@ -191,7 +191,7 @@ async def add_student(request: Request):
 @students_router.get("/get-all-students", tags=["Student"])
 async def get_all_students(request: Request):
     
-    getStudentsQuery = "SELECT `student_id`, `name`, `email`, `CNIC`, `gender`, `school`, `department`, `sem`, `batch`, `room_number`, `phone_number`, `permament_address`, `temporary_address`, `problem`, `description`, `regular_medicine`, `blood_group`, `smoker` FROM `student` NATURAL JOIN `studentaddress` NATURAL JOIN `studentmedicalrecord` "
+    getStudentsQuery = "SELECT `student_id`, `name`, `email`, `CNIC`, `gender`, `school`, `department`, `sem`, `batch`, `room_number`, `phone_number`, `permament_address`, `temporary_address`, `problem`, `description`, `regular_medicine`, `blood_group`, `smoker` FROM `student` NATURAL JOIN `studentaddress` NATURAL JOIN `studentmedicalrecord` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
     getParents = "SELECT * FROM parent"
     getRelatives = "SELECT * FROM relative"
     getUsersQuery = "SELECT `username`, `image_path` FROM `user` WHERE `role` = 'student'"
@@ -323,7 +323,7 @@ async def edit_student(request: Request, student_id: int):
     try:
         cursor.execute(updateStudentQuery)
         connection.commit() #type: ignore
-        
+
     except Error as e:
         print(e)
         return {
