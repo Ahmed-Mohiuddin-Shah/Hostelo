@@ -93,7 +93,7 @@ async def add_asset(request: Request):
             "status": False,
             "msg": "Unable to add asset"} 
 
-@assets_router.post("/edit-asset/{number}", tags=["Assets"])
+@assets_router.put("/edit-asset/{number}", tags=["Assets"])
 async def update_asset(number, request: Request):
     request_json = await request.json()
     new_asset_name = request_json["new_asset_name"] #type: ignore
