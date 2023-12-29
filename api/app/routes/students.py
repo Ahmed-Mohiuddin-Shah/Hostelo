@@ -323,6 +323,7 @@ async def edit_student(request: Request, student_id: int):
     try:
         cursor.execute(updateStudentQuery)
         connection.commit() #type: ignore
+        
     except Error as e:
         print(e)
         return {
@@ -330,10 +331,11 @@ async def edit_student(request: Request, student_id: int):
             "msg": "Unable to update student"
         }
     
-    updateParentsQuery = f"UPDATE `parent` SET `name` = '{request_json['father_name']}', `relation` = 'Father', `phone_number` = '{request_json['father_phone_number']}' WHERE `student_id` = {student_id}; UPDATE `parent` SET `name` = '{request_json['mother_name']}', `relation` = 'Mother', `phone_number` = '{request_json['mother_phone_number']}' WHERE `student_id` = {student_id}"
-
+    updateFatherQuery = f"UPDATE `parent` SET `name` = '{request_json['father_name']}', `relation` = 'Father', `phone_number` = '{request_json['father_phone_number']}' WHERE `student_id` = {student_id}"
+    updateMotherQuery = f"UPDATE `parent` SET `name` = '{request_json['mother_name']}', `relation` = 'Mother', `phone_number` = '{request_json['mother_phone_number']}' WHERE `student_id` = {student_id}"
     try:
-        cursor.execute(updateParentsQuery)
+        cursor.execute(updateFatherQuery)
+        cursor.execute(updateMotherQuery)
         connection.commit() #type: ignore
     except Error as e:
         print(e)
@@ -342,11 +344,18 @@ async def edit_student(request: Request, student_id: int):
             "msg": "Unable to update parents"
         }
     
-    updateRelativesQuery = f"UPDATE `relative` SET `name` = '{request_json['relative_1_name']}', `relation` = '{request_json['relative_1_relation']}' WHERE student_id = {student_id} AND `CNIC` = '{request_json['relative_1_cnic']}'; UPDATE `relative` SET `name` = '{request_json['relative_2_name']}', relation = '{request_json['relative_2_relation']}' WHERE student_id = {student_id} AND `CNIC` = '{request_json['relative_2_cnic']}'; UPDATE relative SET name = '{request_json['relative_3_name']}', relation = '{request_json['relative_3_relation']}' WHERE student_id = {student_id} AND `CNIC` = {request_json['relative_3_cnic']}';"
+    updateRelative1Query = f"UPDATE `relative` SET `name` = '{request_json['relative_1_name']}', `relation` = '{request_json['relative_1_relation']}' WHERE student_id = {student_id} AND `CNIC` = '{request_json['relative_1_cnic']}'"
+
+    updateRelative2Query = f"UPDATE `relative` SET `name` = '{request_json['relative_2_name']}', relation = '{request_json['relative_2_relation']}' WHERE student_id = {student_id} AND `CNIC` = '{request_json['relative_2_cnic']}'"
+
+    udpdateRelative3Query = f"UPDATE relative SET name = '{request_json['relative_3_name']}', relation = '{request_json['relative_3_relation']}' WHERE student_id = {student_id} AND `CNIC` = '{request_json['relative_3_cnic']}'"
 
     try:
-        cursor.execute(updateRelativesQuery)
+        cursor.execute(updateRelative1Query)
+        cursor.execute(updateRelative2Query)
+        cursor.execute(udpdateRelative3Query)
         connection.commit() #type: ignore
+
     except Error as e:
         print(e)
         return {
