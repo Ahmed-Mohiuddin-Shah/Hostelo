@@ -383,3 +383,5 @@ TRUNCATE TABLE parent;
 TRUNCATE TABLE invoice;
 
 TRUNCATE TABLE messinvoice;
+
+CREATE TABLE deletedstudent (student_id INTEGER PRIMARY KEY);
