@@ -84,8 +84,27 @@ export default function Page() {
 
   const handleAddStudent = async (e: any) => {
     e.preventDefault();
-
     setIsSubmitting(true);
+
+    const onlyNumbersField = [
+      "student_cnic",
+      "phone_number",
+      "father_cnic",
+      "father_phone_number",
+      "mother_cnic",
+      "mother_phone_number",
+      "relative_1_cnic",
+      "relative_2_cnic",
+      "relative_3_cnic",
+    ];
+    for (let field of onlyNumbersField) {
+      if (!/^[0-9]*$/g.test(formData[field])) {
+        toast.error(`Invalid ${field} please remove any non number characters`);
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const openEndedFields = [
       "student_name",
       "department",
