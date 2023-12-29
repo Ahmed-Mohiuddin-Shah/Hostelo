@@ -1,4 +1,3 @@
-import email
 from smtplib import SMTPSenderRefused
 from turtle import st, update
 from fastapi import APIRouter, Body, Depends, Request
@@ -38,7 +37,10 @@ async def add_student(request: Request):
     request_json = await request.json()
     print(request_json)
 
+    
     studentID = int(request_json['student_id'])
+    password = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
+              for i in range(8))
 
     isDeletedQuery = f"SELECT * FROM `deletedstudent` WHERE `student_id` = {studentID}"
 
@@ -70,6 +72,18 @@ async def add_student(request: Request):
                     "status": False,
                     "msg": "Unable to re-add student"
                 }
+            
+    try:
+        # send mail
+        msg = mailServer.makeLoginDetailsEmailMessage(request_json["email"], str(studentID), str(password))
+        mailServer.sendEmail(msg)
+        print("Mail sent")
+    except SMTPSenderRefused:
+        print("Unable to send email")
+        return {
+            "status": False,
+            "msg": "Please use a valid email address"
+        }
 
     addAddressQuery = f"INSERT INTO `studentaddress` ( `permament_address`, `temporary_address` ) VALUES ('{request_json['permanent_address']}', '{request_json['temporary_address']}')"
     getAddressIDQuery = "SELECT MAX(`address_id`) FROM `studentaddress`"
@@ -86,9 +100,7 @@ async def add_student(request: Request):
     addressID = 0
     medicalID = 0
 
-    res = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
-              for i in range(8))
-    loginDetailsQuery = f"INSERT INTO `user` ( `username`, `password`, `role`, `image_path` ) VALUES ( '{str(studentID)}', '{str(res)}', 'student', '{request_json['student_image']}' )"
+    loginDetailsQuery = f"INSERT INTO `user` ( `username`, `password`, `role`, `image_path` ) VALUES ( '{str(studentID)}', '{str(password)}', 'student', '{request_json['student_image']}' )"
     
     try:
 
@@ -165,59 +177,10 @@ async def add_student(request: Request):
         connection.commit() #type: ignore
         print("Login details added")
 
-        # send mail
-        msg = mailServer.makeLoginDetailsEmailMessage(request_json["email"], str(studentID), str(res))
-        mailServer.sendEmail(msg)
-        print("Mail sent")
-
     except Error as e:
-        print(e)
-        try:
-            # delete address
-            deleteAddressQuery = f"DELETE FROM `studentaddress` WHERE `address_id` = {addressID}"
-            cursor.execute(deleteAddressQuery)
-            connection.commit() #type: ignore
-
-            # delete medical record
-            deleteMedicalRecordQuery = f"DELETE FROM `studentmedicalrecord` WHERE `medical_id` = {medicalID}"
-            cursor.execute(deleteMedicalRecordQuery)
-            connection.commit() #type: ignore
-
-            # delete students
-            deleteStudentQuery = f"DELETE FROM `student` WHERE `student_id` = {studentID}"
-            cursor.execute(deleteStudentQuery)
-            connection.commit() #type: ignore
-
-            # delete parents
-            deleteParentsQuery = f"DELETE FROM `parent` WHERE `student_id` = {studentID}"
-            cursor.execute(deleteParentsQuery)
-            connection.commit() #type: ignore
-
-            # delete relatives
-            deleteRelativesQuery = f"DELETE FROM `relative` WHERE `student_id` = {studentID}"
-            cursor.execute(deleteRelativesQuery)
-            connection.commit() #type: ignore
-
-            # delete login details
-            deleteLoginDetailsQuery = f"DELETE FROM `user` WHERE `username` = {str(studentID)}"
-            cursor.execute(deleteLoginDetailsQuery)
-            connection.commit() #type: ignore
-
-        except Error as e:
-            print(e)
-            return {
-                "status": False,
-                "msg": "Student not added"
-            }
         return {
             "status": False,
             "msg": "Student not added"
-        }
-    except SMTPSenderRefused as emailError:
-        print(emailError)
-        return {
-            "status": True,
-            "msg": "Student added but email not sent"
         }
         
 
