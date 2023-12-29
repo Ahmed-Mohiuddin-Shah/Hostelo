@@ -87,7 +87,7 @@ CREATE TABLE
         CNIC VARCHAR(15) NOT NULL UNIQUE,
         name VARCHAR (35) NOT NULL,
         email VARCHAR (150) NOT NULL UNIQUE,
-        gender CHAR (7) NOT NULL CHECK (gender IN ('M', 'F', 'O')),
+        gender CHAR (1) NOT NULL CHECK (gender IN ('M', 'F', 'O')),
         school VARCHAR (20) NOT NULL,
         batch INT NOT NULL,
         sem INT NOT NULL CHECK (
