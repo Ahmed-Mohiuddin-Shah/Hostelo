@@ -6,7 +6,7 @@ from app.my_sql_connection_cursor import cursor, connection # type: ignore
 assets_router = APIRouter()
 
 @assets_router.get("/number-of-assets", tags=["Assets"])
-async def get_total_students(request: Request):
+async def get_total_assets(request: Request):
     query  = f"SELECT `quantity` FROM `Asset` "
     
     try:
@@ -34,7 +34,7 @@ async def get_total_students(request: Request):
 @assets_router.get("/assets/{number}", tags=["Assets"])
 async def get_asset(request: Request, number: int):
 
-    query = f"SELECT `number`, `quantity`,`name` FROM `asset` WHERE `number` = '{number}'"
+    query = f"SELECT `number`, `quantity`,`name` FROM `asset` WHERE `number` = {number}"
     
     try:
         cursor.execute(query)
@@ -57,7 +57,7 @@ async def get_asset(request: Request, number: int):
 
 @assets_router.delete("/delete-asset/{number}", tags=["Assets"])
 async def delete_asset(number):
-    query = f"DELETE FROM `asset` WHERE `number` = '{number}'"
+    query = f"DELETE FROM `asset` WHERE `number` = {number}"
     try:
         cursor.execute(query)
         connection.commit() # type: ignore
@@ -74,20 +74,19 @@ async def delete_asset(number):
 @assets_router.post("/add-asset", tags=["Assets"])
 async def add_asset(request: Request):
     request_json = await request.json()
-    number = request_json["number"] #type: ignore
     name = request_json["name"]
     quantity = request_json["quantity"]
 
-    query = f"SELECT COUNT(*) FROM `asset` WHERE `number` = '{number}'"
+    query = f"SELECT COUNT(*) FROM `asset` WHERE `name` = '{name}'"
     cursor.execute(query)
     asset_exists = cursor.fetchone()
     if asset_exists[0] != 0: # type: ignore
         return {
             "status": False,
-            "msg": "Asset already exists"
+            "msg": "Asset with same name already exists"
         }
 
-    query = f"INSERT INTO `asset` (`number`, `quantity`,`name`) VALUES ({number},{quantity}, '{name}')"
+    query = f"INSERT INTO `asset` (`quantity`,`name`) VALUES ({quantity}, '{name}')"
     try:
         cursor.execute(query)
         connection.commit() # type:ignore
@@ -107,7 +106,7 @@ async def update_asset(number, request: Request):
     new_asset_name = request_json["name"] #type: ignore
     new_asset_quantity = request_json["quantity"] #type: ignore
 
-    query = f"SELECT COUNT(*) FROM `asset` WHERE `number` = '{number}'"
+    query = f"SELECT COUNT(*) FROM `asset` WHERE `number` = {number}"
     cursor.execute(query)
     asset_exists = cursor.fetchone()
     if asset_exists[0] == 0: # type: ignore
@@ -116,8 +115,8 @@ async def update_asset(number, request: Request):
             "msg": "Asset does not exist"
         }
 
-    query = f"UPDATE `asset` SET `name` = '{new_asset_name}' WHERE `number` = '{number}'"
-    query = f"UPDATE `asset` SET `quantity` = '{new_asset_quantity}' WHERE `number` = '{number}'"
+    query = f"UPDATE `asset` SET `name` = '{new_asset_name}', `quantity` = '{new_asset_quantity}' WHERE `number` = {number}"
+    
     try:
         cursor.execute(query)
         connection.commit() # type:ignore

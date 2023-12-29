@@ -214,10 +214,12 @@ DROP TABLE IF EXISTS Asset;
 
 CREATE TABLE
     Asset (
-        number INT PRIMARY KEY,
+        number INTEGER AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR (25),
         quantity INTEGER
     );
+
+DROP TABLE asset;
 
 ALTER TABLE `asset` CHANGE `quantity` `quantity` int DEFAULT 0;
 
