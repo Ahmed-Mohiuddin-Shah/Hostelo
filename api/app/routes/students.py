@@ -1,3 +1,5 @@
+import email
+from smtplib import SMTPSenderRefused
 from turtle import st, update
 from fastapi import APIRouter, Body, Depends, Request
 from httpx import get
@@ -37,6 +39,37 @@ async def add_student(request: Request):
     print(request_json)
 
     studentID = int(request_json['student_id'])
+
+    isDeletedQuery = f"SELECT * FROM `deletedstudent` WHERE `student_id` = {studentID}"
+
+    try:
+        cursor.execute(isDeletedQuery)
+        result = cursor.fetchone()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to check if student exists"
+        }
+    
+    if result is not None:
+        if result[0] == studentID:   #type: ignore
+            reAddStudentQuery = f"DELETE FROM `deletedstudent` WHERE `student_id` = {studentID}"
+            try:
+                cursor.execute(reAddStudentQuery)
+                connection.commit() #type: ignore
+
+                return {
+                    "status": True,
+                    "msg": "Student re-added successfully"
+                }
+
+            except Error as e:
+                print(e)
+                return {
+                    "status": False,
+                    "msg": "Unable to re-add student"
+                }
 
     addAddressQuery = f"INSERT INTO `studentaddress` ( `permament_address`, `temporary_address` ) VALUES ('{request_json['permanent_address']}', '{request_json['temporary_address']}')"
     getAddressIDQuery = "SELECT MAX(`address_id`) FROM `studentaddress`"
@@ -139,7 +172,6 @@ async def add_student(request: Request):
 
     except Error as e:
         print(e)
-
         try:
             # delete address
             deleteAddressQuery = f"DELETE FROM `studentaddress` WHERE `address_id` = {addressID}"
@@ -167,7 +199,7 @@ async def add_student(request: Request):
             connection.commit() #type: ignore
 
             # delete login details
-            deleteLoginDetailsQuery = f"DELETE FROM `user` WHERE `username` = {studentID}"
+            deleteLoginDetailsQuery = f"DELETE FROM `user` WHERE `username` = {str(studentID)}"
             cursor.execute(deleteLoginDetailsQuery)
             connection.commit() #type: ignore
 
@@ -177,11 +209,17 @@ async def add_student(request: Request):
                 "status": False,
                 "msg": "Student not added"
             }
-
         return {
             "status": False,
             "msg": "Student not added"
         }
+    except SMTPSenderRefused as emailError:
+        print(emailError)
+        return {
+            "status": True,
+            "msg": "Student added but email not sent"
+        }
+        
 
     return {
         "status": True,
@@ -366,4 +404,23 @@ async def edit_student(request: Request, student_id: int):
     return {
         "status": True,
         "msg": "Student updated successfully"
+    }
+
+@students_router.delete("/delete-student/{student_id}", tags=["Student"])
+async def delete_student(request: Request, student_id: int):
+    deleteStudentQuery = f"INSERT INTO deletedstudent (`student_id`) VALUES ({student_id})"
+
+    try:
+        cursor.execute(deleteStudentQuery)
+        connection.commit()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to delete student"
+        }
+    
+    return {
+        "status": True,
+        "msg": "Student deleted successfully"
     }
