@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, Depends, Request
 from app.auth.auth_handler import signAndGetJWT, decodeJWT
-from app.my_sql_connection_cursor import cursor # type: ignore
+from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
 auth_router = APIRouter()
 

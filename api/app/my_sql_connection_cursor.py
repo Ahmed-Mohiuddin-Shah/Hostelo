@@ -19,3 +19,4 @@ class DataBaseCursor:
 
 databaseCursor = DataBaseCursor()
 cursor = databaseCursor.cursor
+connection = databaseCursor.connection

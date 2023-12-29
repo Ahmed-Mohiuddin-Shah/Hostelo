@@ -1,6 +1,6 @@
 import re
 from fastapi import APIRouter, Body, Depends, Request
-from app.my_sql_connection_cursor import cursor # type: ignore
+from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
 rooms_router = APIRouter()
 

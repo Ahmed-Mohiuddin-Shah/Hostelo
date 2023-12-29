@@ -1,11 +1,10 @@
-import json
-from turtle import st
+from turtle import st, update
 from fastapi import APIRouter, Body, Depends, Request
 from httpx import get
 from mysql.connector import connect, Error
 from decouple import config # type: ignore
 from app.mail_server import mailServer # type: ignore
-from app.my_sql_connection_cursor import cursor # type: ignore  
+from app.my_sql_connection_cursor import cursor, connection # type: ignore  
 
 import string
 import secrets
@@ -280,4 +279,82 @@ async def get_all_students(request: Request):
 
 @students_router.put("/edit-student/{student_id}", tags=["Student"])
 async def edit_student(request: Request, student_id: int):
-    pass
+    request_json = await request.json()
+
+    getIDsQuery =f"SELECT `address_id`, `medical_id` FROM `student` WHERE `student_id` = {student_id}"
+
+    try:
+        cursor.execute(getIDsQuery)
+        IDs = cursor.fetchone()
+        addressID, medicalID = IDs[0], IDs[1]  #type: ignore
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to get IDs"
+        }
+    
+    updateAddressQuery = f"UPDATE `studentaddress` SET `permament_address` = '{request_json['permanent_address']}', `temporary_address` = '{request_json['temporary_address']}' WHERE `address_id` = {addressID}"
+    try:
+        cursor.execute(updateAddressQuery)
+        connection.commit() #type: ignore
+
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to update address"
+        }
+    
+    updateMedicalRecordQuery = f"UPDATE `studentmedicalrecord` SET `problem` = '{request_json['problem']}', `description` = '{request_json['description']}', `regular_medicine` = '{request_json['regular_medicine']}', `smoker` = '{request_json['is_smoker']}', `blood_group` = '{request_json['blood_group']}' WHERE `medical_id` = {medicalID}"
+
+    try:
+        cursor.execute(updateMedicalRecordQuery)
+        connection.commit() #type: ignore
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to update medical record"
+        }
+    
+    updateStudentQuery = f"UPDATE `student` SET `email` = '{request_json['email']}', `school` = '{request_json['school']}', `sem` = '{request_json['semester']}', `phone_number` = '{request_json['phone_number']}' WHERE `student_id` = {student_id}"
+
+    try:
+        cursor.execute(updateStudentQuery)
+        connection.commit() #type: ignore
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to update student"
+        }
+    
+    updateParentsQuery = f"UPDATE `parent` SET `name` = '{request_json['father_name']}', `relation` = 'Father', `phone_number` = '{request_json['father_phone_number']}' WHERE `student_id` = {student_id}; UPDATE `parent` SET `name` = '{request_json['mother_name']}', `relation` = 'Mother', `phone_number` = '{request_json['mother_phone_number']}' WHERE `student_id` = {student_id}"
+
+    try:
+        cursor.execute(updateParentsQuery)
+        connection.commit() #type: ignore
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to update parents"
+        }
+    
+    updateRelativesQuery = f"UPDATE `relative` SET `name` = '{request_json['relative_1_name']}', `relation` = '{request_json['relative_1_relation']}' WHERE student_id = {student_id} AND `CNIC` = '{request_json['relative_1_cnic']}'; UPDATE `relative` SET `name` = '{request_json['relative_2_name']}', relation = '{request_json['relative_2_relation']}' WHERE student_id = {student_id} AND `CNIC` = '{request_json['relative_2_cnic']}'; UPDATE relative SET name = '{request_json['relative_3_name']}', relation = '{request_json['relative_3_relation']}' WHERE student_id = {student_id} AND `CNIC` = {request_json['relative_3_cnic']}';"
+
+    try:
+        cursor.execute(updateRelativesQuery)
+        connection.commit() #type: ignore
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to update relatives"
+        }
+
+    return {
+        "status": True,
+        "msg": "Student updated successfully"
+    }
