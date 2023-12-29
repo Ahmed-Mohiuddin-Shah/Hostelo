@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Body, Depends, Request
+from numpy import integer
 from app.auth.auth_handler import signAndGetJWT, decodeJWT
 from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
@@ -18,7 +19,26 @@ async def sign_in(request: Request):
             "msg": "Username or password is incorrect"
         }
     
+    deletedStudentsQuery = f"SELECT * FROM `deletedstudent` WHERE `student_id`='{int(request_json.get('username'))}'"
+    
+    cursor.execute(deletedStudentsQuery)
+    deletedStudentsTupleList = cursor.fetchall()
+
+    deletedStudentsList = []
+
+    for i in deletedStudentsTupleList:
+        deletedStudentsList.append(i[0])
+
     username, _, role, image_url = user
+    
+    integerUsername = int(username)   #type: ignore
+
+    if integerUsername in deletedStudentsList:
+        return {
+            "status": False,
+            "msg": "User doesn't exist"
+        }
+    
     token = signAndGetJWT({"username": username, "role": role, "image_url": image_url})
     return {
         "status": True,
