@@ -8,7 +8,15 @@ assets_router = APIRouter()
 @assets_router.get("/number-of-assets", tags=["Assets"])
 async def get_total_students(request: Request):
     query  = f"SELECT `quantity` FROM `Asset` "
-    cursor.execute(query)
+    
+    try:
+        cursor.execute(query)
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to get assets"
+        }
 
     all_assets_quantity = cursor.fetchall()
 
@@ -17,17 +25,11 @@ async def get_total_students(request: Request):
     for i in all_assets_quantity:
         sum_of_assets += i[0] #type: ignore
 
-    if all_assets_quantity:
-       return {
+    return {
             "status": True,
             "msg": "Retrieval successful",
             "data": {"count" : sum_of_assets}
-        }
-    else:
-        return {
-          "status" : False,
-          "msg" : "Retrieval Not Successful"
-       }
+    }
     
 @assets_router.get("/assets/{number}", tags=["Assets"])
 async def get_asset(request: Request, number: int):
@@ -42,6 +44,11 @@ async def get_asset(request: Request, number: int):
             "msg": "Unable to get asset"
         }
     asset = cursor.fetchone()
+    if asset == None:
+        return {
+            "status": False,
+            "msg": "Asset does not exist"
+        }
     return {
         "data": asset,
         "status": True,
@@ -53,15 +60,15 @@ async def delete_asset(number):
     query = f"DELETE FROM `asset` WHERE `number` = '{number}'"
     try:
         cursor.execute(query)
-        connection.commit() # type:ignore
-        return {
-            "status": True,
-            "msg": "Asset deleted successfully"
-        }
+        connection.commit() # type: ignore
     except:
         return {
             "status": False,
             "msg": "Unable to delete asset"
+        }
+    return {
+            "status": True,
+            "msg": "Asset deleted successfully"
         }
 
 @assets_router.post("/add-asset", tags=["Assets"])
@@ -80,7 +87,7 @@ async def add_asset(request: Request):
             "msg": "Asset already exists"
         }
 
-    query = f"INSERT INTO `asset` (`number`, `quantity`,`name`) VALUES ('{number}', '{name}','{quantity}')"
+    query = f"INSERT INTO `asset` (`number`, `quantity`,`name`) VALUES ({number},{quantity}, '{name}')"
     try:
         cursor.execute(query)
         connection.commit() # type:ignore
@@ -88,7 +95,8 @@ async def add_asset(request: Request):
             "status": True,
             "msg": "Asset added successfully"
         }
-    except:
+    except Error as e:
+        print(e)
         return {
             "status": False,
             "msg": "Unable to add asset"} 
@@ -96,8 +104,8 @@ async def add_asset(request: Request):
 @assets_router.put("/edit-asset/{number}", tags=["Assets"])
 async def update_asset(number, request: Request):
     request_json = await request.json()
-    new_asset_name = request_json["new_asset_name"] #type: ignore
-    new_asset_quantity = request_json["new_asset_quantity"] #type: ignore
+    new_asset_name = request_json["name"] #type: ignore
+    new_asset_quantity = request_json["quantity"] #type: ignore
 
     query = f"SELECT COUNT(*) FROM `asset` WHERE `number` = '{number}'"
     cursor.execute(query)
@@ -126,8 +134,15 @@ async def update_asset(number, request: Request):
 @assets_router.get("/all-assets", tags=["Assets"])
 async def get_assets(request: Request):
     query = f"SELECT `number`, `quantity`,`name` FROM `asset`"
-    cursor.execute(query)
-    assets = cursor.fetchall()
+    try:
+        cursor.execute(query)
+        assets = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to get assets"
+        }
     return {
         "data": assets,
         "status": True,
