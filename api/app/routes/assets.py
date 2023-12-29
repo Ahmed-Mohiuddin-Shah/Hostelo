@@ -32,7 +32,7 @@ async def get_total_students(request: Request):
 @assets_router.get("/assets/{number}", tags=["Assets"])
 async def get_asset(request: Request, number: int):
 
-    query = f"SELECT `number`, `quantity`,`name` FROM `asset`"
+    query = f"SELECT `number`, `quantity`,`name` FROM `asset` WHERE `number` = '{number}'"
     
     try:
         cursor.execute(query)
@@ -48,18 +48,8 @@ async def get_asset(request: Request, number: int):
         "msg": "Get asset successful"
     }
 
-
 @assets_router.delete("/delete-asset/{number}", tags=["Assets"])
-async def delete_room(number):
-    query = f"SELECT COUNT(*) FROM `room` WHERE `number` = '{number}'"
-    cursor.execute(query)
-    asset_exists = cursor.fetchone()
-    if asset_exists[0] == 0: # type: ignore
-        return {
-            "status": False,
-            "msg": "Asset does not exist"
-        }
-
+async def delete_asset(number):
     query = f"DELETE FROM `asset` WHERE `number` = '{number}'"
     try:
         cursor.execute(query)
@@ -73,7 +63,6 @@ async def delete_room(number):
             "status": False,
             "msg": "Unable to delete asset"
         }
-
 
 @assets_router.post("/add-asset", tags=["Assets"])
 async def add_asset(request: Request):
@@ -102,8 +91,7 @@ async def add_asset(request: Request):
     except:
         return {
             "status": False,
-            "msg": "Unable to add asset"}
-    
+            "msg": "Unable to add asset"} 
 
 @assets_router.post("/edit-asset/{number}", tags=["Assets"])
 async def update_asset(number, request: Request):
@@ -134,3 +122,14 @@ async def update_asset(number, request: Request):
             "status": False,
             "msg": "Unable to update asset"
         }
+
+@assets_router.get("/all-assets", tags=["Assets"])
+async def get_assets(request: Request):
+    query = f"SELECT `number`, `quantity`,`name` FROM `asset`"
+    cursor.execute(query)
+    assets = cursor.fetchall()
+    return {
+        "data": assets,
+        "status": True,
+        "msg": "Get assets successful"
+    }
