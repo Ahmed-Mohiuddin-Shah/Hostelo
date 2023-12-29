@@ -1,4 +1,5 @@
 import re
+from uu import Error
 from fastapi import APIRouter, Body, Depends, Request
 from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
@@ -19,7 +20,7 @@ async def get_room_types(request: Request):
 
 @rooms_router.get("/number-of-free-slots", tags=["Rooms"])
 async def get_total_free_slots(request: Request):
-    query = f"SELECT COUNT(*) FROM `student`"
+    query = f"SELECT COUNT(*) FROM `student` WHERE `student_id`  NOT IN (SELECT `student_id` FROM `deletedstudent`)"
     cursor.execute(query)
     total_students = cursor.fetchone()
     query = f"SELECT COUNT(*) FROM `room` NATURAL JOIN `roomtype` WHERE `type_id` = 1"
@@ -121,6 +122,23 @@ async def get_room(request: Request, room_number: int):
 
 @rooms_router.delete("/delete-room/{room_number}", tags=["Rooms"])
 async def delete_room(room_number):
+
+    checkOccupied = f"SELECT COUNT(*) FROM `student` WHERE `room_number` = '{room_number}' AND `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
+
+    try:
+        cursor.execute(checkOccupied)
+        roomOccupied = cursor.fetchone()
+        if roomOccupied[0] != 0: # type: ignore
+            return {
+                "status": False,
+                "msg": "Room is occupied"
+            }
+    except Error as e:
+        return {
+            "status": False,
+            "msg": "Unable to delete room"
+        }
+
     query = f"SELECT COUNT(*) FROM `room` WHERE `room_number` = '{room_number}'"
     cursor.execute(query)
     room_exists = cursor.fetchone()
@@ -146,10 +164,13 @@ async def delete_room(room_number):
     
 @rooms_router.post("/edit-room/{room_number}", tags=["Rooms"])
 async def update_room(room_number, request: Request):
+
+    # edit room will not edit rooms that are occupied by at least one student
+
     request_json = await request.json()
     new_room_type = request_json["room_type"] #type: ignore
 
-    query = f"SELECT COUNT(*) FROM `room` WHERE `room_number` = '{room_number}'"
+    query = f"SELECT COUNT(*) FROM `room` WHERE `room_number` = '{room_number}' AND `room_number` NOT IN (SELECT `room_number` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`))"
     cursor.execute(query)
     room_exists = cursor.fetchone()
     if room_exists[0] == 0: # type: ignore
@@ -174,8 +195,8 @@ async def update_room(room_number, request: Request):
     
 @rooms_router.get("/all-free-rooms", tags=["Rooms"])
 async def get_all_free_rooms(request: Request):
-    query1 = "SELECT room_number FROM room WHERE room_number NOT IN ( SELECT room_number FROM student )"
-    query2 = "SELECT room_number, type_id, ( slots - COUNT(DISTINCT room_number) ) AS availableSlots FROM student JOIN room USING (room_number) JOIN roomtype USING (type_id) GROUP BY room_number HAVING availableSlots > 0;"
+    query1 = "SELECT `room_number` FROM `room` WHERE `room_number` NOT IN ( SELECT `room_number` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`) )"
+    query2 = "SELECT `room_number`, `type_id`, ( `slots` - COUNT(DISTINCT `room_number`) ) AS availableSlots FROM `student` JOIN `room` USING (`room_number`) JOIN `roomtype` USING (`type_id`) WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`) GROUP BY `room_number` HAVING availableSlots > 0"
     
     try:
         rooms_with_free_slots = []
