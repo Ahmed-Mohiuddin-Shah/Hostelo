@@ -447,3 +447,5 @@ VALUES (
     );
 
 UPDATE user SET image_path = "" WHERE username = "admin";
+
+INSERT INTO deletedstudent (student_id) VALUES (415216);
