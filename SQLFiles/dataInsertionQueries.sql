@@ -449,3 +449,35 @@ VALUES (
 UPDATE user SET image_path = "" WHERE username = "admin";
 
 INSERT INTO deletedstudent (student_id) VALUES (415216);
+
+DELETE FROM `user` WHERE `username` = "405326";
+
+SELECT `room_number`
+FROM `room`
+WHERE `room_number` NOT IN (
+        SELECT `room_number`
+        FROM `student`
+        WHERE
+            `student_id` NOT IN (
+                SELECT
+                    `student_id`
+                FROM
+                    `deletedstudent`
+            )
+    );
+
+SELECT
+    `room_number`,
+    `type_id`, (
+        `slots` - COUNT(DISTINCT `room_number`)
+    ) AS 'availableSlots'
+FROM `student`
+    JOIN `room` USING (`room_number`)
+    JOIN `roomtype` USING (`type_id`)
+WHERE `student_id` NOT IN (
+        SELECT `student_id`
+        FROM
+            `deletedstudent`
+    )
+GROUP BY `room_number`
+HAVING 'availableSlots' > 0;

@@ -196,7 +196,7 @@ async def update_room(room_number, request: Request):
 @rooms_router.get("/all-free-rooms", tags=["Rooms"])
 async def get_all_free_rooms(request: Request):
     query1 = "SELECT `room_number` FROM `room` WHERE `room_number` NOT IN ( SELECT `room_number` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`) )"
-    query2 = "SELECT `room_number`, `type_id`, ( `slots` - COUNT(DISTINCT `room_number`) ) AS availableSlots FROM `student` JOIN `room` USING (`room_number`) JOIN `roomtype` USING (`type_id`) WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`) GROUP BY `room_number` HAVING availableSlots > 0"
+    query2 = "SELECT `room_number`, `type_id`, ( `slots` - COUNT(DISTINCT `room_number`) ) AS 'availableSlots' FROM `student` JOIN `room` USING (`room_number`) JOIN `roomtype` USING (`type_id`) WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`) GROUP BY `room_number` HAVING 'availableSlots' > 0"
     
     try:
         rooms_with_free_slots = []
