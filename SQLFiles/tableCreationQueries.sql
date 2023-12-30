@@ -163,9 +163,13 @@ DROP TABLE studentphoneno;
 
 CREATE TABLE
     ElectricAppliance (
-        appliance_id INT PRIMARY KEY,
+        appliance_id INTEGER AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR (20)
     );
+
+DROP TABLE electricappliance;
+
+DROP TABLE hasappliance;
 
 CREATE TABLE
     Parent (
