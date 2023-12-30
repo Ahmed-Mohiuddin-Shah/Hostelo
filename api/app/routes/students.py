@@ -387,3 +387,20 @@ async def delete_student(request: Request, student_id: int):
         "status": True,
         "msg": "Student deleted successfully"
     }
+
+@students_router.get("/get-students")
+async def get_student_ids():
+    try:
+        cursor.execute("SELECT student_id, name FROM student")
+        result = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "message": "Error getting student ids"
+        }
+    return {
+        "status": True,
+        "data": result,
+        "msg": "Student ids retrieved"
+    }
