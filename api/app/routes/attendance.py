@@ -86,3 +86,61 @@ async def mark_attendance(request: Request):
         "status": True,
         "msg": "Attendance marked successfully"
     }
+
+@attendance_router.get("/get-attendance", tags=["Attendance"])
+async def get_attendance(request: Request):
+    getAttendanceQuery = "SELECT `student_id`, name, `room_number`, `date`, `status` FROM `attendance` NATURAL JOIN `student` ORDER BY `date` DESC"
+    getUsersQuery = "SELECT `username`, `image_path` FROM `user` WHERE `role` = 'student'"
+
+    try:
+        cursor.execute(getAttendanceQuery)
+        attendance = cursor.fetchall()
+        cursor.execute(getUsersQuery)
+        users = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error while fetching attendance"
+        }
+    
+    allAttendanceInfo = [] # type: ignore
+    for student in attendance:
+        for user in users:
+            if student[0] == int(user[0]):  #type: ignore
+                allAttendanceInfo.append({
+                    "student_id": student[0],
+                    "name": student[1],
+                    "room_number": student[2],
+                    "date": student[3],
+                    "status": True if student[4] == 1 else False,
+                    "student_image": user[1]
+                })
+    
+    return {
+        "status": True,
+        "data": allAttendanceInfo,
+        "msg": "Attendance fetched successfully"
+    }
+
+@attendance_router.put("/edit-attendance/{student_id}", tags=["Attendance"])
+async def edit_attendance(student_id: int, request: Request):
+    request_json = await request.json()
+    print(request_json)
+
+    editAttendanceQuery = f"UPDATE `attendance` SET `status` = {1 if request_json.get('status') is True else 0} WHERE `student_id` = {student_id} AND `date` = '{request_json.get('date')}'"
+
+    try:
+        cursor.execute(editAttendanceQuery)
+        connection.commit()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error while editing attendance"
+        }
+    
+    return {
+        "status": True,
+        "msg": "Attendance edited successfully"
+    }
