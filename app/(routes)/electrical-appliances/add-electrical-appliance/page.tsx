@@ -4,6 +4,7 @@ import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FaSpinner } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function Page() {
@@ -12,6 +13,7 @@ export default function Page() {
     { name: string; student_id: number }[]
   >([]);
   const [selectedId, setSelectedId] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     const getStudentDetails = async () => {
@@ -45,6 +47,35 @@ export default function Page() {
 
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
+    const name = e.target.applianceName.value;
+    const studentId = e.target.studentId.value;
+
+    let data;
+
+    try {
+      const response = await axios.post("/api/appliances/add-appliance", {
+        name,
+        student_id: studentId,
+      });
+      data = await response.data;
+    } catch (err) {
+      toast.error("Unable to add appliance, please try again.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!data.status) {
+      toast.error(data.msg);
+      setIsSubmitting(false);
+      return;
+    }
+
+    toast.success("Appliance added successfully.");
+    e.target.reset();
+    setSelectedId("");
+    setIsSubmitting(false);
   };
 
   return (
@@ -113,7 +144,9 @@ export default function Page() {
             <button
               type="submit"
               className="inline-flex items-center justify-center rounded-md bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              disabled={isSubmitting}
             >
+              {isSubmitting && <FaSpinner className="text-lg animate-spin" />}
               Add Appliance
             </button>
           </div>
