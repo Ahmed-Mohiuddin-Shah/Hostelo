@@ -330,7 +330,7 @@ DROP TABLE messoff;
 CREATE TABLE
     Attendance(
         date DATE NOT NULL,
-        status CHAR (1) NOT NULL CHECK (status IN ('P', 'A')),
+        status BOOLEAN NOT NULL,
         student_id INT,
         PRIMARY KEY(date, student_id),
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
