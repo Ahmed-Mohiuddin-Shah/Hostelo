@@ -1,0 +1,1 @@
+SELECT COUNT(`date`) FROM `attendance` WHERE `date` = CURRENT_DATE();
