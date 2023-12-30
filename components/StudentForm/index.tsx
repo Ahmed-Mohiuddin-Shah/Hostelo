@@ -12,6 +12,7 @@ import { PatternFormat } from "react-number-format";
 
 interface StudentFormProps {
   onSubmit: (data: any) => void;
+  onCancel?: () => void;
   formData: any;
   setFormData: any;
   isEditing: boolean;
@@ -21,6 +22,7 @@ interface StudentFormProps {
 
 export default function StudentForm({
   onSubmit,
+  onCancel,
   formData,
   setFormData,
   isEditing,
@@ -156,7 +158,7 @@ export default function StudentForm({
           name="studentCnic"
           className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
           required
-          format="#####-#######-#"
+          format="#############"
           valueIsNumericString
           value={formData.student_cnic}
           onChange={(e) => {
@@ -356,7 +358,7 @@ export default function StudentForm({
           name="phoneNumber"
           className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
           required
-          format="#### ### ####"
+          format="###########"
           valueIsNumericString
           value={formData.phone_number}
           onChange={(e) => {
@@ -603,7 +605,7 @@ export default function StudentForm({
             name="fatherCnic"
             className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             required
-            format="#####-#######-#"
+            format="#############"
             valueIsNumericString
             value={formData.father_cnic}
             onChange={(e) => {
@@ -628,7 +630,7 @@ export default function StudentForm({
             name="fatherPhoneNumber"
             className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             required
-            format="#### ### ####"
+            format="###########"
             valueIsNumericString
             value={formData.father_phone_number}
             onChange={(e) => {
@@ -682,7 +684,7 @@ export default function StudentForm({
             name="motherCnic"
             className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             required
-            format="#####-#######-#"
+            format="#############"
             valueIsNumericString
             value={formData.mother_cnic}
             onChange={(e) => {
@@ -706,7 +708,7 @@ export default function StudentForm({
             name="motherPhoneNumber"
             className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             required
-            format="#### ### ####"
+            format="###########"
             valueIsNumericString
             value={formData.mother_phone_number}
             onChange={(e) => {
@@ -760,7 +762,7 @@ export default function StudentForm({
             name="relative1Cnic"
             className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             required
-            format="#####-#######-#"
+            format="#############"
             valueIsNumericString
             value={formData.relative_1_cnic}
             onChange={(e) => {
@@ -833,7 +835,7 @@ export default function StudentForm({
             name="relative2Cnic"
             className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             required
-            format="#####-#######-#"
+            format="#############"
             valueIsNumericString
             value={formData.relative_2_cnic}
             onChange={(e) => {
@@ -906,7 +908,7 @@ export default function StudentForm({
             name="relative3Cnic"
             className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             required
-            format="#####-#######-#"
+            format="#############"
             valueIsNumericString
             value={formData.relative_3_cnic}
             onChange={(e) => {
@@ -945,6 +947,7 @@ export default function StudentForm({
       <button
         className="rounded inline-flex items-center justify-center gap-2.5 bg-meta-3 py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 col-span-12 md:col-span-4 xl:col-span-3"
         disabled={isSubmitting}
+        type="submit"
       >
         {isSubmitting ? (
           <FaSpinner className="animate-spin" />
@@ -953,6 +956,15 @@ export default function StudentForm({
         )}
         {isEditing ? "Save" : "Add"} Student
       </button>
+      {isEditing && (
+        <button
+          className="rounded inline-flex items-center justify-center gap-2.5 bg-meta-6 py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 col-span-12 md:col-span-4 xl:col-span-3"
+          disabled={isSubmitting}
+          onClick={onCancel}
+        >
+          Cancel
+        </button>
+      )}
     </form>
   );
 }

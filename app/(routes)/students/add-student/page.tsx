@@ -84,13 +84,31 @@ export default function Page() {
 
   const handleAddStudent = async (e: any) => {
     e.preventDefault();
-
     setIsSubmitting(true);
+
+    const onlyNumbersField = [
+      "student_cnic",
+      "phone_number",
+      "father_cnic",
+      "father_phone_number",
+      "mother_cnic",
+      "mother_phone_number",
+      "relative_1_cnic",
+      "relative_2_cnic",
+      "relative_3_cnic",
+    ];
+    for (let field of onlyNumbersField) {
+      if (!/^[0-9]*$/g.test(formData[field])) {
+        toast.error(`Invalid ${field} please remove any non number characters`);
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const openEndedFields = [
       "student_name",
       "department",
       "problem",
-      "description",
       "regular_medicine",
       "father_name",
       "mother_name",
@@ -180,9 +198,15 @@ export default function Page() {
       }
     }
 
-    const response = await axios.post("/api/students/add-student", formData);
-    const data = await response.data;
-    console.log(data.status);
+    let data;
+    try {
+      const response = await axios.post("/api/students/add-student", formData);
+      data = await response.data;
+    } catch (error) {
+      toast.error("Error adding student");
+      console.log(error);
+      setIsSubmitting(false);
+    }
 
     if (!data.status) {
       toast.error(data.msg);

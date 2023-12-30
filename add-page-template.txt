@@ -8,13 +8,9 @@ import { FaChevronDown, FaDoorClosed } from "react-icons/fa6";
 import { PatternFormat } from "react-number-format";
 import { ToastContainer, toast } from "react-toastify";
 
-interface IAnnouncement {
-  description: string;
-}
 
 export default function Page() {
   const auth = useAuth();
-  const [description, setDescription] = useState<string>("");
 
   useEffect(() => {}, []);
 
@@ -33,32 +29,23 @@ export default function Page() {
   return (
     <>
       <section className="bg-white p-8 dark:bg-boxdark">
-        <h1 className="text-4xl text-black mb-4 dark:text-white">
-          Create Announcement
-        </h1>
+        <h1 className="text-4xl text-black mb-4 dark:text-white">Title</h1>
 
         <form onSubmit={handleFormSubmit}>
           <div className="mb-4">
             <label
-              htmlFor="description"
+              htmlFor="input1"
               className="mb-3 block text-black dark:text-white"
             >
-              Description of your announcement
+              Input 1
             </label>
-            <textarea
-              rows={6}
-              placeholder="Enter description of your announcement"
-              id="description"
-              name="description"
+            <input
+              type="text"
+              placeholder="placeholder"
+              id="input1"
+              name="input1"
               className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
               required
-              value={description}
-              onChange={(e) => {
-                if (e.target.value.length > 500) {
-                  return;
-                }
-                setDescription(e.target.value);
-              }}
             />
           </div>
 
@@ -67,7 +54,7 @@ export default function Page() {
               type="submit"
               className="inline-flex items-center justify-center rounded-md bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
             >
-              Create announcement
+              Submit button
             </button>
           </div>
         </form>
