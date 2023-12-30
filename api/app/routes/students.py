@@ -389,7 +389,7 @@ async def delete_student(request: Request, student_id: int):
         "msg": "Student deleted successfully"
     }
 
-@students_router.get("/get-students")
+@students_router.get("/get-students", tags=["Student"])
 async def get_student_ids():
     try:
         cursor.execute("SELECT student_id, name FROM student")
