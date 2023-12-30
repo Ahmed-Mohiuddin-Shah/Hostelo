@@ -12,6 +12,9 @@ export default function Page() {
   const [studentDetails, setStudentDetails] = useState<
     { name: string; student_id: number }[]
   >([]);
+  const [appliances, setAppliances] = useState<
+    { appliance_id: number; appliance_name: string }[]
+  >([]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -30,11 +33,28 @@ export default function Page() {
         toast.error(data.msg);
         return;
       }
-      console.log(data.data);
       setStudentDetails(data.data);
     };
-
     getStudentDetails();
+
+    const getAppliances = async () => {
+      let data;
+      try {
+        const response = await axios.get("/api/appliance/get-appliances");
+        data = await response.data;
+      } catch (err) {
+        console.log(err);
+        toast.error("Unable to fetch appliances, please try again.");
+        return;
+      }
+      if (!data.status) {
+        toast.error(data.msg);
+        return;
+      }
+
+      setAppliances(data.data);
+    };
+    getAppliances();
   }, []);
 
   if (auth === false) {
@@ -49,16 +69,25 @@ export default function Page() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const name = e.target.applianceName.value;
     const studentId = e.target.studentId.value;
+    const applianceId = e.target.applianceId.value;
+
+    if (!studentId || !applianceId) {
+      toast.error("Please select student and appliance.");
+      setIsSubmitting(false);
+      return;
+    }
 
     let data;
 
     try {
-      const response = await axios.post("/api/appliances/add-appliance", {
-        name,
-        student_id: studentId,
-      });
+      const response = await axios.post(
+        "/api/appliance/add-student-appliance",
+        {
+          student_id: studentId,
+          appliance_id: applianceId,
+        }
+      );
       data = await response.data;
     } catch (err) {
       toast.error("Unable to add appliance, please try again.");
@@ -99,6 +128,7 @@ export default function Page() {
               className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
+              required
             >
               <option value="" disabled>
                 Select student id
@@ -125,19 +155,27 @@ export default function Page() {
 
           <div className="mb-4 col-span-12">
             <label
-              htmlFor="applianceName"
+              htmlFor="applianceId"
               className="mb-3 block text-black dark:text-white"
             >
               Appliance name
             </label>
-            <input
-              type="text"
+            <select
               placeholder="Enter appliance name"
-              id="applianceName"
-              name="applianceName"
+              id="applianceId"
+              name="applianceId"
               className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
               required
-            />
+            >
+              <option value="" disabled>
+                Select appliance
+              </option>
+              {appliances.map((x) => (
+                <option key={x.appliance_id} value={x.appliance_id}>
+                  {x.appliance_name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="col-span-12">
