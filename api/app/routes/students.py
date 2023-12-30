@@ -1,5 +1,6 @@
 from smtplib import SMTPSenderRefused
 from turtle import st, update
+from unittest import result
 from fastapi import APIRouter, Body, Depends, Request
 from httpx import get
 from mysql.connector import connect, Error
@@ -392,15 +393,17 @@ async def delete_student(request: Request, student_id: int):
 async def get_student_ids():
     try:
         cursor.execute("SELECT student_id, name FROM student")
-        result = cursor.fetchall()
+        allStudents = [{"student_id": _id, "name": name} for _id, name in cursor.fetchall()]
     except Error as e:
+
         print(e)
         return {
             "status": False,
             "message": "Error getting student ids"
         }
+
     return {
         "status": True,
-        "data": result,
+        "data": allStudents,
         "msg": "Student ids retrieved"
     }
