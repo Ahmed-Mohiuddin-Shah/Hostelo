@@ -5,14 +5,8 @@ import axios from "axios";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import {
-  FaCheckDouble,
-  FaPenToSquare,
-  FaSpinner,
-  FaTrash,
-} from "react-icons/fa6";
+import { FaCheckDouble, FaSpinner } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
-import Swal from "sweetalert2";
 
 interface IAttendance {
   student_image: string;
@@ -25,7 +19,6 @@ interface IAttendance {
 
 export default function Page() {
   const auth = useAuth();
-  const [isEditing, setIsEditing] = useState<boolean | null>(false);
   const [students, setStudents] = useState<IAttendance[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
