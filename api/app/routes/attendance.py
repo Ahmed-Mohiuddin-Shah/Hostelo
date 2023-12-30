@@ -1,3 +1,4 @@
+from tabnanny import check
 from fastapi import APIRouter, Body, Depends, Request
 from mysql.connector import connect, Error
 from decouple import config # type: ignore
@@ -43,8 +44,45 @@ async def student_details(request: Request):
 
 @attendance_router.post("/mark-attendance", tags=["Attendance"])
 async def mark_attendance(request: Request):
-    # request_json = await request.json()
+    request_json = await request.json()
+
+    checkAttendanceQuery = "SELECT COUNT(`date`) FROM `attendance` WHERE `date` = CURRENT_DATE()"
+
+    try:
+        cursor.execute(checkAttendanceQuery)
+        attendanceCount = cursor.fetchone()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error while fetching attendance"
+        }
+    
+    if attendanceCount[0] > 0:  # type: ignore
+        return {
+            "status": False,
+            "msg": "Attendance already marked for today"
+        }
+    
+    markAttendanceQuery = "INSERT INTO `attendance` (`date`, `status`, `student_id`) VALUES (CURRENT_DATE(), %s, %s)"
+
+    studentsAttendanceDetails = []
+
+    for student in request_json.get('students'):
+        attendanceStatus = 1 if student.get('isPresent') is True else 0
+        studentsAttendanceDetails.append((attendanceStatus, student.get('student_id')))
+
+    try:
+        cursor.executemany(markAttendanceQuery, studentsAttendanceDetails)
+        connection.commit()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error while marking attendance"
+        }
+
     return {
-        "status": False,
-        "msg": "Not implementted yet"
+        "status": True,
+        "msg": "Attendance marked successfully"
     }
