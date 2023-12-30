@@ -9,6 +9,7 @@ from app.routes.assets import assets_router
 from app.routes.complaints import complaints_router
 from app.routes.mess import mess_router
 from app.routes.attendance import attendance_router
+from app.routes.appliance import appliance_router
 
 def get_application() -> FastAPI:
     application = FastAPI(title="Hostelo API", debug=True)
@@ -28,6 +29,7 @@ def get_application() -> FastAPI:
     application.include_router(complaints_router, prefix="/api/complaints") 
     application.include_router(mess_router, prefix="/api/mess")
     application.include_router(attendance_router, prefix="/api/attendance")
+    application.include_router(appliance_router, prefix="/api/appliance")
 
     return application
 
