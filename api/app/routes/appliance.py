@@ -6,17 +6,19 @@ from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
 appliance_router = APIRouter()
 
-@appliance_router.get("/appliances", tags=["appliance"])
+@appliance_router.get("/get-appliances", tags=["Appliance"])
 async def get_appliance():
 
+    query = "SELECT `appliance_id`, `name` FROM `electricappliance`"
+
     try:
-        cursor.execute("SELECT `appliance`, `name` FROM `appliance`")
+        cursor.execute(query)
         allAppliances = cursor.fetchall()
     except Error as e:
         print(e)
         return {
             "status": False,
-            "message": "Error getting appliance"
+            "msg": "Error getting appliance"
         }
     
     result = []
@@ -33,7 +35,7 @@ async def get_appliance():
         "msg": "Appliance retrieved"
     }
 
-@appliance_router.post("/add-appliance", tags=["appliance"])
+@appliance_router.post("/add-appliance", tags=["Appliance"], include_in_schema=False)
 async def add_appliance(request: Request):
     data = await request.json()
     name = data['name']
@@ -52,4 +54,88 @@ async def add_appliance(request: Request):
     return {
         "status": True,
         "message": "Appliance added"
+    }
+
+@appliance_router.post("/add-student-appliance/", tags=["Appliance"])
+async def add_student_appliance(request: Request):
+    data = await request.json()
+
+    checkStudentAppliance = f"SELECT COUNT(*) FROM `hasappliance` WHERE `student_id` = {data['student_id']} AND `appliance_id` = {data['appliance_id']}"
+
+    try:
+        cursor.execute(checkStudentAppliance)
+        count = cursor.fetchone()[0]  # type: ignore
+        if count > 0: #type: ignore
+            return {
+                "status": False,
+                "msg": "Student appliance already exists"
+            }
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error checking student appliance"
+        }
+
+    addStudentAppliance = f"INSERT INTO `hasappliance` (`student_id`, `appliance_id`) VALUES ({data['student_id']}, {data['appliance_id']})"
+
+    try:
+        cursor.execute(addStudentAppliance)
+        connection.commit()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error adding student appliance"
+        }
+    return {
+        "status": True,
+        "msg": "Student appliance added"
+    }
+
+@appliance_router.get("/all-appliances", tags=["Appliance"])
+async def all_appliances():
+    allStudentsAppliancesQuery = "SELECT `student_id`, `name`, `room_number`, `appliance_id` FROM `hasappliance` NATURAL JOIN `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
+    applianceQuery = "SELECT `appliance_id`, `name` FROM `electricappliance`"
+
+    try:
+        cursor.execute(applianceQuery)
+        allAppliances = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error getting appliance"
+        }
+    
+    appliances = {}
+
+    for appliance in allAppliances:
+        appliances[appliance[0]] = appliance[1]
+
+    try:
+        cursor.execute(allStudentsAppliancesQuery)
+        allAppliances = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error getting appliance"
+        }
+    
+    result = []
+
+    for appliance in allAppliances:
+        result.append({
+            "student_id": appliance[0],
+            "student_name": appliance[1],
+            "room_number": appliance[2],
+            "appliance_id": appliance[3],
+            "appliance_name": appliances[appliance[3]]
+        })
+    
+    return {
+        "status": True,
+        "data": result,
+        "msg": "Appliance retrieved"
     }
