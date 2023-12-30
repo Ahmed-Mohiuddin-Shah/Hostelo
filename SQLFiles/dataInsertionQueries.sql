@@ -1,37 +1,16 @@
 USE Hostelo;
 
 INSERT INTO
-    StudentAddress (address_id, state, city, street)
-VALUES (
-        'A1',
-        'California',
-        'Los Angeles',
-        '123 Main Street'
-    ), (
-        'A2',
-        'New York',
-        'New York City',
-        '456 Broadway Avenue'
-    ), (
-        'A3',
-        'Texas',
-        'Houston',
-        '789 Oak Lane'
-    ), (
-        'A4',
-        'Florida',
-        'Miami',
-        '101 Palm Street'
-    ), (
-        'A5',
-        'Illinois',
-        'Chicago',
-        '202 Pine Avenue'
-    );
+    StudentAddress (
+        permament_address,
+        temporary_address
+    )
+VALUES ('Islamabad', 'Islamabad'), ('Lahore', 'Lahore'), ('Karachi', 'Karachi'), ('Peshawar', 'Peshawar'), ('Quetta', 'Quetta');
+
+)
 
 INSERT INTO
     StudentMedicalRecord (
-        medical_id,
         problem,
         description,
         regular_medicine,
@@ -39,35 +18,30 @@ INSERT INTO
         blood_group
     )
 VALUES (
-        'M1',
         'Allergy',
         'Description1',
         'Antihistamine',
         'Y',
         'A+'
     ), (
-        'M2',
         'Asthma',
         'Description2',
         'Bronchodilator',
         'N',
         'B-'
     ), (
-        'M3',
         'Flu',
         'Description3',
         'Acetaminophen',
         'N',
         'O+'
     ), (
-        'M4',
         'Injury',
         'Description4',
         'Pain Reliever',
         'N',
         'AB+'
     ), (
-        'M5',
         'Hypertension',
         'Description5',
         'Antihypertensive',
@@ -198,6 +172,11 @@ VALUES (
         'S5'
     );
 
+UPDATE student
+SET
+    email = "example4@gmail.com"
+WHERE student_id = 100510;
+
 INSERT INTO
     StudentPhoneNo (phone_number, student_id)
 VALUES (11122233333, 100123), (44455556666, 100245), (77778889999, 100367), (12345367890, 100489), (98765543210, 100510);
@@ -279,8 +258,18 @@ INSERT INTO
 VALUES (1, 'Bed', 50), (2, 'Desk', 10), (3, 'Computer', 20), (4, 'Table', 5), (5, 'Chair', 15);
 
 INSERT INTO
-    RoomType (type_id, type_name)
-VALUES (1, 'Single'), (2, 'Double'), (3, 'Triple'), (4, 'Double (attach bath)'), (5, 'Double (community bath)');
+    RoomType (type_id, type_name, slots)
+VALUES (1, 'Single (Attach Bath)', 1), (
+        2,
+        'Double (Community Bath)',
+        2
+    ), (
+        3,
+        'Triple (Community Bath)',
+        3
+    ), (4, 'Double (Attach Bath)', 2);
+
+UPDATE roomtype SET slots = 2 WHERE type_id = 4;
 
 INSERT INTO
     ComplaintAndQuery (
@@ -449,10 +438,50 @@ VALUES (
         100123
     );
 
-INSERT INTO messoff
+INSERT INTO messoffroom
 VALUES (
         STR_TO_DATE("2023,12,26", '%Y,%m,%d'),
         STR_TO_DATE("2023,12,27", '%Y,%m,%d'),
         STR_TO_DATE("2023,12,30", '%Y,%m,%d'),
         100245
     );
+
+UPDATE user
+SET
+    image_path = "",
+    password = "admin"
+WHERE username = "admin";
+
+INSERT INTO deletedstudent (student_id) VALUES (415216);
+
+DELETE FROM `user` WHERE `username` = "405326";
+
+SELECT `room_number`
+FROM `room`
+WHERE `room_number` NOT IN (
+        SELECT `room_number`
+        FROM `student`
+        WHERE
+            `student_id` NOT IN (
+                SELECT
+                    `student_id`
+                FROM
+                    `deletedstudent`
+            )
+    );
+
+SELECT
+    `room_number`,
+    `type_id`, (
+        `slots` - COUNT(DISTINCT `room_number`)
+    ) AS 'availableSlots'
+FROM `student`
+    JOIN `room` USING (`room_number`)
+    JOIN `roomtype` USING (`type_id`)
+WHERE `student_id` NOT IN (
+        SELECT `student_id`
+        FROM
+            `deletedstudent`
+    )
+GROUP BY `room_number`
+HAVING 'availableSlots' > 0;

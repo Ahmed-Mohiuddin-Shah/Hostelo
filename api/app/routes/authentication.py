@@ -1,33 +1,14 @@
 from fastapi import APIRouter, Body, Depends, Request
+from numpy import integer
 from app.auth.auth_handler import signAndGetJWT, decodeJWT
+from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
 auth_router = APIRouter()
-
-########################################################
-
-from decouple import config # type: ignore
-from mysql.connector import connect, Error
-
-try:
-    connection = connect(
-        host = config("mySQLServerIP"),
-        user = config("apiUserName"),
-        password = config("apiPassword")
-    )
-except Error as e:
-    print(e)
-
-cursor = connection.cursor() #type: ignore
-cursor.execute("USE Hostelo")
-
-print("Connected to MySQL Server")
-
-########################################################
-
 
 @auth_router.post("/signin", tags=["Authentication"])
 async def sign_in(request: Request):
     request_json = await request.json()
+    print(request_json)
     query = f"SELECT * FROM `user` WHERE `username`='{request_json.get('username')}' AND `password`='{request_json.get('password')}'"
     
     cursor.execute(query)
@@ -39,8 +20,28 @@ async def sign_in(request: Request):
             "msg": "Username or password is incorrect"
         }
     
-    username, _, role = user
-    token = signAndGetJWT({"username": username, "role": role})
+    username, _, role, image_url = user
+    
+    if request_json.get('username') != "admin":
+        deletedStudentsQuery = f"SELECT * FROM `deletedstudent` WHERE `student_id`='{int(request_json.get('username'))}'"
+        
+        cursor.execute(deletedStudentsQuery)
+        deletedStudentsTupleList = cursor.fetchall()
+
+        deletedStudentsList = []
+
+        for i in deletedStudentsTupleList:
+            deletedStudentsList.append(i[0])
+        
+        integerUsername = int(username)   #type: ignore
+
+        if integerUsername in deletedStudentsList:
+            return {
+                "status": False,
+                "msg": "User doesn't exist"
+            }
+    
+    token = signAndGetJWT({"username": username, "role": role, "image_url": image_url})
     return {
         "status": True,
         "msg": "Login successful",
