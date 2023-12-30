@@ -8,6 +8,7 @@ auth_router = APIRouter()
 @auth_router.post("/signin", tags=["Authentication"])
 async def sign_in(request: Request):
     request_json = await request.json()
+    print(request_json)
     query = f"SELECT * FROM `user` WHERE `username`='{request_json.get('username')}' AND `password`='{request_json.get('password')}'"
     
     cursor.execute(query)
@@ -19,25 +20,26 @@ async def sign_in(request: Request):
             "msg": "Username or password is incorrect"
         }
     
-    deletedStudentsQuery = f"SELECT * FROM `deletedstudent` WHERE `student_id`='{int(request_json.get('username'))}'"
-    
-    cursor.execute(deletedStudentsQuery)
-    deletedStudentsTupleList = cursor.fetchall()
-
-    deletedStudentsList = []
-
-    for i in deletedStudentsTupleList:
-        deletedStudentsList.append(i[0])
-
     username, _, role, image_url = user
     
-    integerUsername = int(username)   #type: ignore
+    if request_json.get('username') != "admin":
+        deletedStudentsQuery = f"SELECT * FROM `deletedstudent` WHERE `student_id`='{int(request_json.get('username'))}'"
+        
+        cursor.execute(deletedStudentsQuery)
+        deletedStudentsTupleList = cursor.fetchall()
 
-    if integerUsername in deletedStudentsList:
-        return {
-            "status": False,
-            "msg": "User doesn't exist"
-        }
+        deletedStudentsList = []
+
+        for i in deletedStudentsTupleList:
+            deletedStudentsList.append(i[0])
+        
+        integerUsername = int(username)   #type: ignore
+
+        if integerUsername in deletedStudentsList:
+            return {
+                "status": False,
+                "msg": "User doesn't exist"
+            }
     
     token = signAndGetJWT({"username": username, "role": role, "image_url": image_url})
     return {
