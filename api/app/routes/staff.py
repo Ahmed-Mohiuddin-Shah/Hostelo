@@ -82,3 +82,30 @@ async def add_staff(request: Request,):
         "msg": "Add staff successful"
     }
 
+@staff_router.put("/update-staff/{staff_id}", tags=["Staff"])
+async def update_staff(request: Request,):
+
+    request_json = await request.json()
+
+    staff_id = request_json.get("staff_id")
+    name = request_json.get("name")
+    phone_number = request_json.get("phone_number")
+    image_url = request_json.get("staff_image")
+
+    try:
+        query = f"UPDATE `staff` SET `name` = '{name}', `phone_number` = '{phone_number}' WHERE `staff_id` = {staff_id}"
+        query2 = f"UPDATE `user` SET `image_path` = '{image_url}' WHERE `username` = (SELECT `email` FROM `staff` WHERE `staff_id` = {staff_id})"
+        cursor.execute(query)
+        cursor.execute(query2)
+        connection.commit()
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to update staff"
+        }
+
+    return {
+        "status": True,
+        "msg": "Update staff successful"
+    }
