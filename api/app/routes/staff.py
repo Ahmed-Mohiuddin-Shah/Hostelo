@@ -64,7 +64,7 @@ async def add_staff(request: Request,):
     checkIfManagerExists = f"SELECT COUNT(*) FROM `user` WHERE `role` = 'manager'"
     try:
         cursor.execute(checkIfManagerExists)
-        if cursor.fetchone()[0] > 0: #type: ignore
+        if cursor.fetchone()[0] > 0 and role == "manager": #type: ignore
             return {
                 "status": False,
                 "msg": "Manager already exists"
@@ -177,7 +177,7 @@ async def delete_staff(request: Request, staff_id: int):
             "msg": "Unable to delete staff"
         }
     
-    getStaffEmailQuery = f"SELECT `email` FROM `staff` WHERE `staff_id` = '{staff_id}'"
+    getStaffEmailQuery = f"SELECT `email` FROM `staff` WHERE `staff_id` = {staff_id}"
 
     try:
         cursor.execute(getStaffEmailQuery)
