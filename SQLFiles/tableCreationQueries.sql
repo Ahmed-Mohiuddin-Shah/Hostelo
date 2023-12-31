@@ -351,12 +351,11 @@ DROP TABLE staff;
 CREATE TABLE
     ComplaintAndQuery (
         complaint_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR (50) NOT NULL,
         description VARCHAR (500),
         student_id INTEGER,
-        staff_id INTEGER,
         status BOOLEAN NOT NULL,
-        FOREIGN KEY (student_id) REFERENCES Student(student_id),
-        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
+        FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
 
 DROP TABLE complaintandquery;
