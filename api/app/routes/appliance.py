@@ -133,6 +133,8 @@ async def all_appliances():
             "appliance_id": appliance[3],
             "appliance_name": appliances[appliance[3]]
         })
+
+    result.sort(key=lambda x: x['student_id'])
     
     return {
         "status": True,
