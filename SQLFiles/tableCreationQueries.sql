@@ -391,3 +391,8 @@ CREATE TABLE
     );
 
 DROP TABLE servicetype;
+
+CREATE TABLE
+    deletedStaff (staff_id INTEGER PRIMARY KEY);
+
+);
