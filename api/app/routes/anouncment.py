@@ -5,7 +5,7 @@ from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
 announcements_router = APIRouter()
 
-@announcements_router.get("/get-all-announcements", tags=["Announcements"])
+@announcements_router.get("/all-announcements", tags=["Announcements"])
 async def get_all_announcements(request: Request):
     try:
         query = "SELECT `announcement_id`, `title`, `description`, `announcement_date` FROM `announcement` ORDER BY `announcement_date` DESC"
