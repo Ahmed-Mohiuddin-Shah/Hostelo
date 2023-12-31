@@ -2,6 +2,7 @@ import re
 import secrets
 from smtplib import SMTPSenderRefused
 import string
+from tabnanny import check
 from fastapi import APIRouter, Body, Depends, Request
 from app.my_sql_connection_cursor import cursor, connection # type: ignore
 from app.mail_server import mailServer # type: ignore
@@ -34,19 +35,34 @@ async def add_staff(request: Request,):
 
     request_json = await request.json()
 
-    name = request_json.get("name")
-    CNIC = request_json.get("CNIC")
-    phone_number = request_json.get("phone_number")
-    email = request_json.get("email")
-    image_url = request_json.get("staff_image")
-    role = request_json.get("role")
+    name = request_json.get("staffName")
+    CNIC = request_json.get("staffCnic")
+    phone_number = request_json.get("staffPhone")
+    email = request_json.get("staffEmail")
+    image_url = request_json.get("staffImage")
+    role = request_json.get("staffRole")
 
     password = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
               for i in range(8))
+    
+    checkEmailQuery = f"SELECT COUNT(*) FROM `staff` WHERE `email` = '{email}'"
+    try:
+        cursor.execute(checkEmailQuery)
+        if cursor.fetchone()[0] > 0: #type: ignore
+            return {
+                "status": False,
+                "msg": "Email already exists"
+            }
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable check if email exists"
+        }
 
     try:
         # send mail
-        msg = mailServer.makeLoginDetailsEmailMessage(request_json["email"], str(email), str(password))
+        msg = mailServer.makeLoginDetailsEmailMessage(email, str(email), str(password))
         mailServer.sendEmail(msg)
         print("Mail sent")
     except SMTPSenderRefused:
@@ -64,7 +80,7 @@ async def add_staff(request: Request,):
         print(e)
         return {
             "status": False,
-            "msg": "Unable to add staff"
+            "msg": "Duplicate CNIC or Phone Number"
         }
 
     addStaffUserQuery = f"INSERT INTO `user` (`username`, `password`, `role`, `image_path`) VALUES ('{email}', '{password}', '{role}', '{image_url}')"
