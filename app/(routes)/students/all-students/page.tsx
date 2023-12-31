@@ -18,7 +18,7 @@ import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 interface IStudent {
-  student_image: string;
+  student_image: any;
   student_id: string;
   student_name: string;
   email: string;
@@ -143,7 +143,8 @@ export default function Page() {
       "relative_3_cnic",
     ];
     for (let field of onlyNumbersField) {
-      if (!/^[0-9]*$/g.test(underEditStudent[field])) {
+      const value = underEditStudent![field as keyof IStudent];
+      if (!/^[0-9]*$/g.test(value)) {
         toast.error(`Invalid ${field} please remove any non number characters`);
         setIsSubmitting(false);
         return;
@@ -163,7 +164,8 @@ export default function Page() {
       "relative_3_name",
     ];
     for (let field of openEndedFields) {
-      if (!/^[a-zA-Z\s]*$/g.test(underEditStudent[field])) {
+      const value = underEditStudent![field as keyof IStudent];
+      if (!/^[a-zA-Z\s]*$/g.test(value)) {
         toast.error(`Invalid ${field}`);
         setIsSubmitting(false);
         return;
@@ -219,7 +221,7 @@ export default function Page() {
 
     // upload image
     if (
-      underEditStudent.student_image &&
+      underEditStudent?.student_image &&
       underEditStudent.student_image instanceof File
     ) {
       const imageFormData = new FormData();
