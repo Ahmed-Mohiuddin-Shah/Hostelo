@@ -47,3 +47,21 @@ async def add_announcement(request: Request,):
         "status": True,
         "msg": "Add announcement successful"
     }
+
+@announcements_router.delete("/delete-announcement/{annnouncment_id}", tags=["Announcements"])
+async def delete_announcement(request: Request, announcement_id: int):
+    try:
+        query = f"DELETE FROM `announcement` WHERE `announcement_id` = {announcement_id}"
+        cursor.execute(query)
+        connection.commit()
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to delete announcement"
+        }
+
+    return {
+        "status": True,
+        "msg": "Delete announcement successful"
+    }
