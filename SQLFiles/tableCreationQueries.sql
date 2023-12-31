@@ -376,10 +376,10 @@ DROP TABLE roomservice;
 
 CREATE TABLE
     Announcement (
-        number INTEGER AUTO_INCREMENT PRIMARY KEY,
+        announcement_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR (50) NOT NULL,
         description VARCHAR (500),
-        staff_id INTEGER,
-        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
+        announcement_date DATE NOT NULL
     );
 
 DROP TABLE announcement;
@@ -392,7 +392,6 @@ CREATE TABLE
 
 DROP TABLE servicetype;
 
-CREATE TABLE
-    deletedStaff (staff_id INTEGER PRIMARY KEY);
+CREATE TABLE deletedStaff (staff_id INTEGER PRIMARY KEY);
 
 );
