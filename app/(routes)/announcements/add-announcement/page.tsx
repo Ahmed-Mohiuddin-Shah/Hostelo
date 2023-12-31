@@ -9,11 +9,13 @@ import { PatternFormat } from "react-number-format";
 import { ToastContainer, toast } from "react-toastify";
 
 interface IAnnouncement {
+  title: string;
   description: string;
 }
 
 export default function Page() {
   const auth = useAuth();
+  const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
 
   useEffect(() => {}, []);
@@ -28,6 +30,27 @@ export default function Page() {
 
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
+
+    let data;
+    try {
+      data = await axios.post("/api/announcements/add-announcement", {
+        title,
+        description,
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong, please try again later.");
+      return;
+    }
+
+    if (!data.status) {
+      toast.error("Something went wrong, please try again later.");
+      return;
+    }
+
+    toast.success("Announcement created successfully.");
+    setTitle("");
+    setDescription("");
   };
 
   return (
@@ -40,10 +63,36 @@ export default function Page() {
         <form onSubmit={handleFormSubmit}>
           <div className="mb-4">
             <label
+              htmlFor="title"
+              className="mb-3 block text-black dark:text-white"
+            >
+              Title
+            </label>
+            <input
+              placeholder="Title of your announcement"
+              id="title"
+              name="title"
+              className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              required
+              value={title}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                const regex = /^[a-zA-Z0-9!?. -]*$/;
+                if (!regex.test(value)) {
+                  return;
+                }
+
+                setTitle(value);
+              }}
+            />
+          </div>
+          <div className="mb-4">
+            <label
               htmlFor="description"
               className="mb-3 block text-black dark:text-white"
             >
-              Description of your announcement
+              Description
             </label>
             <textarea
               rows={6}
@@ -57,6 +106,12 @@ export default function Page() {
                 if (e.target.value.length > 500) {
                   return;
                 }
+
+                const regex = /^[a-zA-Z0-9!?. -,/]*$/;
+                if (!regex.test(e.target.value)) {
+                  return;
+                }
+
                 setDescription(e.target.value);
               }}
             />
