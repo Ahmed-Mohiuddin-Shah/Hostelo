@@ -337,10 +337,13 @@ CREATE TABLE deletedstudent (student_id INTEGER PRIMARY KEY);
 CREATE TABLE
     Staff (
         staff_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR (150) NOT NULL UNIQUE,
         name VARCHAR (50) NOT NULL,
         CNIC VARCHAR (15) NOT NULL UNIQUE,
         phone_number VARCHAR (16) NOT NULL UNIQUE
     );
+
+ALTER TABLE staff ADD COLUMN email VARCHAR(150) NOT NULL UNIQUE;
 
 DROP TABLE staff;
 
