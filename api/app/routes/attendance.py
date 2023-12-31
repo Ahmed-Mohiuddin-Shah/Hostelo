@@ -9,7 +9,7 @@ attendance_router = APIRouter()
 @attendance_router.get("/student-details", tags=["Attendance"])
 async def student_details(request: Request):
     
-    getStudentsQuery = "SELECT `student_id`, `name`, `room_number` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`) ORDER BY `room_number` ASC"
+    getStudentsQuery = "SELECT `email`, `student_id`, `name`, `room_number` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`) ORDER BY `room_number` ASC"
     getUsersQuery = "SELECT `username`, `image_path` FROM `user` WHERE `role` = 'student'"
 
     try:
@@ -27,11 +27,11 @@ async def student_details(request: Request):
     allStudentInfo = [] # type: ignore
     for student in students:
         for user in users:
-            if student[0] == int(user[0]):  #type: ignore
+            if student[0] == user[0]:  #type: ignore
                 allStudentInfo.append({
-                    "student_id": student[0],
-                    "name": student[1],
-                    "room_number": student[2],
+                    "student_id": student[1],
+                    "name": student[2],
+                    "room_number": student[3],
                     "student_image": user[1]
                 })
                 break
