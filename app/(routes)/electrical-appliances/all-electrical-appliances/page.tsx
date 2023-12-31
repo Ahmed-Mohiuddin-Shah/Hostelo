@@ -19,6 +19,10 @@ interface IAppliance {
 export default function Page() {
   const [isEditing, setIsEditing] = useState<boolean | null>(false);
   const [appliances, setAppliances] = useState<IAppliance[]>([]);
+  const [filterText, setFilterText] = useState<string>("");
+  const [filteredAppliances, setFilteredAppliances] = useState<IAppliance[]>(
+    []
+  );
 
   const auth = useAuth();
 
@@ -40,9 +44,28 @@ export default function Page() {
         return;
       }
       setAppliances(data.data);
+      setFilteredAppliances(data.data);
     };
     getAppliances();
   }, []);
+
+  useEffect(() => {
+    const filtered = appliances.filter((appliance) => {
+      const studentName = appliance.student_name.toLowerCase();
+      const cmsId = appliance.student_id.toString().toLowerCase();
+      const applianceName = appliance.appliance_name.toLowerCase();
+
+      const filterTextLower = filterText.toLowerCase();
+
+      return (
+        studentName.includes(filterTextLower) ||
+        cmsId.includes(filterTextLower) ||
+        applianceName.includes(filterTextLower)
+      );
+    });
+
+    setFilteredAppliances(filtered);
+  }, [filterText]);
 
   if (auth === false) {
     return <>{redirect("/auth/signin")}</>;
@@ -110,6 +133,20 @@ export default function Page() {
     <>
       <section className="bg-white p-8 dark:bg-boxdark">
         <h1 className="text-4xl text-black mb-4 dark:text-white">Appliances</h1>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center w-full">
+            <input
+              type="search"
+              name="search"
+              placeholder="Search by name, room number or date"
+              className="w-full rounded-lg border-[1.5px] border-black bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              value={filterText}
+              onChange={(e) => {
+                setFilterText(e.target.value);
+              }}
+            />
+          </div>
+        </div>
         <div className="overflow-auto">
           <table className="w-full">
             <thead className="text-left">
@@ -122,7 +159,14 @@ export default function Page() {
               </tr>
             </thead>
             <tbody>
-              {appliances.map((appliance) => (
+              {filteredAppliances.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="text-center py-4">
+                    No appliances found
+                  </td>
+                </tr>
+              )}
+              {filteredAppliances.map((appliance) => (
                 <tr
                   key={appliance.student_id + "-" + appliance.appliance_id}
                   className="border-b"
