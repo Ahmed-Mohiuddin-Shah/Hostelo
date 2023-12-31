@@ -263,7 +263,8 @@ CREATE TABLE
         request_date DATE NOT NULL,
         start_date DATE NOT NULL,
         end_date DATE NOT NULL,
-        student_id INT,
+        student_id INTEGER,
+        daysoff INTEGER,
         PRIMARY KEY(request_date, student_id),
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
@@ -394,4 +395,14 @@ DROP TABLE servicetype;
 
 CREATE TABLE deletedStaff (staff_id INTEGER PRIMARY KEY);
 
-);
+SELECT `daysoff`
+FROM `messoff`
+WHERE
+    `student_id` = 407251
+    AND MONTH(CURRENT_DATE()) IN (
+        SELECT
+            MONTH(`request_date`)
+        FROM messoff
+        WHERE
+            `student_id` = 407251
+    );
