@@ -139,3 +139,21 @@ async def all_appliances():
         "data": result,
         "msg": "Appliance retrieved"
     }
+
+@appliance_router.delete("/delete-student-appliance/{appliance_id}/{student_id}", tags=["Appliance"])
+async def delete_student_appliance(appliance_id: int, student_id: int):
+    deleteStudentApplianceQuery = f"DELETE FROM `hasappliance` WHERE `appliance_id` = {appliance_id} AND `student_id` = {student_id}"
+
+    try:
+        cursor.execute(deleteStudentApplianceQuery)
+        connection.commit()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error deleting student appliance"
+        }
+    return {
+        "status": True,
+        "msg": "Student appliance deleted"
+    }
