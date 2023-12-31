@@ -111,3 +111,41 @@ async def update_staff(request: Request,):
         "status": True,
         "msg": "Update staff successful"
     }
+
+@staff_router.delete("/delete-staff/{staff_id}", tags=["Staff"])
+async def delete_staff(request: Request, staff_id: int):
+    pass
+
+    deletedStaffQuery = f"INSERT INTO `deletedstaff` (`staff_id`) VALUES ({staff_id})"
+
+    try:
+        cursor.execute(deletedStaffQuery)
+        connection.commit()
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to delete staff"
+        }
+    
+    getStaffEmailQuery = f"SELECT `email` FROM `staff` WHERE `staff_id` = '{staff_id}'"
+
+    try:
+        cursor.execute(getStaffEmailQuery)
+        email = cursor.fetchone()[0] #type: ignore
+
+        deleteStudentUserQuery = f"DELETE FROM `user` WHERE `username` = '{email}'"
+
+        cursor.execute(deleteStudentUserQuery)
+        connection.commit()
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to delete staff"
+        }
+    
+    return {
+        "status": True,
+        "msg": "Staff deleted successfully"
+    }
