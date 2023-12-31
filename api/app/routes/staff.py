@@ -1,3 +1,4 @@
+import re
 import secrets
 from smtplib import SMTPSenderRefused
 import string
@@ -38,6 +39,7 @@ async def add_staff(request: Request,):
     phone_number = request_json.get("phone_number")
     email = request_json.get("email")
     image_url = request_json.get("staff_image")
+    role = request_json.get("role")
 
     password = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
               for i in range(8))
@@ -65,7 +67,7 @@ async def add_staff(request: Request,):
             "msg": "Unable to add staff"
         }
 
-    addStaffUserQuery = f"INSERT INTO `user` (`username`, `password`, `role`, `image_path`) VALUES ('{email}', '{password}', 'staff', '{image_url}')"
+    addStaffUserQuery = f"INSERT INTO `user` (`username`, `password`, `role`, `image_path`) VALUES ('{email}', '{password}', '{role}', '{image_url}')"
 
     try:
         cursor.execute(addStaffUserQuery)
