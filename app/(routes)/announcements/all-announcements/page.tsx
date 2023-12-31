@@ -97,7 +97,7 @@ export default function Page() {
       return a;
     });
     setAnnouncements(updatedAnnouncements);
-
+    setIsEditing(false);
     toast.success("Announcement updated successfully.");
   };
 
