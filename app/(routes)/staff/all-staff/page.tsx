@@ -189,7 +189,11 @@ export default function Page() {
                   const value = e.target.value;
                   if (value.length > 11) return;
                   if (/^[0-9]+$/.test(value) || value === "") {
-                    setSelectedStaff({ ...selectedStaff, staffPhone: value });
+                    const newStaff = {
+                      ...selectedStaff,
+                      staffPhone: value,
+                    } as IStaff;
+                    setSelectedStaff(newStaff);
                   }
                 }}
               />
