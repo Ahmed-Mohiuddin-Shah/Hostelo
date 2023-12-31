@@ -17,7 +17,7 @@ async def get_all_announcements(request: Request):
             "msg": "Unable to get announcements"
         }
     
-    allAnnouncements = [{"announcementID": _id, "announcementTitle": title, "announcementDescription": description, "announcementDate": date} for _id, title, description, date in cursor.fetchall()]
+    allAnnouncements = [{"id": _id, "title": title, "description": description, "date": date} for _id, title, description, date in cursor.fetchall()]
 
     return {
         "data": allAnnouncements,
@@ -48,10 +48,35 @@ async def add_announcement(request: Request,):
         "msg": "Add announcement successful"
     }
 
-@announcements_router.delete("/delete-announcement/{annnouncment_id}", tags=["Announcements"])
-async def delete_announcement(request: Request, announcement_id: int):
+@announcements_router.put("/update-announcement/{annnouncment_id}", tags=["Announcements"])
+async def update_announcement(request: Request, announcement_id: int):
+    request_json = await request.json()
+
+    title = request_json.get("title")
+    description = request_json.get("description")
+
     try:
-        query = f"DELETE FROM `announcement` WHERE `announcement_id` = {announcement_id}"
+        query = f"UPDATE `announcement` SET `title` = '{title}', `description` = '{description}', `announcement_date` = CURRENT_DATE() WHERE `announcement_id` = {announcement_id}"
+        cursor.execute(query)
+        connection.commit()
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to update announcement"
+        }
+
+    return {
+        "status": True,
+        "msg": "Update announcement successful"
+    }
+
+@announcements_router.delete("/delete-announcement/{annnouncment_id}", tags=["Announcements"])
+async def delete_announcement(announcement_id):
+
+    query = f"DELETE FROM `announcement` WHERE `announcement_id` = {announcement_id}"
+    
+    try:
         cursor.execute(query)
         connection.commit()
     except Exception as e:
