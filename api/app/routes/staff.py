@@ -12,7 +12,7 @@ staff_router = APIRouter()
 @staff_router.get("/get-all-staff", tags=["Staff"])
 async def get_all_staff(request: Request):
     try:
-        query = "SELECT `staff_id`, `name`, `CNIC`, `phone_number`, `email` FROM `staff`"
+        query = "SELECT `staff_id`, `name`, `CNIC`, `phone_number`, `email` FROM `staff` WHERE `staff_id` NOT IN (SELECT `staff_id` FROM `deletedstaff`)"
         cursor.execute(query)
     except Exception as e:
         print(e)
@@ -21,8 +21,27 @@ async def get_all_staff(request: Request):
             "status": False,
             "msg": "Unable to get staff"
         }
+    
+    allStaff = [{"staffID": _id, "staffName": name, "staffCnic": cnic, "staffPhone": phone_number, "staffEmail": email} for _id, name, cnic, phone_number, email in cursor.fetchall()]
 
-    allStaff = [{"staff_id": _id, "name": name, "CNIC": cnic, "phone_number": phone_number, "email": email} for _id, name, cnic, phone_number, email in cursor.fetchall()]
+    query2 = "SELECT `username`, `image_path`, role FROM `user` WHERE `role` != 'student'"
+
+    try:
+        cursor.execute(query2)
+        users = cursor.fetchall()
+    except Exception as e:
+        print(e)
+        return {
+            "data": [],
+            "status": False,
+            "msg": "Unable to get staff"
+        }
+    
+    for staff in allStaff:
+        for user in users:
+            if staff["staffEmail"] == user[0]:
+                staff["staffImage"] = user[1]
+                staff["staffRole"] = user[2]
 
     return {
         "data": allStaff,
@@ -41,6 +60,21 @@ async def add_staff(request: Request,):
     email = request_json.get("staffEmail")
     image_url = request_json.get("staffImage")
     role = request_json.get("staffRole")
+
+    checkIfManagerExists = f"SELECT COUNT(*) FROM `user` WHERE `role` = 'manager'"
+    try:
+        cursor.execute(checkIfManagerExists)
+        if cursor.fetchone()[0] > 0: #type: ignore
+            return {
+                "status": False,
+                "msg": "Manager already exists"
+    }
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable check if manager exists"
+        }
 
     password = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
               for i in range(8))
@@ -101,14 +135,16 @@ async def add_staff(request: Request,):
     }
 
 @staff_router.put("/update-staff/{staff_id}", tags=["Staff"])
-async def update_staff(request: Request,):
+async def update_staff(request: Request, staff_id: int):
 
     request_json = await request.json()
 
-    staff_id = request_json.get("staff_id")
-    name = request_json.get("name")
-    phone_number = request_json.get("phone_number")
-    image_url = request_json.get("staff_image")
+    name = request_json.get("staffName")
+    CNIC = request_json.get("staffCnic")
+    phone_number = request_json.get("staffPhone")
+    email = request_json.get("staffEmail")
+    image_url = request_json.get("staffImage")
+    role = request_json.get("staffRole")
 
     try:
         query = f"UPDATE `staff` SET `name` = '{name}', `phone_number` = '{phone_number}' WHERE `staff_id` = {staff_id}"
