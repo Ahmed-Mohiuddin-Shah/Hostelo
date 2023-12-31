@@ -8,7 +8,7 @@ announcements_router = APIRouter()
 @announcements_router.get("/get-all-announcements", tags=["Announcements"])
 async def get_all_announcements(request: Request):
     try:
-        query = "SELECT `announcement_id`, `title`, `description`, `announcement_date` FROM `announcement`"
+        query = "SELECT `announcement_id`, `title`, `description`, `announcement_date` FROM `announcement` ORDER BY `announcement_date` DESC"
         cursor.execute(query)
     except Exception as e:
         print(e)
