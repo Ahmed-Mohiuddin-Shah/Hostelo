@@ -36,8 +36,6 @@ async def get_total_students(request: Request):
 async def add_student(request: Request):
 
     request_json = await request.json()
-    print(request_json)
-
     
     studentID = int(request_json['student_id'])
     password = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
@@ -137,8 +135,6 @@ async def add_student(request: Request):
         for i in result2:
             rooms_with_free_slots.append(i[0])
 
-        print(rooms_with_free_slots)
-
         if (rooms_with_free_slots == []):
             return {
                 "status": False,
@@ -158,45 +154,37 @@ async def add_student(request: Request):
         # add address
         cursor.execute(addAddressQuery)
         connection.commit() #type: ignore
-        print("Address added")
 
         # get address id
         cursor.execute(getAddressIDQuery)
         addressID = cursor.fetchone()[0] #type: ignore
         connection.commit() #type: ignore
-        print("Address ID fetched")
 
         # add medical record
         cursor.execute(addMedicalRecordQuery)
         connection.commit() #type: ignore
-        print("Medical record added")
         
         # get medical id
         cursor.execute(getMedicalRecordIDQuery)
         medicalID = cursor.fetchone()[0] #type: ignore  
         connection.commit() #type: ignore
-        print("Medical ID fetched")
 
         # add student
         addStudentQuery = f"INSERT INTO `student` ( `student_id`, `CNIC`, `name`, `gender`, `school`, `batch`, `sem`, `address_id`, `medical_id`, `room_number`, `department`, `email`, `phone_number` ) VALUES ( '{studentID}', '{request_json['student_cnic']}', '{request_json['student_name']}', '{request_json['gender']}', '{request_json['school']}', '{request_json['batch']}', '{request_json['semester']}', '{addressID}', '{medicalID}', '{request_json['room_number']}', '{request_json['department']}', '{request_json['email']}', '{request_json['phone_number']}' )"
         cursor.execute(addStudentQuery)
         connection.commit() #type: ignore
-        print("Student added")
 
         # add parents
         cursor.execute(addParentsQuery)
         connection.commit() #type: ignore
-        print("Parents added")
 
         # add relatives
         cursor.execute(addRelativesQuery)
         connection.commit() #type: ignore
-        print("Relatives added")
 
         # add login details
         cursor.execute(loginDetailsQuery)
         connection.commit() #type: ignore
-        print("Login details added")
 
     except Error as e:
         return {
