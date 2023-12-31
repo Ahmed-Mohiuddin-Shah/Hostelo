@@ -140,11 +140,8 @@ async def update_staff(request: Request, staff_id: int):
     request_json = await request.json()
 
     name = request_json.get("staffName")
-    CNIC = request_json.get("staffCnic")
     phone_number = request_json.get("staffPhone")
-    email = request_json.get("staffEmail")
     image_url = request_json.get("staffImage")
-    role = request_json.get("staffRole")
 
     try:
         query = f"UPDATE `staff` SET `name` = '{name}', `phone_number` = '{phone_number}' WHERE `staff_id` = {staff_id}"
