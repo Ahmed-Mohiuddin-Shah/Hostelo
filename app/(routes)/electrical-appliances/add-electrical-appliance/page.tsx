@@ -142,7 +142,7 @@ export default function Page() {
           </div>
           <div className="mb-4 col-span-12 sm:col-span-6 flex items-end">
             {selectedId && (
-              <div className="pb-3 text-black font-bold">
+              <div className="pb-3 text-black font-bold dark:text-white">
                 Student Name:{" "}
                 {
                   studentDetails.find(
