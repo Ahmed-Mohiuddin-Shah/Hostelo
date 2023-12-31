@@ -210,7 +210,7 @@ export default function Page() {
                         <FaPenToSquare className="text-lg text-current" />
                       </button>
                       <button
-                        className="bg-red-500 hover:bg-red-700 text-black font-bold py-4 px-2 rounded dark:text-white"
+                        className="bg-red-500 hover:bg-red-700 text-danger font-bold py-4 px-2 rounded dark:text-white"
                         onClick={(e) => handleDelete(e, complaint.complaint_id)}
                       >
                         <FaTrash className="text-lg text-current" />
