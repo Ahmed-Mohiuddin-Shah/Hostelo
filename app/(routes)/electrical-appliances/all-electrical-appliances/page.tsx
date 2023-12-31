@@ -3,27 +3,46 @@ import Loader from "@/components/common/Loader";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import {
-  FaChevronDown,
-  FaDoorClosed,
-  FaPenToSquare,
-  FaTrash,
-} from "react-icons/fa6";
+import { useEffect, useState } from "react";
+import { FaPenToSquare, FaTrash } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 
-interface IAsset {
-  name: number;
-  quantity: string;
+interface IAppliance {
+  student_id: number;
+  student_name: string;
+  room_number: number;
+  appliance_id: number;
+  appliance_name: string;
 }
 
 export default function Page() {
   const [isEditing, setIsEditing] = useState<boolean | null>(false);
+  const [appliances, setAppliances] = useState<IAppliance[]>([]);
 
   const auth = useAuth();
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    const getAppliances = async () => {
+      let data;
+
+      try {
+        const response = await axios.get("/api/appliance/all-appliances");
+        data = response.data;
+      } catch (error) {
+        console.log(error);
+        toast.error("Error fetching appliances");
+        return;
+      }
+
+      if (!data.status) {
+        toast.error(data.msg);
+        return;
+      }
+      setAppliances(data.data);
+    };
+    getAppliances();
+  }, []);
 
   if (auth === false) {
     return <>{redirect("/auth/signin")}</>;
@@ -33,13 +52,11 @@ export default function Page() {
     return <Loader />;
   }
 
-  const handleEditClicked = (e: any, roomNumber: number) => {};
-
-  const handleEditSubmit = async (e: any) => {
-    e.preventDefault();
-  };
-
-  const handleDelete = async (e: any, roomNumber: number) => {
+  const handleDelete = async (
+    e: any,
+    appliance_id: number,
+    student_id: number
+  ) => {
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -53,77 +70,78 @@ export default function Page() {
     if (!result.isConfirmed) {
       return;
     }
+
+    const appliance = appliances.find(
+      (appliance) =>
+        appliance.appliance_id === appliance_id &&
+        appliance.student_id === student_id
+    );
+
+    let data;
+
+    try {
+      const response = await axios.delete(
+        `/api/appliance/delete-student-appliance/${appliance_id}/${appliance?.student_id}`
+      );
+      data = response.data;
+    } catch (error) {
+      console.log(error);
+      toast.error("Error deleting appliance");
+      return;
+    }
+
+    if (!data.status) {
+      toast.error(data.msg);
+      return;
+    }
+
+    toast.success("Appliance deleted successfully");
+
+    const newAppliances = appliances.filter(
+      (appliance) =>
+        appliance.appliance_id !== appliance_id ||
+        appliance.student_id !== student_id
+    );
+
+    setAppliances(newAppliances);
   };
 
   return (
     <>
-      {isEditing ? (
-        <section className="bg-white p-8 dark:bg-boxdark">
-          <h1 className="text-4xl text-black mb-4 dark:text-white">
-            Edit Title
-          </h1>
-
-          <form onSubmit={handleEditSubmit}>
-            <div className="mb-4">
-              <label
-                htmlFor="roomNumber"
-                className="mb-3 block text-black dark:text-white"
-              >
-                Room number
-              </label>
-              <input
-                type="number"
-                placeholder="Enter room number"
-                id="roomNumber"
-                name="roomNumber"
-                value={}
-                className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                readOnly
-                disabled
-              />
-            </div>
-            <div>
-              <button
-                type="submit"
-                className="inline-flex items-center justify-center rounded-md bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
-              >
-                Edit room
-              </button>
-              <button
-                className="inline-flex items-center justify-center rounded-md bg-meta-7 py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 ml-4"
-                onClick={() => {
-                  setIsEditing(false);
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </section>
-      ) : (
-        <section className="bg-white p-8 dark:bg-boxdark">
-          <h1 className="text-4xl text-black mb-4 dark:text-white">Rooms</h1>
+      <section className="bg-white p-8 dark:bg-boxdark">
+        <h1 className="text-4xl text-black mb-4 dark:text-white">Appliances</h1>
+        <div className="overflow-auto">
           <table className="w-full">
             <thead className="text-left">
               <tr className="border-b pb-2">
+                <th className="px-4 py-2">Student Id</th>
+                <th className="px-4 py-2">Student Name</th>
                 <th className="px-4 py-2">Room Number</th>
-                <th className="px-4 py-2">Room Type</th>
+                <th className="px-4 py-2">Appliance Name</th>
                 <th className="px-4 py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {states.map((state) => (
-                <tr key={state.id} className="border-b">
+              {appliances.map((appliance) => (
+                <tr
+                  key={appliance.student_id + "-" + appliance.appliance_id}
+                  className="border-b"
+                >
+                  <td className="px-4 py-2">{appliance.student_id}</td>
+                  <td className="px-4 py-2">{appliance.student_name}</td>
+                  <td className="px-4 py-2">{appliance.room_number}</td>
+                  <td className="px-4 py-2">{appliance.appliance_name}</td>
+
                   <td className="px-4 py-2">
                     <button
-                      className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded dark:text-white"
-                      onClick={(e) => handleEditClicked(e, room.roomNumber)}
-                    >
-                      <FaPenToSquare className="text-lg text-current" />
-                    </button>
-                    <button
-                      className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded dark:text-white"
-                      onClick={(e) => handleDelete(e, room.roomNumber)}
+                      className="bg-red-500 hover:bg-red-700 text-meta-1 font-bold py-2 px-4 rounded dark:text-white"
+                      onClick={(e) =>
+                        handleDelete(
+                          e,
+                          appliance.appliance_id,
+                          appliance.student_id
+                        )
+                      }
                     >
                       <FaTrash className="text-lg text-current" />
                     </button>
@@ -132,8 +150,8 @@ export default function Page() {
               ))}
             </tbody>
           </table>
-        </section>
-      )}
+        </div>
+      </section>
       <ToastContainer />
     </>
   );
