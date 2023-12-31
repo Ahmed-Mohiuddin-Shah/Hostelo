@@ -72,16 +72,6 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    Staff (
-        staff_id CHAR (2) PRIMARY KEY,
-        name VARCHAR (25) NOT NULL,
-        CNIC VARCHAR (15) NOT NULL UNIQUE,
-        phone_number VARCHAR (16) NOT NULL UNIQUE
-    );
-
-DROP TABLE staff;
-
-CREATE TABLE
     Student (
         student_id INT PRIMARY KEY,
         CNIC VARCHAR(15) NOT NULL UNIQUE,
@@ -230,57 +220,6 @@ ALTER TABLE `asset` CHANGE `quantity` `quantity` int DEFAULT 0;
 UPDATE Asset ADD CONSTRAINT ck_quantity CHECK (quantity >= 0);
 
 CREATE TABLE
-    ComplaintAndQuery (
-        complaint_id INT PRIMARY KEY,
-        description VARCHAR (150),
-        student_id INT,
-        staff_id CHAR (2),
-        status VARCHAR (20) CHECK (
-            status IN ('Pending', 'Resolved')
-        ),
-        FOREIGN KEY (student_id) REFERENCES Student(student_id),
-        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
-    );
-
-DROP TABLE complaintandquery;
-
-CREATE TABLE
-    RoomService (
-        service_id INT PRIMARY KEY,
-        status VARCHAR (20) CHECK (
-            status IN ('Pending', 'Completed')
-        ),
-        room_number INT,
-        staff_id CHAR (2),
-        FOREIGN KEY (room_number) REFERENCES Room(room_number),
-        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
-    );
-
-CREATE TABLE
-    ServiceType (
-        service_type_id INT PRIMARY KEY,
-        service_name VARCHAR (25) NOT NULL,
-        service_id INT,
-        FOREIGN KEY (service_id) REFERENCES RoomService(service_id)
-    );
-
-CREATE TABLE
-    Title (
-        title_id CHAR (2) PRIMARY KEY,
-        title_name VARCHAR (30) NOT NULL,
-        staff_id CHAR (2),
-        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
-    );
-
-CREATE TABLE
-    Announcement (
-        number INT PRIMARY KEY,
-        description VARCHAR (150),
-        staff_id CHAR (2),
-        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
-    );
-
-CREATE TABLE
     Invoice (
         invoice_id INTEGER PRIMARY KEY,
         date_of_issuance DATE NOT NULL,
@@ -391,3 +330,58 @@ TRUNCATE TABLE invoice;
 TRUNCATE TABLE messinvoice;
 
 CREATE TABLE deletedstudent (student_id INTEGER PRIMARY KEY);
+
+CREATE TABLE
+    Staff (
+        staff_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR (50) NOT NULL,
+        CNIC VARCHAR (15) NOT NULL UNIQUE,
+        phone_number VARCHAR (16) NOT NULL UNIQUE
+    );
+
+DROP TABLE staff;
+
+CREATE TABLE
+    ComplaintAndQuery (
+        complaint_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        description VARCHAR (500),
+        student_id INTEGER,
+        staff_id INTEGER,
+        status BOOLEAN NOT NULL,
+        FOREIGN KEY (student_id) REFERENCES Student(student_id),
+        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
+    );
+
+DROP TABLE complaintandquery;
+
+CREATE TABLE
+    RoomService (
+        service_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        status BOOLEAN NOT NULL,
+        room_number INTEGER,
+        staff_id INTEGER,
+        service_type_id INTEGER,
+        FOREIGN KEY (room_number) REFERENCES Room(room_number),
+        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id),
+        FOREIGN KEY (service_type_id) REFERENCES ServiceType(service_type_id)
+    );
+
+DROP TABLE roomservice;
+
+CREATE TABLE
+    Announcement (
+        number INTEGER AUTO_INCREMENT PRIMARY KEY,
+        description VARCHAR (500),
+        staff_id INTEGER,
+        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
+    );
+
+DROP TABLE announcement;
+
+CREATE TABLE
+    ServiceType (
+        service_type_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        service_name VARCHAR (50) NOT NULL
+    );
+
+DROP TABLE servicetype;
