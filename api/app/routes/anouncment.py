@@ -24,3 +24,26 @@ async def get_all_announcements(request: Request):
         "status": True,
         "msg": "Get announcements successful"
     }
+
+@announcements_router.post("/add-announcement", tags=["Announcements"])
+async def add_announcement(request: Request,):
+    request_json = await request.json()
+
+    title = request_json.get("title")
+    description = request_json.get("description")
+
+    try:
+        query = f"INSERT INTO `announcement` (`title`, `description`, `announcement_date`) VALUES ('{title}', '{description}', CURRENT_DATE())"
+        cursor.execute(query)
+        connection.commit()
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to add announcement"
+        }
+
+    return {
+        "status": True,
+        "msg": "Add announcement successful"
+    }
