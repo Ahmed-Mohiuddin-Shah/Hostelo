@@ -8,6 +8,7 @@ from app.routes.assets import assets_router
 from app.routes.attendance import attendance_router
 from app.routes.authentication import auth_router
 from app.routes.complaints import complaints_router
+from app.routes.invoices import invoices_router
 from app.routes.mess import mess_router
 from app.routes.rooms import rooms_router
 from app.routes.staff import staff_router
@@ -30,6 +31,7 @@ def get_application() -> FastAPI:
     application.include_router(attendance_router, prefix="/api/attendance")
     application.include_router(auth_router, prefix="/api/auth")
     application.include_router(complaints_router, prefix="/api/complaints") 
+    application.include_router(invoices_router, prefix="/api/invoices")
     application.include_router(mess_router, prefix="/api/mess")
     application.include_router(rooms_router, prefix="/api/rooms")
     application.include_router(staff_router, prefix="/api/staff")
