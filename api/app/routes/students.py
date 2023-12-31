@@ -275,7 +275,7 @@ async def get_all_students(request: Request):
                     relativeCount += 1
 
             for user in users:
-                if user[0] == str(student[0]):
+                if user[0] == student[2]:
                     studentInfo["student_image"] = user[1]
 
             allStudentInfo.append(studentInfo)
