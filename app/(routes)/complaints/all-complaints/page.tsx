@@ -29,11 +29,13 @@ export default function Page() {
 
   useEffect(() => {
     const getComplaints = async () => {
+      if (!authContext.token) return;
+
       let data;
       try {
         const response = await axios.get(`/api/complaints/all-complaints/`, {
           headers: {
-            Authorization: `${authContext.userInfo?.username}`,
+            Authorization: `${authContext.token}`,
           },
         });
         data = response.data;
@@ -45,11 +47,10 @@ export default function Page() {
         return;
       }
 
-      console.log(data);
       setComplaints(data.data);
     };
     getComplaints();
-  }, [authContext.userInfo?.username]);
+  }, [authContext.token]);
 
   if (auth === false) {
     return <>{redirect("/auth/signin")}</>;
@@ -59,10 +60,64 @@ export default function Page() {
     return <Loader />;
   }
 
-  const handleEditClicked = (e: any, id: number) => {};
+  const handleEditClicked = (e: any, id: number) => {
+    e.preventDefault();
+    setIsEditing(true);
+    const complaint = complaints.find(
+      (complaint) => complaint.complaint_id === id
+    );
+    setSelectedComplaint(complaint);
+  };
 
   const handleEditSubmit = async (e: any) => {
     e.preventDefault();
+
+    if (!authContext.token) {
+      toast.error("You are not authorized to perform this action");
+      return;
+    }
+
+    let data;
+    try {
+      const response = await axios.put(
+        `/api/complaints/update-complaint/${selectedComplaint?.complaint_id}`,
+        {
+          title: selectedComplaint?.title,
+          description: selectedComplaint?.description,
+        },
+        {
+          headers: {
+            Authorization: `${authContext.token}`,
+          },
+        }
+      );
+      data = response.data;
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+      return;
+    }
+
+    if (!data.status) {
+      toast.error(data.msg);
+      return;
+    }
+
+    toast.success(data.msg);
+
+    setIsEditing(false);
+
+    const newComplaints = complaints.map((complaint) => {
+      if (complaint.complaint_id === selectedComplaint?.complaint_id) {
+        return {
+          ...complaint,
+          title: selectedComplaint?.title,
+          description: selectedComplaint?.description,
+        };
+      }
+      return complaint;
+    });
+    setComplaints(newComplaints);
   };
 
   const handleDelete = async (e: any, id: number) => {
@@ -79,6 +134,87 @@ export default function Page() {
     if (!result.isConfirmed) {
       return;
     }
+
+    if (!authContext.token) {
+      toast.error("You are not authorized to perform this action");
+      return;
+    }
+
+    let data;
+    try {
+      const response = await axios.delete(
+        `/api/complaints/delete-complaint/${id}`,
+        {
+          headers: {
+            Authorization: `${authContext.token}`,
+          },
+        }
+      );
+      data = response.data;
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+      return;
+    }
+
+    if (!data.status) {
+      return;
+    }
+
+    const newComplaints = complaints.filter(
+      (complaint) => complaint.complaint_id !== id
+    );
+    setComplaints(newComplaints);
+  };
+
+  const handleResolved = async (e: any, id: number) => {
+    if (!authContext.token) {
+      toast.error("You are not authorized to perform this action");
+      return;
+    }
+
+    const currentStatus = complaints.find(
+      (complaint) => complaint.complaint_id === id
+    )?.status;
+    const updatedStatus = currentStatus === "pending" ? "resolved" : "pending";
+
+    let data;
+    try {
+      const response = await axios.put(
+        `/api/complaints/update-complaint/${id}`,
+        {
+          status: updatedStatus,
+        },
+        {
+          headers: {
+            Authorization: `${authContext.token}`,
+          },
+        }
+      );
+      data = response.data;
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+      return;
+    }
+
+    if (!data.status) {
+      toast.error(data.msg);
+      return;
+    }
+
+    toast.success(data.msg);
+
+    const newComplaints = complaints.map((complaint) => {
+      if (complaint.complaint_id === id) {
+        return {
+          ...complaint,
+          status: updatedStatus,
+        };
+      }
+      return complaint;
+    });
+    setComplaints(newComplaints);
   };
 
   return (
@@ -163,6 +299,12 @@ export default function Page() {
               >
                 Save Complaint
               </button>
+              <button
+                className="inline-flex items-center justify-center rounded-md bg-meta-8 py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 ml-4"
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </button>
             </div>
           </form>
         </section>
@@ -184,6 +326,7 @@ export default function Page() {
                   )}
                   <th className="px-4 py-2">Complaint Title</th>
                   <th className="px-4 py-2">Complaint Description</th>
+                  <th className="px-4 py-2">Status</th>
                   <th className="px-4 py-2">Actions</th>
                 </tr>
               </thead>
@@ -200,22 +343,42 @@ export default function Page() {
                     <td className="px-4 py-2">{complaint.title}</td>
                     <td className="px-4 py-2">{complaint.description}</td>
                     <td className="px-4 py-2">{complaint.status}</td>
-                    <td className="px-4 py-2 flex">
-                      <button
-                        className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-4 px-2 rounded dark:text-white"
-                        onClick={(e) =>
-                          handleEditClicked(e, complaint.complaint_id)
-                        }
-                      >
-                        <FaPenToSquare className="text-lg text-current" />
-                      </button>
-                      <button
-                        className="bg-red-500 hover:bg-red-700 text-danger font-bold py-4 px-2 rounded dark:text-white"
-                        onClick={(e) => handleDelete(e, complaint.complaint_id)}
-                      >
-                        <FaTrash className="text-lg text-current" />
-                      </button>
-                    </td>
+
+                    {authContext.userInfo?.role === "student" && (
+                      <td className="px-4 py-2 flex">
+                        <button
+                          className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-4 px-2 rounded dark:text-white"
+                          onClick={(e) =>
+                            handleEditClicked(e, complaint.complaint_id)
+                          }
+                        >
+                          <FaPenToSquare className="text-lg text-current" />
+                        </button>
+                        <button
+                          className="bg-red-500 hover:bg-red-700 text-danger font-bold py-4 px-2 rounded dark:text-white"
+                          onClick={(e) =>
+                            handleDelete(e, complaint.complaint_id)
+                          }
+                        >
+                          <FaTrash className="text-lg text-current" />
+                        </button>
+                      </td>
+                    )}
+                    {authContext.userInfo?.role !== "student" && (
+                      <td className="px-4 py-2 flex">
+                        <button
+                          className="bg-primary text-white font-bold py-2 rounded dark:text-white"
+                          onClick={(e) =>
+                            handleResolved(e, complaint.complaint_id)
+                          }
+                        >
+                          Mark as{" "}
+                          {complaint.status === "pending"
+                            ? "resolved"
+                            : "pending"}
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
