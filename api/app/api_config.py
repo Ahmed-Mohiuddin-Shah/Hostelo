@@ -2,6 +2,7 @@ from os import close
 from fastapi import  FastAPI, Body, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.routes.anouncment import announcements_router
 from app.routes.appliance import appliance_router
 from app.routes.assets import assets_router
 from app.routes.attendance import attendance_router
@@ -23,6 +24,7 @@ def get_application() -> FastAPI:
     allow_headers=["*"],
 )
 
+    application.include_router(announcements_router, prefix="/api/announcements")
     application.include_router(appliance_router, prefix="/api/appliance")
     application.include_router(assets_router, prefix="/api/assets")
     application.include_router(attendance_router, prefix="/api/attendance")
