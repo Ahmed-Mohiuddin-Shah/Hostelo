@@ -101,7 +101,7 @@ async def add_student(request: Request):
     addressID = 0
     medicalID = 0
 
-    loginDetailsQuery = f"INSERT INTO `user` ( `username`, `password`, `role`, `image_path` ) VALUES ( '{str(studentID)}', '{str(password)}', 'student', '{request_json['student_image']}' )"
+    loginDetailsQuery = f"INSERT INTO `user` ( `username`, `password`, `role`, `image_path` ) VALUES ( '{request_json['email']}', '{str(password)}', 'student', '{request_json['student_image']}' )"
     
     try:
 
