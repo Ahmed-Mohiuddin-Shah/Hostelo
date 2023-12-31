@@ -98,6 +98,7 @@ export default function Page() {
       }
       return staff;
     });
+    setStaffMembers(newStaffMembers);
   };
 
   const handleDelete = async (e: any, id: number) => {
@@ -114,6 +115,27 @@ export default function Page() {
     if (!result.isConfirmed) {
       return;
     }
+
+    let data;
+    try {
+      const response = await axios.delete(`/api/staff/delete-staff/${id}`);
+      data = response.data;
+    } catch (error) {
+      console.log(error);
+      toast.error("Error deleting staff member");
+      return;
+    }
+
+    if (!data.status) {
+      toast.error("Error deleting staff member");
+      return;
+    }
+    toast.success("Staff member deleted successfully");
+
+    const newStaffMembers = staffMembers.filter(
+      (staff) => staff.staffID !== id
+    );
+    setStaffMembers(newStaffMembers);
   };
 
   return (
@@ -191,7 +213,8 @@ export default function Page() {
         </section>
       ) : (
         <section className="bg-white p-8 dark:bg-boxdark">
-          <h1 className="text-4xl text-black mb-4 dark:text-white">Rooms</h1>
+          <h1 className="text-4xl text-black mb-4 dark:text-white">Staff</h1>
+
           <div className="overflow-auto">
             <table className="w-full">
               <thead className="text-left">
@@ -222,7 +245,7 @@ export default function Page() {
                     <td className="px-4 py-2">{staff.staffPhone}</td>
                     <td className="px-4 py-2">{staff.staffCnic}</td>
                     <td className="px-4 py-2">{staff.staffRole}</td>
-                    <td className="px-4 py-2 flex">
+                    <td className="px-4 py-2 flex items-center justify-center">
                       <button
                         className="bg-blue-500 hover:bg-blue-700 text-black font-bold p-2 rounded dark:text-white"
                         onClick={(e) => handleEditClicked(e, staff.staffID)}
@@ -230,7 +253,7 @@ export default function Page() {
                         <FaPenToSquare className="text-lg text-current" />
                       </button>
                       <button
-                        className="bg-red-500 hover:bg-red-700 text-black font-bold p-2 rounded dark:text-white"
+                        className="bg-red-500 hover:bg-red-700 text-danger font-bold p-2 py-4 rounded dark:text-white"
                         onClick={(e) => handleDelete(e, staff.staffID)}
                       >
                         <FaTrash className="text-lg text-current" />
