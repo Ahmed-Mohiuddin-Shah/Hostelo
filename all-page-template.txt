@@ -113,22 +113,22 @@ export default function Page() {
             </thead>
             <tbody>
               {states.map((state) => (
-                <tr key={state.id} className="border-b">
-                  <td className="px-4 py-2">
-                    <button
-                      className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded dark:text-white"
-                      onClick={(e) => handleEditClicked(e, state.id)}
-                    >
-                      <FaPenToSquare className="text-lg text-current" />
-                    </button>
-                    <button
-                      className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded dark:text-white"
-                      onClick={(e) => handleDelete(e, state.id)}
-                    >
-                      <FaTrash className="text-lg text-current" />
-                    </button>
-                  </td>
-                </tr>
+                <td className="px-4 py-2 flex">
+                      <button
+                        className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-4 px-2 rounded dark:text-white"
+                        onClick={(e) =>
+                          handleEditClicked(e, complaint.complaint_id)
+                        }
+                      >
+                        <FaPenToSquare className="text-lg text-current" />
+                      </button>
+                      <button
+                        className="bg-red-500 hover:bg-red-700 text-danger font-bold py-4 px-2 rounded dark:text-white"
+                        onClick={(e) => handleDelete(e, complaint.complaint_id)}
+                      >
+                        <FaTrash className="text-lg text-current" />
+                      </button>
+                    </td>
               ))}
             </tbody>
           </table>
