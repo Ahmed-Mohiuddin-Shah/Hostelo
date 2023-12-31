@@ -44,16 +44,18 @@ export default function Page() {
         }).then((res) => res.json()),
         {
           pending: "Uploading image...",
-          success: "Image uploaded!",
+          success: "",
           error: "Error uploading image",
         }
       );
     } catch (error) {
       console.log(error);
       toast.error("Error uploading image");
+      return;
     }
 
     if (!data.ok) {
+      console.log(data);
       toast.error("Error uploading image");
       return;
     }
@@ -73,7 +75,8 @@ export default function Page() {
 
     if (!data.status) {
       toast.error(data.msg);
-      console.log("Error adding staff");
+      formData.staffImage = imageCopy;
+      return;
     } else {
       toast.success(data.msg);
     }
