@@ -62,16 +62,36 @@ async def add_student(request: Request):
                 cursor.execute(reAddStudentQuery)
                 connection.commit() #type: ignore
 
-                return {
-                    "status": True,
-                    "msg": "Student re-added successfully"
-                }
-
             except Error as e:
                 print(e)
                 return {
                     "status": False,
                     "msg": "Unable to re-add student"
+                }
+            
+            addBackStudentUserQuery = f"INSERT INTO `user` ( `username`, `password`, `role`, `image_path` ) VALUES ( '{request_json['email']}', '{str(password)}', 'student', '{request_json['student_image']}')"
+            try:
+                cursor.execute(addBackStudentUserQuery)
+                connection.commit()
+            except Error as e:
+                print(e)
+
+                reAddDeletedStudentQuery = f"INSERT INTO `deletedstudent` ( `student_id` ) VALUES ( {studentID} )"
+
+                try:
+                    cursor.execute(reAddDeletedStudentQuery)
+                    connection.commit()
+                except Error as e:
+                    print(e)
+
+                return {
+                    "status": False,
+                    "msg": "Unable to re-add student"
+                }
+
+            return {
+                    "status": True,
+                    "msg": "Student re-added successfully"
                 }
             
     try:
@@ -376,6 +396,24 @@ async def delete_student(request: Request, student_id: int):
 
     try:
         cursor.execute(deleteStudentQuery)
+        connection.commit()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to delete student"
+        }
+    
+    getStudentEmailQuery = f"SELECT `email` FROM `student` WHERE `student_id` = '{student_id}'"
+
+
+    try:
+        cursor.execute(getStudentEmailQuery)
+        email = cursor.fetchone()[0] #type: ignore
+
+        deleteStudentUserQuery = f"DELETE FROM `user` WHERE `username` = '{email}'"
+
+        cursor.execute(deleteStudentUserQuery)
         connection.commit()
     except Error as e:
         print(e)
