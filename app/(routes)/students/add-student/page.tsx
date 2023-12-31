@@ -98,7 +98,8 @@ export default function Page() {
       "relative_3_cnic",
     ];
     for (let field of onlyNumbersField) {
-      if (!/^[0-9]*$/g.test(formData[field])) {
+      const value = formData[field as keyof typeof formData];
+      if (!/^[0-9]*$/g.test(value)) {
         toast.error(`Invalid ${field} please remove any non number characters`);
         setIsSubmitting(false);
         return;
@@ -117,7 +118,8 @@ export default function Page() {
       "relative_3_name",
     ];
     for (let field of openEndedFields) {
-      if (!/^[a-zA-Z\s]*$/g.test(formData[field])) {
+      const value = formData[field as keyof typeof formData];
+      if (!/^[a-zA-Z\s]*$/g.test(value)) {
         toast.error(`Invalid ${field}`);
         setIsSubmitting(false);
         return;
@@ -158,7 +160,8 @@ export default function Page() {
       "relative_3_relation",
     ];
     for (let field of requiredFields) {
-      if (!formData[field]) {
+      const value = formData[field as keyof typeof formData];
+      if (!value) {
         toast.error(`Please fill ${field}`);
         setIsSubmitting(false);
         return;
