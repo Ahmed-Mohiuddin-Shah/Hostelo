@@ -9,12 +9,46 @@ import { FaChevronDown, FaDoorClosed } from "react-icons/fa6";
 import { PatternFormat } from "react-number-format";
 import { ToastContainer, toast } from "react-toastify";
 
+interface IRoomServiceType {
+  id: number;
+  serviceType: string;
+}
+
 export default function Page() {
   const auth = useAuth();
   const authContext = useContext(AuthContext);
   const [serviceType, setServiceType] = useState("");
+  const [serviceTypes, setServiceTypes] = useState<IRoomServiceType[]>([]);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (!authContext.token) {
+      return;
+    }
+
+    const getServiceTypes = async () => {
+      let data;
+      try {
+        const response = await axios.get(
+          "/api/room-services/all-room-service-types",
+          {
+            headers: {
+              Authorization: `${authContext.token}`,
+            },
+          }
+        );
+        data = response.data;
+      } catch (e) {
+        console.log(e);
+        return toast.error("Something went wrong");
+      }
+
+      if (!data.status) {
+        return toast.error(data.msg);
+      }
+      setServiceTypes(data.data);
+    };
+    getServiceTypes();
+  }, [authContext.token]);
 
   if (auth === false) {
     return <>{redirect("/auth/signin")}</>;
@@ -84,7 +118,11 @@ export default function Page() {
               <option value="" disabled>
                 -- Select Service type --
               </option>
-              <option value="cleaning">Cleaning</option>
+              {serviceTypes.map((serviceType) => (
+                <option key={serviceType.id} value={serviceType.id}>
+                  {serviceType.serviceType}
+                </option>
+              ))}
             </select>
           </div>
 
