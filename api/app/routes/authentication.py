@@ -53,7 +53,6 @@ async def sign_in(request: Request):
         "msg": "Login successful",
         "token": token
     }
-
 @auth_router.post("/validate-token", tags=["Authentication"])
 async def validate_tokem(request: Request):
     request_json = await request.json()

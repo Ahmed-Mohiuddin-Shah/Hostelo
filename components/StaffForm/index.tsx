@@ -89,7 +89,7 @@ export default function StaffForm({
         </label>
         <input
           type="email"
-          placeholder="e.g. 1234512345671"
+          placeholder="e.g. abc@def.co"
           id="staffEmail"
           name="staffEmail"
           className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
@@ -160,7 +160,7 @@ export default function StaffForm({
           value={formData.staffRole}
           onChange={(e) => {
             const value = e.target.value;
-            if (value === "manager" || value === "staff") {
+            if (value === "manager" || value === "worker") {
               setFormData({ ...formData, staffRole: value });
             }
           }}
@@ -169,7 +169,7 @@ export default function StaffForm({
             --- Select role ---
           </option>
           <option value="manager">Manager</option>
-          <option value="staff">Staff</option>
+          <option value="worker">Worker</option>
         </select>
       </div>
 
