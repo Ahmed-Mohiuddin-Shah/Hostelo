@@ -1,15 +1,18 @@
 "use client";
 import Loader from "@/components/common/Loader";
+import { AuthContext } from "@/contexts/UserAuthContext";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaChevronDown, FaDoorClosed } from "react-icons/fa6";
 import { PatternFormat } from "react-number-format";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function Page() {
   const auth = useAuth();
+  const authContext = useContext(AuthContext);
+  const [serviceType, setServiceType] = useState("");
 
   useEffect(() => {}, []);
 
@@ -23,12 +26,44 @@ export default function Page() {
 
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
+
+    if (!serviceType) {
+      return toast.error("Please select a service type");
+    }
+    if (!authContext.token) {
+      toast.error("Please login to continue");
+      return redirect("/auth/signin");
+    }
+
+    let data;
+    try {
+      const response = await axios.post(
+        "/api/room-services/request-room-service",
+        {
+          serviceType,
+        },
+        {
+          headers: {
+            Authorization: `${authContext.token}`,
+          },
+        }
+      );
+      data = response.data;
+    } catch (e) {
+      console.log(e);
+      return toast.error("Something went wrong");
+    }
+
+    if (!data.status) {
+      return toast.error(data.msg);
+    }
+    toast.success(data.msg);
   };
 
   return (
     <>
       <section className="bg-white p-8 dark:bg-boxdark">
-        <h1 className="text-4xl text-black mb-4 dark:text-white">
+        <h1 className="text-4xl text-black mb-6 dark:text-white">
           Request Room Service
         </h1>
 
@@ -38,16 +73,19 @@ export default function Page() {
               htmlFor="input1"
               className="mb-3 block text-black dark:text-white"
             >
-              Input 1
+              Service Type
             </label>
-            <input
-              type="text"
-              placeholder="placeholder"
-              id="input1"
-              name="input1"
+            <select
               className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              value={serviceType}
+              onChange={(e) => setServiceType(e.target.value)}
               required
-            />
+            >
+              <option value="" disabled>
+                -- Select Service type --
+              </option>
+              <option value="cleaning">Cleaning</option>
+            </select>
           </div>
 
           <div>
@@ -55,7 +93,7 @@ export default function Page() {
               type="submit"
               className="inline-flex items-center justify-center rounded-md bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
             >
-              Submit button
+              Request Service
             </button>
           </div>
         </form>
