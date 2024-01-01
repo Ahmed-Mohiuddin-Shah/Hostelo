@@ -162,21 +162,19 @@ async def delete_room(room_number):
             "status": False,
             "msg": "Unable to delete room"
         }
-    
 @rooms_router.post("/edit-room/{room_number}", tags=["Rooms"])
 async def update_room(room_number, request: Request):
     request_json = await request.json()
     new_room_type = request_json["room_type"] #type: ignore
-
+    
     query = f"SELECT COUNT(*) FROM `room` WHERE `room_number` = '{room_number}'"
-    cursor.execute(query)
+    cursor.execute(query)                                                                 
     room_exists = cursor.fetchone()
     if room_exists[0] == 0: # type: ignore
         return {
             "status": False,
             "msg": "Room does not exist"
         }
-
     query = f"UPDATE `room` SET `type_id` = '{new_room_type}' WHERE `room_number` = '{room_number}'"
     try:
         cursor.execute(query)

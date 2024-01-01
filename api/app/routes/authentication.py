@@ -38,7 +38,6 @@ async def sign_in(request: Request):
             "status": False,
             "msg": "Username or password is incorrect"
         }
-    
     username, _, role = user
     token = signAndGetJWT({"username": username, "role": role})
     return {
@@ -46,7 +45,6 @@ async def sign_in(request: Request):
         "msg": "Login successful",
         "token": token
     }
-
 @auth_router.post("/validate-token", tags=["Authentication"])
 async def validate_tokem(request: Request):
     request_json = await request.json()
