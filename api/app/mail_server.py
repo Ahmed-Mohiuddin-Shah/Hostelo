@@ -25,7 +25,15 @@ class EmailServer:
         msg['To'] = to
         msg.set_content(f"Hey there {studentName}!\n\nYour Hostelo mess invoice for {invoiceDate} is here! 🧾\n\n🧾 Invoice ID: {invoiceID} \n👤 Student ID: {studentID}\n📅 Days Off: {daysOff}\n💰 Total Cost: {totalCost}\n\nIf you have any questions or need assistance, just give us a shout at hostelo275@gmail.com. Stay Happy! 🚀\n\nBest regards,\n{managerName}\n{role}")
         return msg
-
+    
+    def makeElectricInvoiceEmailMessage(self, to: str, studentID: str, invoiceDate: str, invoiceID: int, studentName: str, totalCost: str, managerName: str, role: str) -> EmailMessage:
+        msg = EmailMessage()
+        msg['Subject'] = '🧾 Your Hostelo Electricity Invoice Is Here! 🎉'
+        msg['From'] = config("email_name")
+        msg['To'] = to
+        msg.set_content(f"Hey there {studentName}!\n\nYour Hostelo electricity invoice for {invoiceDate} is here! 🧾\n\n🧾 Invoice ID: {invoiceID} \n👤 Student ID: {studentID}\n💰 Total Cost: {totalCost}\n\nIf you have any questions or need assistance, just give us a shout at hostelo275@gmail.com. Stay Happy! 🚀\n\nBest regards,\n{managerName}\n{role}")
+        return msg
+    
     def sendEmail(self, msg: EmailMessage) -> None:
         self.mailServer.send_message(msg)
 
