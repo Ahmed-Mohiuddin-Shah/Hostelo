@@ -1,6 +1,8 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
 import { AuthContext } from "@/contexts/UserAuthContext";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
@@ -17,6 +19,7 @@ interface IRoomServiceType {
 export default function Page() {
   const auth = useAuth();
   const authContext = useContext(AuthContext);
+  const hasAccess = useAccess(["student"]);
   const [serviceType, setServiceType] = useState("");
   const [serviceTypes, setServiceTypes] = useState<IRoomServiceType[]>([]);
 
@@ -58,6 +61,10 @@ export default function Page() {
     return <Loader />;
   }
 
+  if (!hasAccess) {
+    return <NotAuthorized />;
+  }
+
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
 
@@ -85,9 +92,10 @@ export default function Page() {
       data = response.data;
     } catch (e) {
       console.log(e);
-      return toast.error("Something went wrong");
+      return toast.error("Unable to request, please try again later");
     }
 
+    console.log(data);
     if (!data.status) {
       return toast.error(data.msg);
     }
