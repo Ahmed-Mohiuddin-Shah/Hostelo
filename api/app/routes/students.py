@@ -7,6 +7,7 @@ from mysql.connector import connect, Error
 from decouple import config # type: ignore
 from app.mail_server import mailServer # type: ignore
 from app.my_sql_connection_cursor import cursor, connection # type: ignore  
+from app.auth.auth_handler import decodeJWT
 
 import string
 import secrets
@@ -435,4 +436,74 @@ async def get_student_ids():
         "status": True,
         "data": allStudents,
         "msg": "Student ids retrieved"
+    }
+
+@students_router.get("/swap-details", tags=["Student"])
+async def swap_details(request: Request):
+
+    token = request.headers["Authorization"] #type: ignore
+
+    decodedToken = decodeJWT(token)
+
+    try:
+        role = decodedToken["role"]
+    except:
+        return {
+            "status": False,
+            "msg": "Token expired"
+        }
+    
+    if role == "student":
+        return {
+            "status": False,
+            "msg": "UnAuthorized."
+        }
+    
+    query = "SELECT `student_id`, `name`, `room_number`, `email` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
+
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error getting student ids"
+        }
+    
+    if result is None:
+        return {
+            "status": False,
+            "msg": "No students found"
+        }
+    
+
+    allStudents = [{"id": _id, "name": name, "roomNumber": room_number, "email": email} for _id, name, room_number, email in result]
+
+    getUsersQuery = "SELECT `username`, `image_path` FROM `user` WHERE `role` = 'student'"
+    try:
+        cursor.execute(getUsersQuery)
+        users = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error getting images"
+        }
+    
+    if users is None:
+        return {
+            "status": False,
+            "msg": "No students found"
+        }
+    
+    for student in allStudents:
+        for user in users:
+            if user[0] == student["email"]:
+                student["image"] = user[1]
+
+    return {
+        "status": True,
+        "data": allStudents,
+        "msg": "Students retrieved"
     }
