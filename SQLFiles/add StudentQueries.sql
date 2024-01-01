@@ -199,6 +199,7 @@ HAVING
     MONTH(`request_date`) = MONTH('{date}')
     AND YEAR(`request_date`) = YEAR('{date}')
 
+-- get daysOff by student id and given month and year
 SELECT
     student_id,
     SUM(`daysOff`) AS totalDaysOff
