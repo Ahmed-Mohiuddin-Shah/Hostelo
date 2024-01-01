@@ -363,6 +363,7 @@ DROP TABLE complaintandquery;
 CREATE TABLE
     RoomService (
         service_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        student_id INTEGER,
         status BOOLEAN NOT NULL,
         room_number INTEGER,
         staff_id INTEGER,
