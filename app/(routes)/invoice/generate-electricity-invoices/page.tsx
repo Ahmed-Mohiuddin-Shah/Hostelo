@@ -7,12 +7,14 @@ import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
+import { FaSpinner } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function Page() {
   const auth = useAuth();
   const authContext = useContext(AuthContext);
   const hasAccess = useAccess(["admin", "manager"]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {}, []);
 
@@ -30,6 +32,7 @@ export default function Page() {
 
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     const perApplianceEletricityBill = parseInt(
       e.target.perApplianceElectricityBill.value
@@ -41,6 +44,7 @@ export default function Page() {
     const currentDate = new Date(currentDateString);
 
     if (invoiceDate > currentDate) {
+      setIsSubmitting(false);
       return toast.error("Invoice month cannot be in future");
     }
 
@@ -50,15 +54,18 @@ export default function Page() {
     diffMonths = Math.floor(diffMonths / 30);
 
     if (diffMonths > 1) {
+      setIsSubmitting(false);
       return toast.error(
         "Invoice can be made for current month, or previous month only"
       );
     }
 
     if (isNaN(perApplianceEletricityBill)) {
+      setIsSubmitting(false);
       return toast.error("Please enter a valid number");
     }
     if (perApplianceEletricityBill <= 0) {
+      setIsSubmitting(false);
       return toast.error("Cost per day can only be positive");
     }
 
@@ -67,7 +74,7 @@ export default function Page() {
       const response = await axios.post(
         "/api/invoice/generate-electricity-invoices",
         {
-          perDayCost: perApplianceEletricityBill,
+          perApplianceBill: perApplianceEletricityBill,
           invoiceDate: inputInvoiceDate,
         },
         {
@@ -78,15 +85,18 @@ export default function Page() {
       );
       data = response.data;
     } catch (err) {
+      setIsSubmitting(false);
       return toast.error("Something went wrong, please try again");
     }
 
     if (!data.status) {
+      setIsSubmitting(false);
       return toast.error(data.msg);
     }
 
     toast.success(data.msg);
     e.target.reset();
+    setIsSubmitting(false);
   };
 
   return (
@@ -132,8 +142,10 @@ export default function Page() {
           <div>
             <button
               type="submit"
-              className="inline-flex items-center justify-center rounded-md bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              className="inline-flex items-center justify-center rounded-md bg-primary py-4 px-10 text-center font-medium text-white disabled:bg-opacity-75 hover:bg-opacity-90 lg:px-8 xl:px-10"
+              disabled={isSubmitting}
             >
+              {isSubmitting && <FaSpinner className="animate-spin mr-2" />}
               Generate Invoices and Send Emails
             </button>
           </div>
