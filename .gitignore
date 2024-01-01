@@ -45,3 +45,6 @@ __pycache__/
 
 # .vscode ignore
 .vscode/
+
+# python test file ignore
+/pythonTest.py

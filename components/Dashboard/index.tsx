@@ -20,8 +20,8 @@ interface MessOffStudentInterface {
   messOnDate: string;
 }
 interface ComplaintInterface {
-  studentName: string;
-  text: string;
+  title: string;
+  status: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -158,10 +158,10 @@ const Dashboard: React.FC = () => {
 
       if (data.status) {
         const recentComplaints = data.data.recent_complaints.map(
-          ([studentName, description]: string[]) => {
+          ([title, status]: string[]) => {
             return {
-              studentName: studentName,
-              text: description,
+              title,
+              status,
             };
           }
         );
@@ -169,6 +169,8 @@ const Dashboard: React.FC = () => {
       } else {
         console.log(data.msg);
       }
+
+      console.log(data);
     };
 
     getTotalStudents();
@@ -242,9 +244,9 @@ const Dashboard: React.FC = () => {
                 key={index}
               >
                 <h5 className="text-lg font-semibold text-meta-5">
-                  {complaint.studentName}
+                  {complaint.title}
                 </h5>
-                <p className="text-lg">{complaint.text}</p>
+                <p className="text-lg">{complaint.status}</p>
               </article>
             ))}
             {recentComplaints.length > 0 && (

@@ -1,5 +1,7 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import Image from "next/image";
@@ -25,7 +27,7 @@ export default function Page() {
     []
   );
   const [filterText, setFilterText] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const hasAccess = useAccess(["admin", "manager", "student"]);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -57,6 +59,10 @@ export default function Page() {
 
   if (auth === null) {
     return <Loader />;
+  }
+
+  if (!hasAccess) {
+    return <NotAuthorized />;
   }
 
   function handleFilterTextChange() {

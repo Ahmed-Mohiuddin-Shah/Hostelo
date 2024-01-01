@@ -9,7 +9,7 @@ attendance_router = APIRouter()
 @attendance_router.get("/student-details", tags=["Attendance"])
 async def student_details(request: Request):
     
-    getStudentsQuery = "SELECT `student_id`, `name`, `room_number` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`) ORDER BY `room_number` ASC"
+    getStudentsQuery = "SELECT `email`, `student_id`, `name`, `room_number` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`) ORDER BY `room_number` ASC"
     getUsersQuery = "SELECT `username`, `image_path` FROM `user` WHERE `role` = 'student'"
 
     try:
@@ -27,11 +27,11 @@ async def student_details(request: Request):
     allStudentInfo = [] # type: ignore
     for student in students:
         for user in users:
-            if student[0] == int(user[0]):  #type: ignore
+            if student[0] == user[0]:  #type: ignore
                 allStudentInfo.append({
-                    "student_id": student[0],
-                    "name": student[1],
-                    "room_number": student[2],
+                    "student_id": student[1],
+                    "name": student[2],
+                    "room_number": student[3],
                     "student_image": user[1]
                 })
                 break
@@ -89,7 +89,7 @@ async def mark_attendance(request: Request):
 
 @attendance_router.get("/get-attendance", tags=["Attendance"])
 async def get_attendance(request: Request):
-    getAttendanceQuery = "SELECT `student_id`, name, `room_number`, `date`, `status` FROM `attendance` NATURAL JOIN `student` ORDER BY `date` DESC"
+    getAttendanceQuery = "SELECT `email`, `student_id`, name, `room_number`, `date`, `status` FROM `attendance` NATURAL JOIN `student` ORDER BY `date` DESC"
     getUsersQuery = "SELECT `username`, `image_path` FROM `user` WHERE `role` = 'student'"
 
     try:
@@ -107,13 +107,13 @@ async def get_attendance(request: Request):
     allAttendanceInfo = [] # type: ignore
     for student in attendance:
         for user in users:
-            if student[0] == int(user[0]):  #type: ignore
+            if student[0] == user[0]:  #type: ignore
                 allAttendanceInfo.append({
-                    "student_id": student[0],
-                    "name": student[1],
-                    "room_number": student[2],
-                    "date": student[3],
-                    "status": True if student[4] == 1 else False,
+                    "student_id": student[1],
+                    "name": student[2],
+                    "room_number": student[3],
+                    "date": student[4],
+                    "status": True if student[5] == 1 else False,
                     "student_image": user[1]
                 })
     
@@ -126,7 +126,6 @@ async def get_attendance(request: Request):
 @attendance_router.put("/edit-attendance/{student_id}", tags=["Attendance"])
 async def edit_attendance(student_id: int, request: Request):
     request_json = await request.json()
-    print(request_json)
 
     editAttendanceQuery = f"UPDATE `attendance` SET `status` = {1 if request_json.get('status') is True else 0} WHERE `student_id` = {student_id} AND `date` = '{request_json.get('date')}'"
 

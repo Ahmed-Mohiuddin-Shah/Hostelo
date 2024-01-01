@@ -13,7 +13,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 
-interface IAsset {
+interface Interface {
   name: number;
   quantity: string;
 }
@@ -33,13 +33,13 @@ export default function Page() {
     return <Loader />;
   }
 
-  const handleEditClicked = (e: any, roomNumber: number) => {};
+  const handleEditClicked = (e: any, id: number) => {};
 
   const handleEditSubmit = async (e: any) => {
     e.preventDefault();
   };
 
-  const handleDelete = async (e: any, roomNumber: number) => {
+  const handleDelete = async (e: any, id: number) => {
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -113,22 +113,22 @@ export default function Page() {
             </thead>
             <tbody>
               {states.map((state) => (
-                <tr key={state.id} className="border-b">
-                  <td className="px-4 py-2">
-                    <button
-                      className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded dark:text-white"
-                      onClick={(e) => handleEditClicked(e, room.roomNumber)}
-                    >
-                      <FaPenToSquare className="text-lg text-current" />
-                    </button>
-                    <button
-                      className="bg-red-500 hover:bg-red-700 text-black font-bold py-2 px-4 rounded dark:text-white"
-                      onClick={(e) => handleDelete(e, room.roomNumber)}
-                    >
-                      <FaTrash className="text-lg text-current" />
-                    </button>
-                  </td>
-                </tr>
+                <td className="px-4 py-2 flex">
+                      <button
+                        className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-4 px-2 rounded dark:text-white"
+                        onClick={(e) =>
+                          handleEditClicked(e, complaint.complaint_id)
+                        }
+                      >
+                        <FaPenToSquare className="text-lg text-current" />
+                      </button>
+                      <button
+                        className="bg-red-500 hover:bg-red-700 text-danger font-bold py-4 px-2 rounded dark:text-white"
+                        onClick={(e) => handleDelete(e, complaint.complaint_id)}
+                      >
+                        <FaTrash className="text-lg text-current" />
+                      </button>
+                    </td>
               ))}
             </tbody>
           </table>

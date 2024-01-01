@@ -485,3 +485,5 @@ WHERE `student_id` NOT IN (
     )
 GROUP BY `room_number`
 HAVING 'availableSlots' > 0;
+
+INSERT INTO servicetype (service_name) VALUES ('Cleaning');
