@@ -339,7 +339,7 @@ export default function Page() {
                   )}
                   <th className="px-4 py-2">Complaint Title</th>
                   <th className="px-4 py-2">Complaint Description</th>
-                  <th className="px-4 py-2">Status</th>
+                  <th className="px-4 py-2">Current Status</th>
                   <th className="px-4 py-2">Actions</th>
                 </tr>
               </thead>
@@ -355,7 +355,17 @@ export default function Page() {
                     )}
                     <td className="px-4 py-2">{complaint.title}</td>
                     <td className="px-4 py-2">{complaint.description}</td>
-                    <td className="px-4 py-2">{complaint.status}</td>
+                    <td className={`px-4 py-2 text-white`}>
+                      <span
+                        className={`p-2 rounded ${
+                          complaint.status === "resolved"
+                            ? "bg-success"
+                            : "bg-warning"
+                        }`}
+                      >
+                        {complaint.status}
+                      </span>
+                    </td>
 
                     {authContext.userInfo?.role === "student" && (
                       <td className="px-4 py-2 flex">
@@ -377,21 +387,21 @@ export default function Page() {
                         </button>
                       </td>
                     )}
-                    {authContext.userInfo?.role !== "student" && (
-                      <td className="px-4 py-2 flex">
-                        <button
-                          className="bg-primary text-white font-bold py-2 rounded dark:text-white"
-                          onClick={(e) =>
-                            handleResolved(e, complaint.complaint_id)
-                          }
-                        >
-                          Mark as{" "}
-                          {complaint.status === "pending"
-                            ? "resolved"
-                            : "pending"}
-                        </button>
-                      </td>
-                    )}
+                    {authContext.userInfo?.role !== "student" &&
+                      complaint.status !== "resolved" && (
+                        <td className="px-4 py-2 flex">
+                          <button
+                            className={`text-white font-bold py-2 rounded dark:text-white ${
+                              complaint.status === "pending" && "bg-meta-3"
+                            }`}
+                            onClick={(e) =>
+                              handleResolved(e, complaint.complaint_id)
+                            }
+                          >
+                            Mark as resolved
+                          </button>
+                        </td>
+                      )}
                   </tr>
                 ))}
               </tbody>
