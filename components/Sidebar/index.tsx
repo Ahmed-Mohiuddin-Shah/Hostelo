@@ -1,22 +1,17 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import SidebarLinkGroup from "./SidebarLinkGroup";
 import Image from "next/image";
 import { AuthContext } from "@/contexts/UserAuthContext";
 
 import {
   FaBellConcierge,
   FaBullhorn,
-  FaCircleChevronDown,
-  FaCircleChevronUp,
   FaCubesStacked,
-  FaDoorClosed,
   FaDoorOpen,
   FaFilePen,
   FaGraduationCap,
   FaHive,
-  FaMegaport,
   FaPlugCircleBolt,
   FaReceipt,
   FaSnowflake,
@@ -287,11 +282,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const getLinks = (link: any, i: number) => {
     const currentUserRole = authContext.userInfo?.role[0].toLocaleLowerCase();
     if (!currentUserRole) return;
-
-    // if (currentUserRole === "s") {
-    // } else if (currentUserRole === "a") {
-    // } else if (currentUserRole === "m") {
-    // }
 
     if (link.children) {
       if (!link.access.includes(currentUserRole)) return;
