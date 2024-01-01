@@ -367,6 +367,7 @@ CREATE TABLE
         room_number INTEGER,
         staff_id INTEGER,
         service_type_id INTEGER,
+        request_date DATE NOT NULL,
         FOREIGN KEY (room_number) REFERENCES Room(room_number),
         FOREIGN KEY (staff_id) REFERENCES Staff(staff_id),
         FOREIGN KEY (service_type_id) REFERENCES ServiceType(service_type_id)
