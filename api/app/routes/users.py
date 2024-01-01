@@ -33,7 +33,7 @@ async def update_profile_picture(request: Request):
     }
     
 @users_router.post("/verify-password", tags=["Users"])
-async def update_password(request: Request):
+async def verify_password(request: Request):
     request_json = await request.json()
     password = request_json.get('password')
     token = request.headers['Authorization']
@@ -70,3 +70,30 @@ async def update_password(request: Request):
             "status": False,
             "msg": "Password is incorrect"
         }
+    
+@users_router.post("/change-password", tags=["Users"])
+async def change_password(request: Request):
+    request_json = await request.json()
+    password = request_json.get('password')
+    token = request.headers['Authorization']
+
+    decodedToken = decodeJWT(token)
+    
+    username = decodedToken.get('username')
+
+    query = f"UPDATE `user` SET `password`='{password}' WHERE `username`='{username}'"
+    
+    try:
+        cursor.execute(query)
+        connection.commit()
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Password change Failed"
+        }
+    
+    return {
+        "status": True,
+        "msg": "Password changed successfully"
+    }
