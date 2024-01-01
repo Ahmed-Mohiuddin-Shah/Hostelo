@@ -5,6 +5,7 @@ import axios from "axios";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaDoorClosed } from "react-icons/fa6";
+import { PatternFormat } from "react-number-format";
 import { ToastContainer, toast } from "react-toastify";
 
 interface IRoomType {
@@ -59,8 +60,8 @@ export default function Page() {
   const handleAddRoom = async (e: any) => {
     e.preventDefault();
 
-    const roomNumber = e.target.roomNumber.value;
-    const roomType = e.target.roomType.value;
+    const roomNumber = e.target.roomNumber.value.trim();
+    const roomType = e.target.roomType.value.trim();
 
     if (roomNumber === "" || roomType === "") {
       toast.error("Please fill all the fields.");
@@ -80,8 +81,6 @@ export default function Page() {
       console.log(error);
       throw error;
     }
-
-    console.log(data);
 
     if (data === null) {
       toast.error("Unable to get response from server.");
@@ -112,13 +111,14 @@ export default function Page() {
             >
               Room number
             </label>
-            <input
-              type="number"
+            <PatternFormat
               placeholder="Enter room number"
               id="roomNumber"
               name="roomNumber"
               className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
               required
+              format="######"
+              valueIsNumericString
             />
           </div>
           <div className="mb-4">

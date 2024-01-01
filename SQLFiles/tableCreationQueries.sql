@@ -1,19 +1,26 @@
+-- Active: 1703074437870@@26.94.210.229@3306@hostelo
+
+CREATE DATABASE Hostelo;
+
 USE Hostelo;
 
 CREATE TABLE
     StudentAddress (
-        address_id CHAR (2) PRIMARY KEY,
-        state VARCHAR (35) NOT NULL,
-        city VARCHAR (35) NOT NULL,
-        street VARCHAR (20) NOT NULL
+        address_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+        permament_address VARCHAR (100) NOT NULL,
+        temporary_address VARCHAR (100) NOT NULL
     );
+
+ALTER TABLE student DROP CONSTRAINT student_ibfk_1;
+
+DROP TABLE studentaddress;
 
 CREATE TABLE
     StudentMedicalRecord (
-        medical_id CHAR (2) PRIMARY KEY,
-        problem VARCHAR (20),
-        description VARCHAR (75),
-        regular_medicine VARCHAR (20),
+        medical_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+        problem VARCHAR (250),
+        description VARCHAR (500),
+        regular_medicine VARCHAR (250),
         smoker CHAR (1) CHECK (smoker IN ('Y', 'N')),
         blood_group CHAR (3) CHECK(
             blood_group IN (
@@ -29,6 +36,19 @@ CREATE TABLE
         )
     );
 
+DROP TABLE studentmedicalrecord;
+
+ALTER TABLE studentmedicalrecord MODIFY description VARCHAR(500);
+
+ALTER TABLE studentmedicalrecord MODIFY problem VARCHAR(250);
+
+ALTER TABLE
+    studentmedicalrecord MODIFY regular_medicine VARCHAR(250);
+
+DROP TABLE studentmedicalrecord;
+
+ALTER TABLE student DROP CONSTRAINT student_ibfk_2;
+
 CREATE TABLE
     Department (
         dept_id CHAR (2) PRIMARY KEY,
@@ -38,8 +58,11 @@ CREATE TABLE
 CREATE TABLE
     RoomType (
         type_id INT PRIMARY KEY,
-        type_name VARCHAR (35) NOT NULL
+        type_name VARCHAR (35) NOT NULL,
+        slots INT NOT NULL
     );
+
+ALTER TABLE roomtype ADD COLUMN slots INT NOT NULL;
 
 CREATE TABLE
     Room (
@@ -52,42 +75,91 @@ CREATE TABLE
     Staff (
         staff_id CHAR (2) PRIMARY KEY,
         name VARCHAR (25) NOT NULL,
-        CNIC BIGINT NOT NULL UNIQUE,
-        phone_number BIGINT NOT NULL UNIQUE
+        CNIC VARCHAR (15) NOT NULL UNIQUE,
+        phone_number VARCHAR (16) NOT NULL UNIQUE
     );
+
+DROP TABLE staff;
 
 CREATE TABLE
     Student (
         student_id INT PRIMARY KEY,
-        CNIC BIGINT NOT NULL UNIQUE,
+        CNIC VARCHAR(15) NOT NULL UNIQUE,
         name VARCHAR (35) NOT NULL,
-        gender CHAR (7) NOT NULL CHECK (
-            gender IN ('M', 'F', 'XMALE', 'XFEMALE')
-        ),
+        email VARCHAR (150) NOT NULL UNIQUE,
+        gender CHAR (1) NOT NULL CHECK (gender IN ('M', 'F', 'O')),
         school VARCHAR (20) NOT NULL,
         batch INT NOT NULL,
         sem INT NOT NULL CHECK (
             sem BETWEEN 1 AND 10
         ),
-        address_id CHAR (2),
-        medical_id CHAR (2),
-        dept_id CHAR (2),
+        department VARCHAR(20),
+        address_id INTEGER,
+        medical_id INTEGER,
         room_number INT,
-        staff_id CHAR (2),
+        phone_number VARCHAR(16) NOT NULL UNIQUE,
         FOREIGN KEY (address_id) REFERENCES studentAddress(address_id),
         FOREIGN KEY (medical_id) REFERENCES studentMedicalRecord(medical_id),
-        FOREIGN KEY (dept_id) REFERENCES Department(dept_id),
         FOREIGN KEY (room_number) REFERENCES Room(room_number),
-        FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
+        CONSTRAINT ck_email CHECK (email LIKE '%@%')
     );
+
+DROP TABLE student;
+
+ALTER TABLE relative DROP CONSTRAINT relative_ibfk_1;
+
+ALTER TABLE student ADD COLUMN phone_number VARCHAR(16) NOT NULL;
+
+UPDATE student SET gender = 'O';
+
+ALTER TABLE student MODIFY gender CHAR(1) NOT NULL;
+
+SELECT *
+FROM
+    information_schema.TABLES
+WHERE `TABLE_NAME` = "student";
+
+ALTER TABLE student MODIFY medical_id INTEGER;
+
+UPDATE student SET medical_id = 1;
+
+ALTER TABLE student ADD COLUMN email VARCHAR(150) NOT NULL;
+
+ALTER TABLE student ADD UNIQUE (email);
+
+ALTER TABLE student
+ADD
+    FOREIGN KEY (address_id) REFERENCES studentAddress(address_id);
+
+ALTER TABLE student
+ADD
+    FOREIGN KEY (medical_id) REFERENCES studentMedicalRecord(medical_id);
+
+ALTER TABLE student
+ADD
+    CONSTRAINT ck_email CHECK (email LIKE '%@%');
+
+ALTER TABLE student
+ADD
+    CONSTRAINT ck_gender CHECK (gender IN ('M', 'F', 'O'));
+
+ALTER TABLE student DROP CONSTRAINT student_ibfk_5;
+
+ALTER TABLE student DROP CONSTRAINT student_chk_1;
+
+ALTER TABLE student DROP COLUMN dept_id;
+
+ALTER TABLE student ADD COLUMN department VARCHAR(20) NOT NULL;
 
 CREATE TABLE
     StudentPhoneNo (
-        phone_number BIGINT NOT NULL UNIQUE,
+        phone_number VARCHAR (16) NOT NULL,
         student_id INT,
         PRIMARY KEY (student_id, phone_number),
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
+
+DROP TABLE studentphoneno;
 
 CREATE TABLE
     ElectricAppliance (
@@ -97,23 +169,44 @@ CREATE TABLE
 
 CREATE TABLE
     Parent (
-        name VARCHAR (30) NOT NULL,
-        CNIC BIGINT NOT NULL UNIQUE,
-        phone_number BIGINT NOT NULL UNIQUE,
+        CNIC VARCHAR(15) NOT NULL,
+        name VARCHAR (100) NOT NULL,
+        relation VARCHAR (20) NOT NULL CHECK (
+            relation IN ('Mother', 'Father', 'Gaurdian')
+        ) DEFAULT "Garudian",
+        phone_number VARCHAR(13) NOT NULL,
         student_id INT,
-        PRIMARY KEY (student_id, name),
+        PRIMARY KEY (student_id, CNIC),
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
+    );
+
+ALTER TABLE parent MODIFY name VARCHAR(100) NOT NULL;
+
+ALTER TABLE parent MODIFY CNIC VARCHAR(15) NOT NULL UNIQUE;
+
+ALTER TABLE parent MODIFY phone_number VARCHAR(13) NOT NULL UNIQUE;
+
+DROP TABLE Parent;
+
+ALTER TABLE parent
+ADD
+    COLUMN relation VARCHAR(20) DEFAULT "Garudian" NOT NULL CHECK (
+        relation IN ('Mother', 'Father', 'Gaurdian')
     );
 
 CREATE TABLE
     Relative (
-        number CHAR (2),
+        CNIC VARCHAR(15) NOT NULL,
+        name VARCHAR (100) NOT NULL,
         relation VARCHAR (20),
-        CNIC BIGINT NOT NULL UNIQUE,
         student_id INT,
-        PRIMARY KEY (student_id, number),
+        PRIMARY KEY (student_id, CNIC),
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
+
+ALTER TABLE relative MODIFY name VARCHAR(100) NOT NULL;
+
+DROP TABLE relative
 
 USE Hostelo;
 
@@ -121,10 +214,12 @@ DROP TABLE IF EXISTS Asset;
 
 CREATE TABLE
     Asset (
-        number INT PRIMARY KEY,
+        number INTEGER AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR (25),
         quantity INTEGER
     );
+
+DROP TABLE asset;
 
 ALTER TABLE `asset` CHANGE `quantity` `quantity` int DEFAULT 0;
 
@@ -136,9 +231,14 @@ CREATE TABLE
         description VARCHAR (150),
         student_id INT,
         staff_id CHAR (2),
+        status VARCHAR (20) CHECK (
+            status IN ('Pending', 'Resolved')
+        ),
         FOREIGN KEY (student_id) REFERENCES Student(student_id),
         FOREIGN KEY (staff_id) REFERENCES Staff(staff_id)
     );
+
+DROP TABLE complaintandquery;
 
 CREATE TABLE
     RoomService (
@@ -178,7 +278,7 @@ CREATE TABLE
 
 CREATE TABLE
     Invoice (
-        invoice_id CHAR (2) PRIMARY KEY,
+        invoice_id INTEGER PRIMARY KEY,
         date_of_issuance DATE NOT NULL,
         payable_amount DECIMAL (9, 2) NOT NULL,
         due_date DATE NOT NULL,
@@ -186,18 +286,24 @@ CREATE TABLE
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
 
+DROP TABLE invoice;
+
 CREATE TABLE
     MessInvoice (
-        invoice_id CHAR (2) PRIMARY KEY,
+        invoice_id INTEGER PRIMARY KEY,
         FOREIGN KEY (invoice_id) REFERENCES Invoice(invoice_id)
     );
 
+DROP TABLE messinvoice;
+
 CREATE TABLE
     ElectricApplianceInvoice (
-        invoice_id CHAR (2) PRIMARY KEY,
+        invoice_id INTEGER PRIMARY KEY,
         quantity VARCHAR (5),
         FOREIGN KEY (invoice_id) REFERENCES Invoice(invoice_id)
     );
+
+DROP TABLE electricapplianceinvoice;
 
 CREATE TABLE
     HasAppliance (
@@ -206,6 +312,8 @@ CREATE TABLE
         FOREIGN KEY (appliance_id) REFERENCES ElectricAppliance(appliance_id),
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
+
+DROP TABLE hasappliance;
 
 CREATE TABLE
     MessOff (
@@ -217,18 +325,65 @@ CREATE TABLE
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
 
+DROP TABLE messoff;
+
 CREATE TABLE
     Attendance(
         date DATE NOT NULL,
-        status CHAR (1) NOT NULL CHECK (status IN ('P', 'A')),
+        status BOOLEAN NOT NULL,
         student_id INT,
         PRIMARY KEY(date, student_id),
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
 
+DROP TABLE attendance;
+
 CREATE TABLE
     User(
         username VARCHAR(35) PRIMARY KEY,
         password VARCHAR(8) NOT NULL,
-        role VARCHAR(20) NOT NULL
+        role VARCHAR(20) NOT NULL,
+        image_path VARCHAR(500) NOT NULL
     );
+
+USE Hostelo;
+
+ALTER TABLE
+    studentaddress DROP COLUMN state,
+    DROP COLUMN city,
+    DROP COLUMN street;
+
+ALTER TABLE studentaddress
+ADD
+    COLUMN permanent_address VARCHAR(100) NOT NULL;
+
+ALTER TABLE studentaddress
+ADD
+    COLUMN temporary_address VARCHAR(100) NOT NULL;
+
+ALTER TABLE student MODIFY COLUMN CNIC VARCHAR(15) NOT NULL;
+
+ALTER TABLE
+    studentphoneno MODIFY COLUMN phone_number VARCHAR(16) NOT NULL;
+
+ALTER TABLE parent MODIFY COLUMN CNIC VARCHAR(15) NOT NULL;
+
+ALTER TABLE parent MODIFY COLUMN phone_number VARCHAR(16) NOT NULL;
+
+ALTER TABLE relative MODIFY COLUMN CNIC VARCHAR(15) NOT NULL;
+
+ALTER TABLE user ADD COLUMN image_path VARCHAR(500) NOT NULL;
+
+ALTER TABLE student DROP CONSTRAINT student_ibfk_5;
+
+ALTER TABLE student DROP COLUMN staff_id CASCADE;
+
+TRUNCATE TABLE student;
+
+TRUNCATE TABLE parent;
+
+TRUNCATE TABLE invoice;
+
+TRUNCATE TABLE messinvoice;
+
+CREATE TABLE deletedstudent (student_id INTEGER PRIMARY KEY);

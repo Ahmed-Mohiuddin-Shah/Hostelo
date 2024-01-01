@@ -20,8 +20,8 @@ interface MessOffStudentInterface {
   messOnDate: string;
 }
 interface ComplaintInterface {
-  studentName: string;
-  text: string;
+  title: string;
+  status: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
   >([]);
   const [recentComplaints, setRecentComplaints] = useState<
     ComplaintInterface[]
-  >([{ studentName: "John Doe", text: "This is a complaint" }]);
+  >([]);
 
   const headings = ["Student ID", "Name", "Room", "Mess on Date"];
   const keys = ["studentId", "name", "room", "messOnDate"];
@@ -80,33 +80,97 @@ const Dashboard: React.FC = () => {
     };
 
     const getNumberOfAssets = async () => {
-      const res = await axios.get("/api/assets/number-of-assets");
-      const data = await res.data;
-      console.log(data);
-      // setNumberOfAssets(res.data.total);
+      let data;
+
+      try {
+        const res = await axios.get("/api/assets/number-of-assets");
+        data = await res.data;
+      } catch (error) {
+        toast.error("Unable to connect to server.");
+        throw error;
+      }
+
+      if (data.status) {
+        setNumberOfAssets(data.data.count);
+      } else {
+        console.log(data.msg);
+      }
     };
 
     const getNumberOfActiveComplaints = async () => {
-      const res = await axios.get(
-        "/api/complaints/number-of-active-complaints"
-      );
-      const data = await res.data;
-      console.log(data);
-      // setNumberOfActiveComplaints(res.data.total);
+      let data;
+
+      try {
+        const res = await axios.get(
+          "/api/complaints/number-of-active-complaints"
+        );
+        data = await res.data;
+      } catch (error) {
+        toast.error("Unable to connect to server.");
+        throw error;
+      }
+
+      if (data.status) {
+        setNumberOfActiveComplaints(data.data.count);
+      } else {
+        console.log(data.msg);
+      }
     };
 
     const getStudentWithMessOff = async () => {
-      const res = await axios.get("/api/students/mess-off-students");
-      const data = await res.data;
-      console.log(data);
-      // setMessOffStudents(res.data.total);
+      let data;
+
+      try {
+        const res = await axios.get("/api/mess/mess-off-students");
+        data = await res.data;
+      } catch (error) {
+        toast.error("Unable to connect to server.");
+        throw error;
+      }
+
+      if (data.status) {
+        const messOffStudents = data.data.students.map(
+          ([studentId, name, room, messOnDate]: string[]) => {
+            return {
+              studentId: studentId,
+              name: name,
+              room: room,
+              messOnDate: messOnDate,
+            };
+          }
+        );
+        setMessOffStudents(messOffStudents);
+      } else {
+        console.log(data.msg);
+      }
     };
 
     const getRecentComplaints = async () => {
-      const res = await axios.get("/api/complaints/recent-complaints");
-      const data = await res.data;
+      let data;
+
+      try {
+        const res = await axios.get("/api/complaints/recent-complaints");
+        data = await res.data;
+      } catch (error) {
+        toast.error("Unable to connect to server.");
+        throw error;
+      }
+
+      if (data.status) {
+        const recentComplaints = data.data.recent_complaints.map(
+          ([title, status]: string[]) => {
+            return {
+              title,
+              status,
+            };
+          }
+        );
+        setRecentComplaints(recentComplaints);
+      } else {
+        console.log(data.msg);
+      }
+
       console.log(data);
-      // setRecentComplaints(res.data.total);
     };
 
     getTotalStudents();
@@ -126,7 +190,7 @@ const Dashboard: React.FC = () => {
         <CardDataStats title="Available Student Slots" total={`${freeSlots}`}>
           <FaHouseUser className="fill-primary dark:fill-white text-2xl" />
         </CardDataStats>
-        <CardDataStats title="Assets" total={`${numberOfAssets}`}>
+        <CardDataStats title="Assets Quantity" total={`${numberOfAssets}`}>
           <FaCubesStacked className="fill-primary dark:fill-white text-2xl" />
         </CardDataStats>
         <CardDataStats
@@ -148,7 +212,7 @@ const Dashboard: React.FC = () => {
           </div>
 
           <div className="-ml-5 h-[355px] w-[105%] overflow-auto">
-            <div className="h-80 rounded-sm bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
+            <div className="h-80 rounded-sm bg-white px-5 pt-6 pb-2.5 dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
               <div className="max-w-full overflow-x-auto">
                 <DataTable
                   headings={headings}
@@ -176,13 +240,13 @@ const Dashboard: React.FC = () => {
 
             {recentComplaints.map((complaint, index) => (
               <article
-                className="p-2 shadow rounded border border-secondary"
+                className="p-2 shadow rounded border border-gray"
                 key={index}
               >
                 <h5 className="text-lg font-semibold text-meta-5">
-                  {complaint.studentName}
+                  {complaint.title}
                 </h5>
-                <p className="text-lg">{complaint.text}</p>
+                <p className="text-lg">{complaint.status}</p>
               </article>
             ))}
             {recentComplaints.length > 0 && (

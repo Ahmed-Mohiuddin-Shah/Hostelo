@@ -1,27 +1,9 @@
+import re
+from uu import Error
 from fastapi import APIRouter, Body, Depends, Request
+from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
 rooms_router = APIRouter()
-
-########################################################
-
-from decouple import config # type: ignore
-from mysql.connector import connect, Error
-
-try:
-    connection = connect(
-        host = config("mySQLServerIP"),
-        user = config("apiUserName"),
-        password = config("apiPassword")
-    )
-except Error as e:
-    print(e)
-
-cursor = connection.cursor() # type: ignore
-cursor.execute("USE Hostelo")
-
-print("Connected to MySQL Server")
-
-########################################################
 
 @rooms_router.get("/room-types", tags=["Rooms"])
 async def get_room_types(request: Request):
@@ -38,7 +20,7 @@ async def get_room_types(request: Request):
 
 @rooms_router.get("/number-of-free-slots", tags=["Rooms"])
 async def get_total_free_slots(request: Request):
-    query = f"SELECT COUNT(*) FROM `student`"
+    query = f"SELECT COUNT(*) FROM `student` WHERE `student_id`  NOT IN (SELECT `student_id` FROM `deletedstudent`)"
     cursor.execute(query)
     total_students = cursor.fetchone()
     query = f"SELECT COUNT(*) FROM `room` NATURAL JOIN `roomtype` WHERE `type_id` = 1"
@@ -67,7 +49,7 @@ async def get_total_free_slots(request: Request):
        return {
           "status" : False,
           "msg" : "Retrieval Not Successful"
-       } 
+       }
 
 @rooms_router.post("/add-room", tags=["Rooms"])
 async def add_room(request: Request):
@@ -140,6 +122,23 @@ async def get_room(request: Request, room_number: int):
 
 @rooms_router.delete("/delete-room/{room_number}", tags=["Rooms"])
 async def delete_room(room_number):
+
+    checkOccupied = f"SELECT COUNT(*) FROM `student` WHERE `room_number` = '{room_number}' AND `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
+
+    try:
+        cursor.execute(checkOccupied)
+        roomOccupied = cursor.fetchone()
+        if roomOccupied[0] != 0: # type: ignore
+            return {
+                "status": False,
+                "msg": "Room is occupied"
+            }
+    except Error as e:
+        return {
+            "status": False,
+            "msg": "Unable to delete room"
+        }
+
     query = f"SELECT COUNT(*) FROM `room` WHERE `room_number` = '{room_number}'"
     cursor.execute(query)
     room_exists = cursor.fetchone()
@@ -164,11 +163,14 @@ async def delete_room(room_number):
         }
 @rooms_router.post("/edit-room/{room_number}", tags=["Rooms"])
 async def update_room(room_number, request: Request):
+
+    # edit room will not edit rooms that are occupied by at least one student
+
     request_json = await request.json()
     new_room_type = request_json["room_type"] #type: ignore
-    
-    query = f"SELECT COUNT(*) FROM `room` WHERE `room_number` = '{room_number}'"
-    cursor.execute(query)                                                                 
+
+    query = f"SELECT COUNT(*) FROM `room` WHERE `room_number` = '{room_number}' AND `room_number` NOT IN (SELECT `room_number` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`))"
+    cursor.execute(query)
     room_exists = cursor.fetchone()
     if room_exists[0] == 0: # type: ignore
         return {

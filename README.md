@@ -47,6 +47,9 @@ npm run dev
   apiUserName = "dummyValue"
   apiPassword = "dummyValue"
 
+  email_name = "dummyEmail@gmail.com"
+  email_password = "password"
+
   secret = veryDummyKey
   algorithm = HS256
   ```

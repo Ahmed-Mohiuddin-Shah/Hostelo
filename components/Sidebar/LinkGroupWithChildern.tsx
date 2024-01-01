@@ -11,10 +11,12 @@ interface LinkGroupWithChildrenProps {
   items: LinkGroupItem[];
   basePath: string;
   GroupIcon: React.ElementType;
+  currentUserRole: string;
 }
 interface LinkGroupItem {
   name: string;
   path: string;
+  access: string;
 }
 
 export default function LinkGroupWithChildren({
@@ -24,6 +26,7 @@ export default function LinkGroupWithChildren({
   items,
   GroupIcon,
   basePath,
+  currentUserRole,
 }: LinkGroupWithChildrenProps) {
   const pathname = usePathname();
   return (
@@ -59,18 +62,21 @@ export default function LinkGroupWithChildren({
               }`}
             >
               <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
-                {items.map((item, i) => (
-                  <li key={i}>
-                    <Link
-                      href={`${basePath}${item.path}`}
-                      className={`group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ${
-                        pathname === `${basePath}${item.path}` && "text-white"
-                      } `}
-                    >
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
+                {items.map((item, i) => {
+                  if (!item.access.includes(currentUserRole)) return;
+                  return (
+                    <li key={i}>
+                      <Link
+                        href={`${basePath}${item.path}`}
+                        className={`group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ${
+                          pathname === `${basePath}${item.path}` && "text-white"
+                        } `}
+                      >
+                        {item.name}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
             {/* <!-- Dropdown Menu End --> */}
