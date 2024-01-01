@@ -21,8 +21,33 @@ async def sign_in(request: Request):
         }
     
     username, _, role, image_url = user
+
+    if role == "admin":
+        name = "admin"
+    elif role == "worker":
+        query = f"SELECT `name` FROM `staff` WHERE `email`='{username}'"
+    elif role == "manager":
+        query = f"SELECT `name` FROM `staff` WHERE `email`='{username}'"
+    else:
+        query = f"SELECT `name` FROM `student` WHERE `email`='{username}'"
+        
+    try:
+        cursor.execute(query)
+        name = cursor.fetchone()[0] #type: ignore
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Something went wrong"
+        }
     
-    token = signAndGetJWT({"username": username, "role": role, "image_url": image_url})
+    if name is None:
+        return {
+            "status": False,
+            "msg": "Something went wrong"
+        }
+    
+    token = signAndGetJWT({"username": username, "role": role, "name": name, "image_url": image_url})
     return {
         "status": True,
         "msg": "Login successful",
