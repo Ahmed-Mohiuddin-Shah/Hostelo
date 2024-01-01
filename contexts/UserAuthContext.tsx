@@ -20,8 +20,8 @@ const AuthContext = createContext<AuthContextType>({
   userInfo: null,
   token: "",
   isLoggedIn: false,
-  login: (token: string) => new Promise(() => {}),
-  logout: () => {},
+  login: (token: string) => new Promise(() => { }),
+  logout: () => { },
 });
 
 const AuthContextProvider = ({

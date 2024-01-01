@@ -1,24 +1,20 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import SidebarLinkGroup from "./SidebarLinkGroup";
 import Image from "next/image";
 import { AuthContext } from "@/contexts/UserAuthContext";
 
 import {
   FaBellConcierge,
   FaBullhorn,
-  FaCircleChevronDown,
-  FaCircleChevronUp,
   FaCubesStacked,
-  FaDoorClosed,
   FaDoorOpen,
   FaFilePen,
   FaGraduationCap,
   FaHive,
-  FaMegaport,
   FaPlugCircleBolt,
   FaReceipt,
+  FaSnowflake,
   FaSquareCheck,
   FaUsers,
 } from "react-icons/fa6";
@@ -82,163 +78,237 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     {
       name: "Dashboard",
       path: "/",
+      access: "a|s|m|w",
       Icon: () => <FaHive className="fill-current text-lg" />,
     },
     {
       name: "Students",
       path: "/students",
+      access: "a|m",
       Icon: () => <FaGraduationCap className="fill-current text-lg" />,
       children: [
         {
           name: "Add Student",
           path: "/add-student",
+          access: "a|m",
         },
         {
           name: "All Students",
           path: "/all-students",
+          access: "a|m",
         },
         {
           name: "Swap Room",
           path: "/swap-room",
+          access: "a|m",
         },
       ],
     },
     {
       name: "Attendance",
       path: "/attendance",
+      access: "a|s|m",
       Icon: () => <FaSquareCheck className="fill-current text-lg" />,
       children: [
         {
           name: "Mark Attendance",
           path: "/mark-attendance",
+          access: "a|m",
         },
         {
-          name: "All Attendance",
+          name: "View Attendance",
           path: "/all-attendance",
+          access: "a|s|m",
         },
       ],
     },
     {
+      name: "Mess off",
+      path: "/mess-off",
+      access: "s",
+      Icon: () => <FaSnowflake className="fill-current text-lg" />,
+    },
+    {
       name: "Invoice",
       path: "/invoice",
+      access: "a|s|m",
       Icon: () => <FaReceipt className="fill-current text-lg" />,
       children: [
         {
           name: "Generate Mess Invoices",
           path: "/generate-mess-invoices",
+          access: "a|m",
         },
         {
           name: "Generate Elerctricity Invoices",
           path: "/generate-electricity-invoices",
+          access: "a|m",
+        },
+        {
+          name: "View Invoices",
+          path: "/all-invoices",
+          access: "a|s|m",
         },
       ],
     },
     {
       name: "Electrical Appliances",
       path: "/electrical-appliances",
+      access: "a|s|m",
       Icon: () => <FaPlugCircleBolt className="fill-current text-lg" />,
       children: [
         {
           name: "Add Electrical Appliance",
           path: "/add-electrical-appliance",
+          access: "a|m",
         },
         {
           name: "All Electrical Appliances",
           path: "/all-electrical-appliances",
+          access: "a|s|m",
         },
       ],
     },
     {
       name: "Assets",
       path: "/assets",
+      access: "a|m",
       Icon: () => <FaCubesStacked className="fill-current text-lg" />,
       children: [
         {
           name: "Add Asset",
           path: "/add-asset",
+          access: "a|m",
         },
         {
           name: "All Assets",
           path: "/all-assets",
+          access: "a|m",
         },
       ],
     },
     {
       name: "Rooms",
       path: "/rooms",
+      access: "a|m",
       Icon: () => <FaDoorOpen className="fill-current text-lg" />,
       children: [
         {
           name: "Add Room",
           path: "/add-room",
+          access: "a|m",
         },
         {
           name: "All Rooms",
           path: "/all-rooms",
+          access: "a|m",
         },
       ],
     },
     {
       name: "Room services",
       path: "/room-services",
+      access: "a|s|m|w",
       Icon: () => <FaBellConcierge className="fill-current text-lg" />,
       children: [
         {
           name: "Request Room Service",
           path: "/request-room-service",
+          access: "s",
         },
         {
           name: "Room Services",
           path: "/all-room-services",
+          access: "a|s|m|w",
         },
       ],
     },
     {
       name: "Complaints",
       path: "/complaints",
+      access: "a|s|m",
       Icon: () => <FaFilePen className="fill-current text-lg" />,
       children: [
         {
           name: "Add Complaint",
           path: "/add-complaint",
+          access: "s",
         },
         {
           name: "All Complaints",
           path: "/all-complaints",
+          access: "a|s|m",
         },
       ],
     },
     {
       name: "Announcements",
       path: "/announcements",
+      access: "a|s|m",
       Icon: () => <FaBullhorn className="fill-current text-lg" />,
       children: [
         {
           name: "Add Announcement",
           path: "/add-announcement",
+          access: "a|m",
         },
         {
           name: "All Announcements",
           path: "/all-announcements",
+          access: "a|s|m",
         },
       ],
     },
     {
       name: "Staff",
       path: "/staff",
+      access: "a|m",
       Icon: () => <FaUsers className="fill-current text-lg" />,
       children: [
         {
           name: "Add Staff",
           path: "/add-staff",
+          access: "a|m",
         },
         {
           name: "All Staff",
           path: "/all-staff",
+          access: "a|m",
         },
       ],
     },
   ];
+
+  const getLinks = (link: any, i: number) => {
+    const currentUserRole = authContext.userInfo?.role[0].toLocaleLowerCase();
+    if (!currentUserRole) return;
+
+    if (link.children) {
+      if (!link.access.includes(currentUserRole)) return;
+      return (
+        <LinkGroupWithChildren
+          sidebarExpanded={sidebarExpanded}
+          setSidebarExpanded={setSidebarExpanded}
+          groupName={link.name}
+          basePath={link.path}
+          items={link.children}
+          GroupIcon={link.Icon}
+          key={i}
+          currentUserRole={currentUserRole}
+        />
+      );
+    } else {
+      if (!link.access.includes(currentUserRole)) return;
+      return (
+        <SideBarLinkSingle
+          linkName={link.name}
+          Icon={link.Icon}
+          path={link.path}
+          key={i}
+        />
+      );
+    }
+  };
 
   return (
     <aside
@@ -292,54 +362,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </h3>
 
             <ul className="mb-6 flex flex-col gap-1.5">
-              {links.map((link, i) => {
-                if (link.children) {
-                  return (
-                    <LinkGroupWithChildren
-                      sidebarExpanded={sidebarExpanded}
-                      setSidebarExpanded={setSidebarExpanded}
-                      groupName={link.name}
-                      basePath={link.path}
-                      items={link.children}
-                      GroupIcon={link.Icon}
-                      key={i}
-                    />
-                  );
-                } else {
-                  return (
-                    <SideBarLinkSingle
-                      linkName={link.name}
-                      Icon={link.Icon}
-                      path={link.path}
-                      key={i}
-                    />
-                  );
-                }
-              })}
-
-              {/* <SideBarLinkSingle
-                linkName="Dashboard"
-                Icon={() => <FaHive className="fill-current text-lg" />}
-                path="/"
-              /> */}
-              {/* <li>
-                <Link
-                  href="/"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("dashboard") &&
-                    "bg-graydark dark:bg-meta-4"
-                  }`}
-                >
-                  <FaHive className="fill-current text-lg" />
-                  Dashboard
-                </Link>
-              </li> */}
+              {links.map(getLinks)}
             </ul>
           </div>
-
-          {/* <!-- Others Group --> */}
         </nav>
-        {/* <!-- Sidebar Menu --> */}
       </div>
     </aside>
   );

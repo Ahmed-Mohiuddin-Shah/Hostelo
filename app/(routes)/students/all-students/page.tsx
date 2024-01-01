@@ -1,6 +1,8 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import StudentForm from "@/components/StudentForm";
 import Loader from "@/components/common/Loader";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import Image from "next/image";
@@ -18,7 +20,7 @@ import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 interface IStudent {
-  student_image: string;
+  student_image: any;
   student_id: string;
   student_name: string;
   email: string;
@@ -60,6 +62,7 @@ interface IRoomType {
 
 export default function Page() {
   const auth = useAuth();
+  const hasAccess = useAccess(["admin", "manager"]);
   const modalRef = useRef<HTMLDivElement>(null);
 
   const [students, setStudents] = useState<IStudent[]>([]);
@@ -115,6 +118,10 @@ export default function Page() {
     return <Loader />;
   }
 
+  if (!hasAccess) {
+    return <NotAuthorized />;
+  }
+
   const handleStudentEditClicked = (student_id: string) => {
     const student = students.find(
       (student) => student.student_id === student_id
@@ -143,7 +150,8 @@ export default function Page() {
       "relative_3_cnic",
     ];
     for (let field of onlyNumbersField) {
-      if (!/^[0-9]*$/g.test(underEditStudent[field])) {
+      const value = underEditStudent![field as keyof IStudent];
+      if (!/^[0-9]*$/g.test(value)) {
         toast.error(`Invalid ${field} please remove any non number characters`);
         setIsSubmitting(false);
         return;
@@ -163,7 +171,8 @@ export default function Page() {
       "relative_3_name",
     ];
     for (let field of openEndedFields) {
-      if (!/^[a-zA-Z\s]*$/g.test(underEditStudent[field])) {
+      const value = underEditStudent![field as keyof IStudent];
+      if (!/^[a-zA-Z\s]*$/g.test(value)) {
         toast.error(`Invalid ${field}`);
         setIsSubmitting(false);
         return;
@@ -219,7 +228,7 @@ export default function Page() {
 
     // upload image
     if (
-      underEditStudent.student_image &&
+      underEditStudent?.student_image &&
       underEditStudent.student_image instanceof File
     ) {
       const imageFormData = new FormData();
