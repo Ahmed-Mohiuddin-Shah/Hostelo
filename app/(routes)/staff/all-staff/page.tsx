@@ -1,5 +1,7 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import Image from "next/image";
@@ -21,6 +23,7 @@ interface IStaff {
 
 export default function Page() {
   const auth = useAuth();
+  const hasAccess = useAccess(["admin", "manager"]);
   const [isEditing, setIsEditing] = useState<boolean | null>(false);
   const [staffMembers, setStaffMembers] = useState<IStaff[]>([]);
   const [selectedStaff, setSelectedStaff] = useState<IStaff>();
@@ -51,6 +54,10 @@ export default function Page() {
 
   if (auth === null) {
     return <Loader />;
+  }
+
+  if (!hasAccess) {
+    return <NotAuthorized />;
   }
 
   const handleEditClicked = (e: any, id: number) => {
