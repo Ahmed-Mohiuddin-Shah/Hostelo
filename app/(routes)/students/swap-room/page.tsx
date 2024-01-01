@@ -86,6 +86,8 @@ export default function Page() {
         {
           firstStudentId: firstStudent.id,
           secondStudentId: secondStudent.id,
+          firstStudentRoomNumber: firstStudent.roomNumber,
+          secondStudentRoomNumber: secondStudent.roomNumber,
         },
         {
           headers: {
@@ -104,6 +106,8 @@ export default function Page() {
     }
 
     toast.success(data.msg);
+    setFirstStudent(undefined);
+    setSecondStudent(undefined);
   };
 
   return (
@@ -136,7 +140,10 @@ export default function Page() {
                 <option
                   key={student.id}
                   value={student.id}
-                  disabled={secondStudent?.id === student.id}
+                  disabled={
+                    secondStudent?.id === student.id ||
+                    secondStudent?.roomNumber === student.roomNumber
+                  }
                   className="disabled:bg-bodydark2"
                 >
                   {student.id}
@@ -182,7 +189,10 @@ export default function Page() {
                 <option
                   key={student.id}
                   value={student.id}
-                  disabled={firstStudent?.id === student.id}
+                  disabled={
+                    firstStudent?.id === student.id ||
+                    firstStudent?.roomNumber === student.roomNumber
+                  }
                   className="disabled:bg-bodydark2"
                 >
                   {student.id}
