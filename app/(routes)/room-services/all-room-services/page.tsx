@@ -24,7 +24,7 @@ interface IRoomService {
 }
 
 export default function Page() {
-  const hasAccess = useAccess(["student", "manager", "admin"]);
+  const hasAccess = useAccess(["student", "manager", "admin", "worker"]);
   const [roomServices, setRoomServices] = useState<IRoomService[]>([]);
 
   const auth = useAuth();
@@ -102,6 +102,36 @@ export default function Page() {
     if (!result.isConfirmed) {
       return;
     }
+
+    let data;
+    try {
+      const response = await axios.put(
+        "/api/room-services/mark-as-completed",
+        { id },
+        {
+          headers: {
+            Authorization: `${authContext.token}`,
+          },
+        }
+      );
+      data = response.data;
+    } catch (e) {
+      console.log(e);
+      return toast.error("Unable to mark as completed");
+    }
+
+    if (!data.status) {
+      return toast.error(data.msg);
+    }
+
+    toast.success(data.msg);
+    const updatedRoomServices = roomServices.map((service) => {
+      if (service.id === id) {
+        service.status = "resolved";
+      }
+      return service;
+    });
+    setRoomServices(updatedRoomServices);
   };
 
   return (
@@ -193,14 +223,15 @@ export default function Page() {
                         <FaTrash className="text-lg text-current" />
                       </button>
                     )}{" "}
-                    {authContext.userInfo?.role === "worker" && (
-                      <button
-                        className="bg-red-500 hover:bg-red-700 text-success font-bold py-4 px-2 rounded dark:text-white"
-                        onClick={(e) => handleCompleted(e, service.id)}
-                      >
-                        Mark as completed
-                      </button>
-                    )}
+                    {authContext.userInfo?.role === "worker" &&
+                      service.status !== "resolved" && (
+                        <button
+                          className="bg-meta-3 hover:bg-opacity-90 text-white font-bold py-4 px-2 rounded dark:text-white"
+                          onClick={(e) => handleCompleted(e, service.id)}
+                        >
+                          Mark as completed
+                        </button>
+                      )}
                   </td>
                 </tr>
               ))}
