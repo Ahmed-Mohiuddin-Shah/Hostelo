@@ -178,6 +178,19 @@ export default function Page() {
     )?.status;
     const updatedStatus = currentStatus === "pending" ? "resolved" : "pending";
 
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `You want to mark this complaint as ${updatedStatus}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
     let data;
     try {
       const response = await axios.put(
