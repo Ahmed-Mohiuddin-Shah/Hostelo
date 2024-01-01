@@ -1,5 +1,7 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
@@ -17,6 +19,7 @@ export default function Page() {
   >([]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const hasAccess = useAccess(["admin", "manager"]);
 
   useEffect(() => {
     const getStudentDetails = async () => {
@@ -63,6 +66,10 @@ export default function Page() {
 
   if (auth === null) {
     return <Loader />;
+  }
+
+  if (!hasAccess) {
+    return <NotAuthorized />;
   }
 
   const handleFormSubmit = async (e: any) => {
