@@ -1,6 +1,8 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import StaffForm from "@/components/StaffForm";
 import Loader from "@/components/common/Loader";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
@@ -9,6 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 
 export default function Page() {
   const auth = useAuth();
+  const hasAccess = useAccess(["admin", "manager"]);
   const [formData, setFormData] = useState({
     staffImage: "" as any,
     staffName: "",
@@ -26,6 +29,10 @@ export default function Page() {
 
   if (auth === null) {
     return <Loader />;
+  }
+
+  if (!hasAccess) {
+    return <NotAuthorized />;
   }
 
   const handleFormSubmit = async (e: any) => {
