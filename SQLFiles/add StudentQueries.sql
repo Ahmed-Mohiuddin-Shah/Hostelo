@@ -191,3 +191,24 @@ VALUES (
         'admin',
         '/dummy-path'
     );
+
+SELECT SUM(`daysOff`)
+FROM `messoff`
+GROUP BY `student_id`
+HAVING
+    MONTH(`request_date`) = MONTH('{date}')
+    AND YEAR(`request_date`) = YEAR('{date}')
+
+SELECT
+    student_id,
+    SUM(`daysOff`) AS totalDaysOff
+FROM (
+        SELECT
+            `student_id`,
+            `daysOff`
+        FROM `messoff`
+        WHERE
+            MONTH(`request_date`) = MONTH('2023-12-18')
+            AND YEAR(`request_date`) = YEAR('2023-12-18')
+    ) filtered_data
+GROUP BY `student_id`;
