@@ -13,11 +13,10 @@ class EmailServer:
     def makeLoginDetailsEmailMessage(self, to: str, username: str, password: str) -> EmailMessage:
         msg = EmailMessage()
         msg['Subject'] = '🚪 Your Hostelo Sign-In Info Is Here! 🎉'
-        msg['From'] = "hostelo275@gmail.com"
+        msg['From'] = config("email_name")
         msg['To'] = to
         msg.set_content(f"Hey there!\n\nWelcome to Hostelo! 😎 Below are your sign-in deets:\n\n👤 Username: {username}\n🔒 Password: {password}\n\nNow you are all set. 🏨✨\n\nIf you have any questions or need assistance, just give us a shout at hostelo275@gmail.com. Stay Happy! 🚀\n\nBest regards,\nAhmed Mohiuddin Shah\nThe Hostelo Team")
         return msg
-
 
     def sendEmail(self, msg: EmailMessage) -> None:
         self.mailServer.send_message(msg)
