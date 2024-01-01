@@ -228,6 +228,7 @@ CREATE TABLE
         payable_amount DECIMAL (9, 2) NOT NULL,
         due_date DATE NOT NULL,
         student_id INTEGER,
+        status BOOLEAN NOT NULL,
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
 
@@ -240,6 +241,7 @@ CREATE TABLE
         payable_amount DECIMAL (9, 2) NOT NULL,
         due_date DATE NOT NULL,
         student_id INTEGER,
+        status BOOLEAN NOT NULL,
         FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
 
