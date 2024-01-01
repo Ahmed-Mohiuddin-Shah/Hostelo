@@ -22,25 +22,6 @@ async def sign_in(request: Request):
     
     username, _, role, image_url = user
     
-    if request_json.get('username') != "admin":
-        deletedStudentsQuery = f"SELECT * FROM `deletedstudent` WHERE `student_id`='{int(request_json.get('username'))}'"
-        
-        cursor.execute(deletedStudentsQuery)
-        deletedStudentsTupleList = cursor.fetchall()
-
-        deletedStudentsList = []
-
-        for i in deletedStudentsTupleList:
-            deletedStudentsList.append(i[0])
-        
-        integerUsername = int(username)   #type: ignore
-
-        if integerUsername in deletedStudentsList:
-            return {
-                "status": False,
-                "msg": "User doesn't exist"
-            }
-    
     token = signAndGetJWT({"username": username, "role": role, "image_url": image_url})
     return {
         "status": True,

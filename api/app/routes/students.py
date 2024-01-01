@@ -1,11 +1,13 @@
 from smtplib import SMTPSenderRefused
 from turtle import st, update
+from unittest import result
 from fastapi import APIRouter, Body, Depends, Request
 from httpx import get
 from mysql.connector import connect, Error
 from decouple import config # type: ignore
 from app.mail_server import mailServer # type: ignore
 from app.my_sql_connection_cursor import cursor, connection # type: ignore  
+from app.auth.auth_handler import decodeJWT
 
 import string
 import secrets
@@ -35,8 +37,6 @@ async def get_total_students(request: Request):
 async def add_student(request: Request):
 
     request_json = await request.json()
-    print(request_json)
-
     
     studentID = int(request_json['student_id'])
     password = ''.join(secrets.choice(string.ascii_uppercase + string.digits)
@@ -61,16 +61,36 @@ async def add_student(request: Request):
                 cursor.execute(reAddStudentQuery)
                 connection.commit() #type: ignore
 
-                return {
-                    "status": True,
-                    "msg": "Student re-added successfully"
-                }
-
             except Error as e:
                 print(e)
                 return {
                     "status": False,
                     "msg": "Unable to re-add student"
+                }
+            
+            addBackStudentUserQuery = f"INSERT INTO `user` ( `username`, `password`, `role`, `image_path` ) VALUES ( '{request_json['email']}', '{str(password)}', 'student', '{request_json['student_image']}')"
+            try:
+                cursor.execute(addBackStudentUserQuery)
+                connection.commit()
+            except Error as e:
+                print(e)
+
+                reAddDeletedStudentQuery = f"INSERT INTO `deletedstudent` ( `student_id` ) VALUES ( {studentID} )"
+
+                try:
+                    cursor.execute(reAddDeletedStudentQuery)
+                    connection.commit()
+                except Error as e:
+                    print(e)
+
+                return {
+                    "status": False,
+                    "msg": "Unable to re-add student"
+                }
+
+            return {
+                    "status": True,
+                    "msg": "Student re-added successfully"
                 }
             
     try:
@@ -100,7 +120,7 @@ async def add_student(request: Request):
     addressID = 0
     medicalID = 0
 
-    loginDetailsQuery = f"INSERT INTO `user` ( `username`, `password`, `role`, `image_path` ) VALUES ( '{str(studentID)}', '{str(password)}', 'student', '{request_json['student_image']}' )"
+    loginDetailsQuery = f"INSERT INTO `user` ( `username`, `password`, `role`, `image_path` ) VALUES ( '{request_json['email']}', '{str(password)}', 'student', '{request_json['student_image']}' )"
     
     try:
 
@@ -115,8 +135,6 @@ async def add_student(request: Request):
         result2 = cursor.fetchall();
         for i in result2:
             rooms_with_free_slots.append(i[0])
-
-        print(rooms_with_free_slots)
 
         if (rooms_with_free_slots == []):
             return {
@@ -137,45 +155,37 @@ async def add_student(request: Request):
         # add address
         cursor.execute(addAddressQuery)
         connection.commit() #type: ignore
-        print("Address added")
 
         # get address id
         cursor.execute(getAddressIDQuery)
         addressID = cursor.fetchone()[0] #type: ignore
         connection.commit() #type: ignore
-        print("Address ID fetched")
 
         # add medical record
         cursor.execute(addMedicalRecordQuery)
         connection.commit() #type: ignore
-        print("Medical record added")
         
         # get medical id
         cursor.execute(getMedicalRecordIDQuery)
         medicalID = cursor.fetchone()[0] #type: ignore  
         connection.commit() #type: ignore
-        print("Medical ID fetched")
 
         # add student
         addStudentQuery = f"INSERT INTO `student` ( `student_id`, `CNIC`, `name`, `gender`, `school`, `batch`, `sem`, `address_id`, `medical_id`, `room_number`, `department`, `email`, `phone_number` ) VALUES ( '{studentID}', '{request_json['student_cnic']}', '{request_json['student_name']}', '{request_json['gender']}', '{request_json['school']}', '{request_json['batch']}', '{request_json['semester']}', '{addressID}', '{medicalID}', '{request_json['room_number']}', '{request_json['department']}', '{request_json['email']}', '{request_json['phone_number']}' )"
         cursor.execute(addStudentQuery)
         connection.commit() #type: ignore
-        print("Student added")
 
         # add parents
         cursor.execute(addParentsQuery)
         connection.commit() #type: ignore
-        print("Parents added")
 
         # add relatives
         cursor.execute(addRelativesQuery)
         connection.commit() #type: ignore
-        print("Relatives added")
 
         # add login details
         cursor.execute(loginDetailsQuery)
         connection.commit() #type: ignore
-        print("Login details added")
 
     except Error as e:
         return {
@@ -254,7 +264,7 @@ async def get_all_students(request: Request):
                     relativeCount += 1
 
             for user in users:
-                if user[0] == str(student[0]):
+                if user[0] == student[2]:
                     studentInfo["student_image"] = user[1]
 
             allStudentInfo.append(studentInfo)
@@ -383,7 +393,117 @@ async def delete_student(request: Request, student_id: int):
             "msg": "Unable to delete student"
         }
     
+    getStudentEmailQuery = f"SELECT `email` FROM `student` WHERE `student_id` = '{student_id}'"
+
+
+    try:
+        cursor.execute(getStudentEmailQuery)
+        email = cursor.fetchone()[0] #type: ignore
+
+        deleteStudentUserQuery = f"DELETE FROM `user` WHERE `username` = '{email}'"
+
+        cursor.execute(deleteStudentUserQuery)
+        connection.commit()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to delete student"
+        }
+    
     return {
         "status": True,
         "msg": "Student deleted successfully"
+    }
+
+@students_router.get("/get-students", tags=["Student"])
+async def get_student_ids():
+
+    getStudentsQuery = "SELECT `student_id`, `name` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
+
+    try:
+        cursor.execute(getStudentsQuery)
+        allStudents = [{"student_id": _id, "name": name} for _id, name in cursor.fetchall()]
+    except Error as e:
+
+        print(e)
+        return {
+            "status": False,
+            "message": "Error getting student ids"
+        }
+
+    return {
+        "status": True,
+        "data": allStudents,
+        "msg": "Student ids retrieved"
+    }
+
+@students_router.get("/swap-details", tags=["Student"])
+async def swap_details(request: Request):
+
+    token = request.headers["Authorization"] #type: ignore
+
+    decodedToken = decodeJWT(token)
+
+    try:
+        role = decodedToken["role"]
+    except:
+        return {
+            "status": False,
+            "msg": "Token expired"
+        }
+    
+    if role == "student":
+        return {
+            "status": False,
+            "msg": "UnAuthorized."
+        }
+    
+    query = "SELECT `student_id`, `name`, `room_number`, `email` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
+
+    try:
+        cursor.execute(query)
+        result = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error getting student ids"
+        }
+    
+    if result is None:
+        return {
+            "status": False,
+            "msg": "No students found"
+        }
+    
+
+    allStudents = [{"id": _id, "name": name, "roomNumber": room_number, "email": email} for _id, name, room_number, email in result]
+
+    getUsersQuery = "SELECT `username`, `image_path` FROM `user` WHERE `role` = 'student'"
+    try:
+        cursor.execute(getUsersQuery)
+        users = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Error getting images"
+        }
+    
+    if users is None:
+        return {
+            "status": False,
+            "msg": "No students found"
+        }
+    
+    for student in allStudents:
+        for user in users:
+            if user[0] == student["email"]:
+                student["image"] = user[1]
+
+    return {
+        "status": True,
+        "data": allStudents,
+        "msg": "Students retrieved"
     }

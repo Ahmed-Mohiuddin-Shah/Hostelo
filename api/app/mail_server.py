@@ -15,7 +15,7 @@ class EmailServer:
         msg['Subject'] = '🚪 Your Hostelo Sign-In Info Is Here! 🎉'
         msg['From'] = "hostelo275@gmail.com"
         msg['To'] = to
-        msg.set_content(f"Hey there!\n\nWelcome to Hostelo! 😎 Below are your sign-in deets:\n\n👤 Username: {username}\n🔒 Password: {password}\n\nNow you are all set. 🏨✨\n\nIf you have any questions or need assistance, just give us a shout at hostelo275@gmail.com. Happy stays! 🚀\n\nBest regards,\nAhmed Mohiuddin Shah\nThe Hostelo Team")
+        msg.set_content(f"Hey there!\n\nWelcome to Hostelo! 😎 Below are your sign-in deets:\n\n👤 Username: {username}\n🔒 Password: {password}\n\nNow you are all set. 🏨✨\n\nIf you have any questions or need assistance, just give us a shout at hostelo275@gmail.com. Stay Happy! 🚀\n\nBest regards,\nAhmed Mohiuddin Shah\nThe Hostelo Team")
         return msg
 
 
