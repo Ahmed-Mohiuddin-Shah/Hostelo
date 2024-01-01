@@ -1,20 +1,18 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
+import { AuthContext } from "@/contexts/UserAuthContext";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
-import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
-import { FaChevronDown, FaDoorClosed } from "react-icons/fa6";
-import { PatternFormat } from "react-number-format";
+import { redirect, useRouter } from "next/navigation";
+import { useContext, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-
-interface IAnnouncement {
-  title: string;
-  description: string;
-}
 
 export default function Page() {
   const auth = useAuth();
+  const hasAccess = useAccess(["admin", "manager"]);
+
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
 
@@ -27,6 +25,8 @@ export default function Page() {
   if (auth === null) {
     return <Loader />;
   }
+
+  if (!hasAccess) return <NotAuthorized />;
 
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
