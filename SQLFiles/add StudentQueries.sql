@@ -197,9 +197,7 @@ FROM `messoff`
 GROUP BY `student_id`
 HAVING
     MONTH(`request_date`) = MONTH('{date}')
-    AND YEAR(`request_date`) = YEAR('{date}')
-
--- get daysOff by student id and given month and year
+    AND YEAR(`request_date`) = YEAR('{date}') -- get daysOff by student id and given month and year
 SELECT
     student_id,
     SUM(`daysOff`) AS totalDaysOff
@@ -211,5 +209,46 @@ FROM (
         WHERE
             MONTH(`request_date`) = MONTH('2023-12-18')
             AND YEAR(`request_date`) = YEAR('2023-12-18')
+            AND `student_id` NOT IN (
+                SELECT
+                    `student_id`
+                FROM
+                    `deletedstudent`
+            )
     ) filtered_data
 GROUP BY `student_id`;
+
+-- verify attendance of student
+SELECT
+    `student_id`,
+    SUM(`status`) AS `present`
+FROM (
+        SELECT
+            `student_id`,
+            `status`
+        FROM `attendance`
+        WHERE
+            MONTH(`date`) = MONTH('2023-12-18')
+            AND YEAR(`date`) = YEAR('2023-12-18')
+            AND `student_id` NOT IN (
+                SELECT
+                    `student_id`
+                FROM
+                    `deletedstudent`
+            )
+    ) filtered_data
+GROUP BY `student_id`;
+
+-- get days in month
+SELECT DAY(LAST_DAY("2023-02-21")) AS `daysInMonth`
+
+SELECT
+    `student_id`,
+    COUNT(`appliance_id`)
+FROM `hasappliance`
+WHERE `student_id` NOT IN (
+        SELECT `student_id`
+        FROM
+            `deletedstudent`
+    )
+GROUP BY `student_id`
