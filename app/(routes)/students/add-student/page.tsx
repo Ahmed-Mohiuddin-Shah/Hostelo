@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import StudentForm from "@/components/StudentForm";
+import useAccess from "@/hooks/useAccess";
+import NotAuthorized from "@/components/NotAuthorized";
 
 interface IRoomType {
   id: number;
@@ -13,7 +15,6 @@ interface IRoomType {
 }
 
 export default function Page() {
-  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [freeRooms, setFreeRooms] = useState<number[]>([]);
   const [formData, setFormData] = useState({
@@ -54,11 +55,7 @@ export default function Page() {
   });
 
   const auth = useAuth();
-
-  useEffect(() => {
-    if (auth === null) setIsLoading(true);
-    else setIsLoading(false);
-  }, [auth]);
+  const hasAccess = useAccess(["admin", "manager"]);
 
   useEffect(() => {
     async function getFreeRooms() {
@@ -80,6 +77,10 @@ export default function Page() {
 
   if (auth === null) {
     return <Loader />;
+  }
+
+  if (!hasAccess) {
+    return <NotAuthorized />;
   }
 
   const handleAddStudent = async (e: any) => {
