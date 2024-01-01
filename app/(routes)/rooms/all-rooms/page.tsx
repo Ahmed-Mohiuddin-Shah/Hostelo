@@ -1,5 +1,7 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
@@ -25,19 +27,13 @@ interface IRoomType {
 }
 
 export default function Page() {
-  const [isLoading, setIsLoading] = useState(true);
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [isEditing, setIsEditing] = useState<boolean | null>(false);
   const [underEditingRoom, setUnderEditingRoom] = useState<IRoom | null>(null);
   const [roomTypes, setRoomTypes] = useState<IRoomType[]>([]);
-  const modal = useRef<HTMLDivElement>(null);
 
   const auth = useAuth();
-
-  useEffect(() => {
-    if (auth === null) setIsLoading(true);
-    else setIsLoading(false);
-  }, [auth]);
+  const hasAccess = useAccess(["admin", "manager"]);
 
   useEffect(() => {
     const getRooms = async () => {
@@ -95,6 +91,10 @@ export default function Page() {
 
   if (auth === null) {
     return <Loader />;
+  }
+
+  if (!hasAccess) {
+    return <NotAuthorized />;
   }
 
   const handleEditRoom = (e: any, roomNumber: number) => {
