@@ -1,6 +1,8 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
 import { AuthContext } from "@/contexts/UserAuthContext";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
@@ -12,6 +14,7 @@ export default function Page() {
   const authContext = useContext(AuthContext);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const hasAccess = useAccess(["student"]);
 
   useEffect(() => {}, []);
 
@@ -21,6 +24,10 @@ export default function Page() {
 
   if (auth === null) {
     return <Loader />;
+  }
+
+  if (!hasAccess) {
+    return <NotAuthorized />;
   }
 
   const handleFormSubmit = async (e: any) => {
