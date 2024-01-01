@@ -34,7 +34,7 @@ def get_application() -> FastAPI:
     application.include_router(attendance_router, prefix="/api/attendance")
     application.include_router(auth_router, prefix="/api/auth")
     application.include_router(complaints_router, prefix="/api/complaints")
-    application.include_router(invoices_router, prefix="/api/invoices")
+    application.include_router(invoices_router, prefix="/api/invoice")
     application.include_router(mess_router, prefix="/api/mess")
     application.include_router(roomservice_router, prefix="/api/room-services")
     application.include_router(rooms_router, prefix="/api/rooms")
