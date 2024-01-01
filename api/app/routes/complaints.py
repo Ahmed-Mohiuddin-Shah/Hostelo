@@ -28,7 +28,7 @@ async def get_active_complaints_count(request: Request):
 
 @complaints_router.get("/recent-complaints", tags=["Complaints"])
 async def get_recent_complaints(request: Request):
-    cursor.execute(f"SELECT `title`, (CASE WHEN `status` <> 0 THEN 'pending' ELSE 'resolved' END) FROM `student` NATURAL JOIN `complaintandquery` WHERE `status` = 1 ORDER BY `complaint_id` DESC")
+    cursor.execute(f"SELECT `title`, `GET_STATUS`(`status`) FROM `student` NATURAL JOIN `complaintandquery` WHERE `status` = 1 ORDER BY `complaint_id` DESC")
     recent_complaints = cursor.fetchall() 
            
     if len(recent_complaints) <= 2: 
@@ -73,9 +73,9 @@ async def get_complaints(request: Request):
     query = ""
 
     if role == "admin" or role == "manager":
-        query = f"SELECT `complaint_id`, `student_id`, `name`, `room_number`, `title`, `description`, (CASE WHEN `status` <> 0 THEN 'pending' ELSE 'resolved' END) FROM `complaintandquery` NATURAL JOIN `student` ORDER BY `status` DESC, `complaint_id` DESC"
+        query = f"SELECT `complaint_id`, `student_id`, `name`, `room_number`, `title`, `description`, `GET_STATUS`(`status`) FROM `complaintandquery` NATURAL JOIN `student` ORDER BY `status` DESC, `complaint_id` DESC"
     else:
-        query = f"SELECT `complaint_id`, `title`, `description`, (CASE WHEN `status` <> 0 THEN 'pending' ELSE 'resolved' END) FROM `complaintandquery` NATURAL JOIN `student` WHERE `email` = '{username}' ORDER BY `status` DESC, `complaint_id` DESC"
+        query = f"SELECT `complaint_id`, `title`, `description`, `GET_STATUS`(`status`) FROM `complaintandquery` NATURAL JOIN `student` WHERE `email` = '{username}' ORDER BY `status` DESC, `complaint_id` DESC"
 
     try:
         cursor.execute(query)
@@ -200,9 +200,7 @@ async def update_complaint(request: Request, complaint_id: int):
     if role == "student":
         updateQuery = f"UPDATE `complaintandquery` SET `title` = '{request_json['title']}', `description` = '{request_json['description']}' WHERE `complaint_id` = {complaint_id}"
     else:
-        print(request_json["status"])
         isResolved = 0 if request_json["status"] == "resolved" else 1
-        print(isResolved)
         updateQuery = f"UPDATE `complaintandquery` SET `status` = {isResolved} WHERE `complaint_id` = {complaint_id}"
 
     try:
