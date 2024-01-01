@@ -421,3 +421,49 @@ async def swap_details(request: Request):
                 student["image"] = user[1]
 
     return {"status": True, "data": allStudents, "msg": "Students retrieved"}
+
+
+@students_router.post("/swap-room", tags=["Rooms"])
+async def swap_rooms(request: Request):
+
+    token = request.headers["Authorization"]  # type: ignore
+
+    decodedToken = decodeJWT(token)
+
+    try:
+        role = decodedToken["role"]
+    except:
+        return {"status": False, "msg": "Token expired"}
+    
+    if role != "manager" and role != "admin":
+        return {
+            "status": False,
+            "msg": "You are not authorized to update room service status",
+        }
+    
+    request_json = await request.json()
+
+    firstStudentId = request_json["firstStudentId"]
+    firstStudentRoomNumber = request_json["firstStudentRoomNumber"]
+
+    secondStudentId = request_json["secondStudentId"]
+    secondStudentRoomNumber = request_json["secondStudentRoomNumber"]
+
+    swapRoomQuery = "UPDATE `student` SET `room_number` = %s WHERE `student_id` = %s"
+
+    studentRoomList = [(firstStudentRoomNumber, secondStudentId), (secondStudentRoomNumber, firstStudentId)]
+
+    try:
+        cursor.executemany(swapRoomQuery, studentRoomList)
+        connection.commit() # type:ignore
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to swap rooms"
+        }
+
+    return {
+        "status": True,
+        "msg": "Swaped Rooms"
+    }
