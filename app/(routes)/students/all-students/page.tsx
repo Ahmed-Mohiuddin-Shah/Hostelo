@@ -1,6 +1,8 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import StudentForm from "@/components/StudentForm";
 import Loader from "@/components/common/Loader";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import Image from "next/image";
@@ -60,6 +62,7 @@ interface IRoomType {
 
 export default function Page() {
   const auth = useAuth();
+  const hasAccess = useAccess(["admin", "manager"]);
   const modalRef = useRef<HTMLDivElement>(null);
 
   const [students, setStudents] = useState<IStudent[]>([]);
@@ -113,6 +116,10 @@ export default function Page() {
 
   if (auth === null) {
     return <Loader />;
+  }
+
+  if (!hasAccess) {
+    return <NotAuthorized />;
   }
 
   const handleStudentEditClicked = (student_id: string) => {
