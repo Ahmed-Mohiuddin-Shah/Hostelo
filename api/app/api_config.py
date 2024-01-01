@@ -1,5 +1,5 @@
 from os import close
-from fastapi import  FastAPI, Body, Depends
+from fastapi import FastAPI, Body, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes.anouncment import announcements_router
@@ -15,23 +15,24 @@ from app.routes.rooms import rooms_router
 from app.routes.staff import staff_router
 from app.routes.students import students_router
 
+
 def get_application() -> FastAPI:
     application = FastAPI(title="Hostelo API", debug=True)
 
     application.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     application.include_router(announcements_router, prefix="/api/announcements")
     application.include_router(appliance_router, prefix="/api/appliance")
     application.include_router(assets_router, prefix="/api/assets")
     application.include_router(attendance_router, prefix="/api/attendance")
     application.include_router(auth_router, prefix="/api/auth")
-    application.include_router(complaints_router, prefix="/api/complaints") 
+    application.include_router(complaints_router, prefix="/api/complaints")
     application.include_router(invoices_router, prefix="/api/invoices")
     application.include_router(mess_router, prefix="/api/mess")
     application.include_router(roomservice_router, prefix="/api/room-services")
@@ -40,5 +41,6 @@ def get_application() -> FastAPI:
     application.include_router(students_router, prefix="/api/students")
 
     return application
+
 
 app = get_application()
