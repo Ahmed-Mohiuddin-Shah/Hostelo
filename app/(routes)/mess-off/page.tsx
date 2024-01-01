@@ -1,6 +1,8 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
 import { AuthContext } from "@/contexts/UserAuthContext";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
@@ -10,6 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 export default function Page() {
   const authContext = useContext(AuthContext);
   const auth = useAuth();
+  const hasAccess = useAccess(["student"]);
   const [formData, setFormData] = useState({
     startDate: "",
     endDate: "",
@@ -17,14 +20,16 @@ export default function Page() {
   const [startDateMessage, setStartDateMessage] = useState("");
   const [endDateMessage, setEndDateMessage] = useState("");
 
-  useEffect(() => { }, []);
-
   if (auth === false) {
     return <>{redirect("/auth/signin")}</>;
   }
 
   if (auth === null) {
     return <Loader />;
+  }
+
+  if (!hasAccess) {
+    return <NotAuthorized />;
   }
 
   const handleFormSubmit = async (e: any) => {
@@ -39,13 +44,19 @@ export default function Page() {
     const currentMonth = today.getMonth() + 1;
     const currentYear = today.getFullYear();
 
-    if (startDate.getMonth() + 1 !== currentMonth || startDate.getFullYear() !== currentYear) {
+    if (
+      startDate.getMonth() + 1 !== currentMonth ||
+      startDate.getFullYear() !== currentYear
+    ) {
       setStartDateMessage("Mess can only be signed off for the current month.");
       hasError = true;
     } else {
       setStartDateMessage("");
     }
-    if (endDate.getMonth() + 1 !== currentMonth || endDate.getFullYear() !== currentYear) {
+    if (
+      endDate.getMonth() + 1 !== currentMonth ||
+      endDate.getFullYear() !== currentYear
+    ) {
       setEndDateMessage("Mess can only be signed off for the current month.");
       hasError = true;
     } else {
@@ -72,7 +83,9 @@ export default function Page() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays > 12) {
-      setEndDateMessage("Mess can only be signed off for a maximum of 12 days.");
+      setEndDateMessage(
+        "Mess can only be signed off for a maximum of 12 days."
+      );
       hasError = true;
     } else {
       setEndDateMessage("");
