@@ -6,6 +6,7 @@ interface AuthUserInfo {
   role: string;
   image_url?: string;
   expires: number;
+  name: string;
 }
 
 interface AuthContextType {
@@ -20,8 +21,8 @@ const AuthContext = createContext<AuthContextType>({
   userInfo: null,
   token: "",
   isLoggedIn: false,
-  login: (token: string) => new Promise(() => { }),
-  logout: () => { },
+  login: (token: string) => new Promise(() => {}),
+  logout: () => {},
 });
 
 const AuthContextProvider = ({
@@ -43,6 +44,7 @@ const AuthContextProvider = ({
       role: dataInToken.role as string,
       expires: dataInToken.exp as number,
       image_url: dataInToken.image_url as string,
+      name: dataInToken.name as string,
     };
 
     setToken(token);
