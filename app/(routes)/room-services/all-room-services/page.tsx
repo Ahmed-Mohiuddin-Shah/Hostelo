@@ -1,6 +1,8 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
 import { AuthContext } from "@/contexts/UserAuthContext";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
@@ -18,7 +20,7 @@ interface IRoomService {
 }
 
 export default function Page() {
-  const [isEditing, setIsEditing] = useState<boolean | null>(false);
+  const hasAccess = useAccess(["student", "manager", "admin"]);
   const [roomServices, setRoomServices] = useState<IRoomService[]>([]);
 
   const auth = useAuth();
@@ -60,6 +62,10 @@ export default function Page() {
 
   if (auth === null) {
     return <Loader />;
+  }
+
+  if (!hasAccess) {
+    return <NotAuthorized />;
   }
 
   const handleDelete = async (e: any, id: number) => {
