@@ -13,10 +13,14 @@ import Swal from "sweetalert2";
 
 interface IRoomService {
   id: number;
-  studentId: number;
-  studentName: string;
+  studentId?: number;
+  studentName?: string;
   roomNumber: number;
   serviceType: string;
+  requestDate: string;
+  status: string;
+  staffId?: number;
+  staffName?: string;
 }
 
 export default function Page() {
@@ -110,10 +114,26 @@ export default function Page() {
           <table className="w-full">
             <thead className="text-left">
               <tr className="border-b pb-2">
-                <th className="px-4 py-2">Student Name</th>
-                <th className="px-4 py-2">Room Number</th>
-                <th className="px-4 py-2">Service Type</th>
-                <th className="px-4 py-2">Actions</th>
+                {authContext.userInfo?.role === "student" ? (
+                  <>
+                    <th className="px-4 py-2">Service Type</th>
+                    <th className="px-4 py-2">Request Date</th>
+                    <th className="px-4 py-2">Status</th>
+                  </>
+                ) : (
+                  <>
+                    <th className="px-4 py-2">Student Name</th>
+                    <th className="px-4 py-2">Room Number</th>
+                    <th className="px-4 py-2">Service Type</th>
+                    <th className="px-4 py-2">Request Date</th>
+                    <th className="px-4 py-2">Status</th>
+                    <th className="px-4 py-2">Staff Name</th>
+                  </>
+                )}
+                {authContext.userInfo?.role === "student" ||
+                authContext.userInfo?.role === "worker" ? (
+                  <th className="px-4 py-2">Actions</th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -126,18 +146,57 @@ export default function Page() {
               )}
               {roomServices.map((service) => (
                 <tr key={service.id} className="border-b">
+                  {authContext.userInfo?.role === "student" ? (
+                    <>
+                      <td className="px-4 py-2">{service.serviceType}</td>
+                      <td className="px-4 py-2">{service.requestDate}</td>
+                      <td className="px-4 py-2">
+                        <span
+                          className={`p-2 text-white rounded ${
+                            service.status === "pending"
+                              ? "bg-meta-8"
+                              : "bg-success"
+                          }`}
+                        >
+                          {service.status}
+                        </span>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="px-4 py-2">{service.studentName}</td>
+                      <td className="px-4 py-2">{service.roomNumber}</td>
+                      <td className="px-4 py-2">{service.serviceType}</td>
+                      <td className="px-4 py-2">{service.requestDate}</td>
+                      <td className="px-4 py-2">
+                        <span
+                          className={`p-2 text-white rounded ${
+                            service.status === "pending"
+                              ? "bg-meta-8"
+                              : "bg-success"
+                          }`}
+                        >
+                          {service.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2">
+                        {service.staffName ? service.staffName : "Not done yet"}
+                      </td>
+                    </>
+                  )}
                   <td className="px-4 py-2 flex">
-                    {authContext.userInfo?.role === "student" ? (
+                    {authContext.userInfo?.role === "student" && (
                       <button
                         className="bg-red-500 hover:bg-red-700 text-danger font-bold py-4 px-2 rounded dark:text-white"
                         onClick={(e) => handleDelete(e, service.id)}
                       >
                         <FaTrash className="text-lg text-current" />
                       </button>
-                    ) : (
+                    )}{" "}
+                    {authContext.userInfo?.role === "worker" && (
                       <button
-                        className="bg-red-500 hover:bg-red-700 text-danger font-bold py-4 px-2 rounded dark:text-white"
-                        onClick={(e) => handleDelete(e, service.id)}
+                        className="bg-red-500 hover:bg-red-700 text-success font-bold py-4 px-2 rounded dark:text-white"
+                        onClick={(e) => handleCompleted(e, service.id)}
                       >
                         Mark as completed
                       </button>
