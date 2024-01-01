@@ -25,7 +25,6 @@ async def get_all_room_service_types():
         "data": allTypes,
     }
 
-
 @roomservice_router.post("/request-room-service", tags=["Room Service"])
 async def request_room_service(request: Request):
     token = request.headers["Authorization"]  # type: ignore
@@ -81,7 +80,6 @@ async def request_room_service(request: Request):
         return {"status": False, "msg": "Failed to request room service"}
 
     return {"status": True, "msg": "Room service requested successfully"}
-
 
 @roomservice_router.get("/all-room-services", tags=["Room Service"])
 async def get_room_service_requests(request: Request):
@@ -162,3 +160,46 @@ async def get_room_service_requests(request: Request):
         "msg": "Room service requests fetched successfully",
         "data": allRequests,
     }
+
+@roomservice_router.put("/mark-as-completed", tags=["Room Service"])
+async def update_room_service_status(request: Request):
+    token = request.headers["Authorization"]  # type: ignore
+
+    decodedToken = decodeJWT(token)
+
+    try:
+        role = decodedToken["role"]
+    except:
+        return {"status": False, "msg": "Token expired"}
+    
+    if role != "worker":
+        return {
+            "status": False,
+            "msg": "You are not authorized to update room service status",
+        }
+    
+    request_json = await request.json()
+
+    serviceId = request_json["id"]
+
+    getStaffIdQuery = f"SELECT `staff_id` FROM `staff` WHERE `email` = '{decodedToken['username']}'"
+
+    try:
+        cursor.execute(getStaffIdQuery)
+        result = cursor.fetchone()
+    except Error as e:
+        print(e)
+        return {"status": False, "msg": "Failed to update room service status"}
+    
+    staffId = result[0] #type: ignore
+
+    updateQuery = f"UPDATE `roomservice` SET `status` = FALSE, `staff_id` = {staffId} WHERE `service_id` = {serviceId}"
+
+    try:
+        cursor.execute(updateQuery)
+        connection.commit()
+    except Error as e:
+        print(e)
+        return {"status": False, "msg": "Failed to update room service status"}
+    
+    return {"status": True, "msg": "Room service status updated successfully"}
