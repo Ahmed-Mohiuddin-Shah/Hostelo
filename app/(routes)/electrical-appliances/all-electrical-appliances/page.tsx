@@ -31,11 +31,13 @@ export default function Page() {
   const auth = useAuth();
   const authContext = useContext(AuthContext);
   const hasAccess = useAccess(["admin", "manager", "student"]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!authContext.token) return;
 
     const getAppliances = async () => {
+      setIsLoading(true);
       let data;
 
       try {
@@ -48,9 +50,9 @@ export default function Page() {
       } catch (error) {
         console.log(error);
         toast.error("Error fetching appliances");
-        return;
       }
 
+      setIsLoading(false);
       if (!data.status) {
         toast.error(data.msg);
         return;
@@ -171,7 +173,12 @@ export default function Page() {
           </div>
         )}
         <div className="overflow-auto">
-          {currentRole === "student" && (
+          {isLoading && (
+            <div className="flex justify-center items-center py-4">
+              <Loader heightClass="h-24" />
+            </div>
+          )}
+          {currentRole === "student" && !isLoading && (
             <div className="grid grid-cols-12 py-4 text-lg gap-4">
               {filteredAppliances.length === 0 && (
                 <div className="col-span-12 text-center py-4">
@@ -188,7 +195,7 @@ export default function Page() {
               ))}
             </div>
           )}
-          {currentRole !== "student" && (
+          {currentRole !== "student" && !isLoading && (
             <table className="w-full text-lg">
               <thead className="text-left">
                 <tr className="border-b pb-2">
@@ -200,6 +207,13 @@ export default function Page() {
                 </tr>
               </thead>
               <tbody>
+                {isLoading && (
+                  <tr>
+                    <td colSpan={5} className="text-center py-4">
+                      <Loader heightClass="h-24" />
+                    </td>
+                  </tr>
+                )}
                 {filteredAppliances.length === 0 && (
                   <tr>
                     <td colSpan={5} className="text-center py-4">
