@@ -1,5 +1,6 @@
+import { AuthContext } from "@/contexts/UserAuthContext";
 import Image from "next/image";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaCamera } from "react-icons/fa6";
 
 interface StaffFormProps {
@@ -14,6 +15,12 @@ export default function StaffForm({
   setFormData,
 }: StaffFormProps) {
   const [image, setImage] = useState("");
+  const authContext = useContext(AuthContext);
+  const [currentRole, setCurrentRole] = useState("");
+
+  useEffect(() => {
+    setCurrentRole(authContext.userInfo?.role || "");
+  }, [authContext.userInfo?.role]);
 
   return (
     <form onSubmit={onSubmit} className="grid grid-cols-12 gap-4">
@@ -168,7 +175,7 @@ export default function StaffForm({
           <option value="" disabled>
             --- Select role ---
           </option>
-          <option value="manager">Manager</option>
+          {currentRole === "admin" && <option value="manager">Manager</option>}
           <option value="worker">Worker</option>
         </select>
       </div>

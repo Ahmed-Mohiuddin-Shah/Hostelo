@@ -339,15 +339,15 @@ export default function Page() {
                 <tr className="border-b pb-2">
                   {authContext.userInfo?.role !== "student" && (
                     <>
-                      <th className="px-4 py-2">Student ID</th>
-                      <th className="px-4 py-2">Student Name</th>
-                      <th className="px-4 py-2">Room Number</th>
+                      <th className="px-4 py-4">Student ID</th>
+                      <th className="px-4 py-4">Student Name</th>
+                      <th className="px-4 py-4">Room Number</th>
                     </>
                   )}
-                  <th className="px-4 py-2">Complaint Title</th>
-                  <th className="px-4 py-2">Complaint Description</th>
-                  <th className="px-4 py-2">Current Status</th>
-                  <th className="px-4 py-2">Actions</th>
+                  <th className="px-4 py-4">Complaint Title</th>
+                  <th className="px-4 py-4">Complaint Description</th>
+                  <th className="px-4 py-4">Current Status</th>
+                  <th className="px-4 py-4">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -375,14 +375,14 @@ export default function Page() {
                   <tr key={complaint.complaint_id} className="border-b">
                     {authContext.userInfo?.role !== "student" && (
                       <>
-                        <td className="px-4 py-2">{complaint.student_id}</td>
-                        <td className="px-4 py-2">{complaint.student_name}</td>
-                        <td className="px-4 py-2">{complaint.room_number}</td>
+                        <td className="px-4 py-4">{complaint.student_id}</td>
+                        <td className="px-4 py-4">{complaint.student_name}</td>
+                        <td className="px-4 py-4">{complaint.room_number}</td>
                       </>
                     )}
-                    <td className="px-4 py-2">{complaint.title}</td>
-                    <td className="px-4 py-2">{complaint.description}</td>
-                    <td className={`px-4 py-2 text-white`}>
+                    <td className="px-4 py-4">{complaint.title}</td>
+                    <td className="px-4 py-4">{complaint.description}</td>
+                    <td className={`px-4 py-4 text-white`}>
                       <span
                         className={`p-2 rounded ${
                           complaint.status === "resolved"
@@ -396,22 +396,26 @@ export default function Page() {
 
                     {authContext.userInfo?.role === "student" && (
                       <td className="px-4 py-2 flex">
-                        <button
-                          className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-4 px-2 rounded dark:text-white"
-                          onClick={(e) =>
-                            handleEditClicked(e, complaint.complaint_id)
-                          }
-                        >
-                          <FaPenToSquare className="text-lg text-current" />
-                        </button>
-                        <button
-                          className="bg-red-500 hover:bg-red-700 text-danger font-bold py-4 px-2 rounded dark:text-white"
-                          onClick={(e) =>
-                            handleDelete(e, complaint.complaint_id)
-                          }
-                        >
-                          <FaTrash className="text-lg text-current" />
-                        </button>
+                        {complaint.status !== "resolved" && (
+                          <>
+                            <button
+                              className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-4 px-2 rounded dark:text-white"
+                              onClick={(e) =>
+                                handleEditClicked(e, complaint.complaint_id)
+                              }
+                            >
+                              <FaPenToSquare className="text-lg text-current" />
+                            </button>
+                            <button
+                              className="bg-red-500 hover:bg-red-700 text-danger font-bold py-4 px-2 rounded dark:text-white"
+                              onClick={(e) =>
+                                handleDelete(e, complaint.complaint_id)
+                              }
+                            >
+                              <FaTrash className="text-lg text-current" />
+                            </button>
+                          </>
+                        )}
                       </td>
                     )}
                     {authContext.userInfo?.role !== "student" &&

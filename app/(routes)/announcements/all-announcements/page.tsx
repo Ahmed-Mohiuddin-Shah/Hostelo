@@ -7,7 +7,7 @@ import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
-import { FaPenToSquare, FaTrash } from "react-icons/fa6";
+import { FaPenToSquare, FaSpinner, FaTrash } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 
@@ -25,6 +25,7 @@ export default function Page() {
     useState<IAnnouncement>();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const hasAccess = useAccess(["student", "manager", "admin"]);
   const auth = useAuth();
@@ -81,6 +82,7 @@ export default function Page() {
 
   const handleEditSubmit = async (e: any) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     let data;
     try {
@@ -95,11 +97,13 @@ export default function Page() {
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong, please try again later.");
+      setIsSubmitting(false);
       return;
     }
 
     if (!data.status) {
-      toast.error("Something went wrong, please try again later.");
+      toast.error(data.msg);
+      setIsSubmitting(false);
       return;
     }
 
@@ -112,6 +116,7 @@ export default function Page() {
     setAnnouncements(updatedAnnouncements);
     setIsEditing(false);
     toast.success("Announcement updated successfully.");
+    setIsSubmitting(false);
   };
 
   const handleDelete = async (e: any, id: number) => {
@@ -155,7 +160,7 @@ export default function Page() {
       {isEditing ? (
         <section className="bg-white p-8 dark:bg-boxdark">
           <h1 className="text-4xl text-black mb-4 dark:text-white">
-            Edit Title
+            Edit Announcement
           </h1>
 
           <form onSubmit={handleEditSubmit}>
@@ -227,7 +232,9 @@ export default function Page() {
               <button
                 type="submit"
                 className="inline-flex items-center justify-center rounded-md bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+                disabled={isSubmitting}
               >
+                {isSubmitting && <FaSpinner className="animate-spin mr-2" />}
                 Save announcement
               </button>
               <button
