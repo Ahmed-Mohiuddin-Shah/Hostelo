@@ -1,11 +1,12 @@
 "use client";
 import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
+import { AuthContext } from "@/contexts/UserAuthContext";
 import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaPenToSquare, FaTrash } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -25,8 +26,10 @@ export default function Page() {
   const [filteredAppliances, setFilteredAppliances] = useState<IAppliance[]>(
     []
   );
+  const [currentRole, setCurrentRole] = useState("");
 
   const auth = useAuth();
+  const authContext = useContext(AuthContext);
   const hasAccess = useAccess(["admin", "manager", "student"]);
 
   useEffect(() => {
@@ -53,13 +56,17 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    if (!authContext.userInfo?.role) return;
+    setCurrentRole(authContext.userInfo?.role);
+  }, [authContext.userInfo?.role]);
+
+  useEffect(() => {
     const filtered = appliances.filter((appliance) => {
       const studentName = appliance.student_name.toLowerCase();
       const cmsId = appliance.student_id.toString().toLowerCase();
       const applianceName = appliance.appliance_name.toLowerCase();
 
       const filterTextLower = filterText.toLowerCase();
-
       return (
         studentName.includes(filterTextLower) ||
         cmsId.includes(filterTextLower) ||
