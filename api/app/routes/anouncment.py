@@ -1,10 +1,14 @@
+from functools import partial
 from re import S
 from smtplib import SMTPException
+from typing import Callable, List
 from fastapi import APIRouter, Body, Depends, Request
 from mysql.connector import connect, Error
 from decouple import config # type: ignore
 from app.my_sql_connection_cursor import cursor, connection # type: ignore
 from app.mail_server import mailServer # type: ignore
+
+import asyncio
 
 announcements_router = APIRouter()
 
@@ -45,42 +49,6 @@ async def add_announcement(request: Request):
             "status": False,
             "msg": "Unable to add announcement"
         }
-    
-    getEmailsQuery = "SELECT `email` FROM `user` WHERE `role` = 'student'"
-
-    try:
-        cursor.execute(getEmailsQuery)
-    except Exception as e:
-        print(e)
-        return {
-            "status": False,
-            "msg": "Unable to get emails"
-        }
-    
-    emails = cursor.fetchall()
-
-    getManagerQuery = "SELECT `name` FROM `staff` WHERE (SELECT email FROM `user` WHERE `role` = 'manager')"
-    try:
-        cursor.execute(getManagerQuery)
-    except Exception as e:
-        print(e)
-        return {
-            "status": False,
-            "msg": "Unable to get manager"
-        }
-    
-    managerName = cursor.fetchone()[0] #type: ignore
-    
-    for email in cursor.fetchall():
-        msg = mailServer.sendEmail(mailServer.makeAnnouncementEmailMessage(to=email[0], title=title, description=description, managerName=managerName, role="Hostelo Manager"))  #type: ignore
-        try:
-            mailServer.sendEmail(msg)  #type: ignore
-        except SMTPException as e:
-            print(e)
-            return {
-                "status": False,
-                "msg": "Unable to send email"
-            }
 
     return {
         "status": True,
@@ -95,7 +63,7 @@ async def update_announcement(request: Request, announcement_id: int):
     description = request_json.get("description")
 
     try:
-        query = f"UPDATE `announcement` SET `title` = '{title}', `description` = '{description}', `announcement_date` = CURRENT_DATE() WHERE `announcement_id` = {announcement_id}"
+        query = f"""UPDATE `announcement` SET `title` = '{title}', `description` = '{description}', `announcement_date` = CURRENT_DATE() WHERE `announcement_id` = {announcement_id}"""
         cursor.execute(query)
         connection.commit()
     except Exception as e:
@@ -103,6 +71,48 @@ async def update_announcement(request: Request, announcement_id: int):
         return {
             "status": False,
             "msg": "Unable to update announcement"
+        }
+    
+    getEmailsQuery = "SELECT `username` FROM `user` WHERE `role` = 'student'"
+
+    try:
+        cursor.execute(getEmailsQuery)
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to get emails"
+        }
+    
+    emails = cursor.fetchall()
+
+    getManagerQuery = "SELECT `name` FROM `staff` WHERE `email` = (SELECT `username` FROM `user` WHERE `role` = 'manager')"
+    try:
+        cursor.execute(getManagerQuery)
+    except Exception as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to get manager"
+        }
+    
+    managerName = cursor.fetchone()[0] #type: ignore
+    
+    emailList = []
+    for email in emails:
+        emailList.append(email[0]) #type: ignore
+
+    emailCSV = ", ".join(emailList)
+
+    msg = mailServer.makeEditAnnouncementEmailMessage(to=emailCSV, title=title, description=description, managerName=managerName, role="Hostelo Manager") # type: ignore
+
+    try:
+        mailServer.sendEmail(msg)  #type: ignore
+    except SMTPException as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Unable to send emails"
         }
 
     return {

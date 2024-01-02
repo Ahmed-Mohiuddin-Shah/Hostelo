@@ -82,8 +82,6 @@ async def request_room_service(request: Request):
 
     return {"status": True, "msg": "Room service requested successfully"}
 
-
-# TODO - Fix staffName
 @roomservice_router.get("/all-room-services", tags=["Room Service"])
 async def get_room_service_requests(request: Request):
     token = request.headers["Authorization"]  # type: ignore

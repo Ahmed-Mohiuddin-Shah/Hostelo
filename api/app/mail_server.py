@@ -39,7 +39,15 @@ class EmailServer:
         msg['Subject'] = f'📢 {title}'
         msg['From'] = config("email_name")
         msg['To'] = to
-        msg.set_content(f"\n\n{description}\n\nBest regards,\n{managerName}\n{role}")
+        msg.set_content(f"{description}\n\nBest regards,\n{managerName}\n{role}")
+        return msg
+    
+    def makeEditAnnouncementEmailMessage(self, to: str, title: str, description: str, managerName: str, role: str) -> EmailMessage:
+        msg = EmailMessage()
+        msg['Subject'] = f'📢 Edited - {title}'
+        msg['From'] = config("email_name")
+        msg['To'] = to
+        msg.set_content(f"{description}\n\nBest regards,\n{managerName}\n{role}")
         return msg
 
     def sendEmail(self, msg: EmailMessage) -> None:
