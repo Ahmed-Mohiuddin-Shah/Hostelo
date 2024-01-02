@@ -83,12 +83,21 @@ async def add_student(request: Request):
                 return {"status": False, "msg": "Unable to re-add student"}
 
             return {"status": True, "msg": "Student re-added successfully"}
+        
+    getManagerDetailsQuery = f"SELECT `name`, role FROM `staff`, `user` WHERE `staff`.`email` = `user`.`username` AND `user`.`role` = 'manager'"
+
+    try:
+        cursor.execute(getManagerDetailsQuery)
+        managerDetails = cursor.fetchone()
+    except Exception as e:
+        print(e)
+        return {"status": False, "msg": "Unable to get manager details"}
+    
+    managerName, managerRole = managerDetails #type: ignore
 
     try:
         # send mail
-        msg = mailServer.makeLoginDetailsEmailMessage(
-            request_json["email"], str(studentID), str(originalPassword)
-        )
+        msg = mailServer.makeLoginDetailsEmailMessage( request_json["email"], str(studentID), str(originalPassword) , managerName, managerRole) #type: ignore
         mailServer.sendEmail(msg)
         print("Mail sent")
     except SMTPSenderRefused:
