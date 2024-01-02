@@ -26,7 +26,7 @@ async def get_all_announcements(request: Request):
     }
 
 @announcements_router.post("/add-announcement", tags=["Announcements"])
-async def add_announcement(request: Request,):
+async def add_announcement(request: Request):
     request_json = await request.json()
 
     title = request_json.get("title")
