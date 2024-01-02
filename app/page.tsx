@@ -135,7 +135,7 @@ export default function Home() {
             </Link>
             {/* File complaint */}
             <Link
-              href="/room-services/request-room-service"
+              href="/complaints/add-complaint"
               className="text-lg text-primary font-semibold hover:underline cursor-pointer flex items-center gap-2"
             >
               <FaFilePen className="fill-current text-lg " />
