@@ -324,3 +324,91 @@ async def generate_electric_invoices(request: Request):
         "status" : True,
         "msg" : "Electric invoices generated successfully"
     }
+
+@invoices_router.get("/get-mess-invoices", tags=["Invoices"])
+async def get_mess_invoices(request: Request):
+
+    token = request.headers["Authorization"]
+    decodedToken = decodeJWT(token)
+
+    role = decodedToken.get("role")
+
+    if role is None:
+        return {"status": False, "msg": "Token expired"}
+    
+    username = decodedToken["username"]
+    
+    if role == "student":
+        getInvoicesQuery = f"SELECT `invoice_id`, `student_id`, `name`, `room_number`, `payable_amount`, `date_of_issuance`, `due_date`, GET_INVOICE_STATUS(`status`) FROM `mess_invoice` NATURAL JOIN `student` WHERE `email` = '{username}' ORDER BY `date_of_issuance` DESC"
+    else: 
+        getInvoicesQuery = f"SELECT `invoice_id`, `student_id`, `name`, `room_number`, `payable_amount`, `date_of_issuance`, `due_date`, GET_INVOICE_STATUS(`status`) FROM `mess_invoice` NATURAL JOIN `student` ORDER BY `date_of_issuance` DESC"
+
+    try:
+        cursor.execute(getInvoicesQuery)
+        result = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+                "status" : False,
+                "msg" : "Unable to fetch mess invoices"
+        }
+    
+    if result == None:
+        return {
+            "status" : False,
+            "msg" : "Mess invoices not found"
+        }
+    
+    invoices = []
+    for invoice in result:
+        invoices.append({"id" : invoice[0], "studentId": invoice[1], "roomNumber": invoice[2], "amount" : invoice[3], "issueDate" : invoice[4], "dueDate": invoice[5], "status" : invoice[6]})
+
+    return {
+        "data" : invoices,
+        "status" : True,
+        "msg" : "Mess invoices fetched successfully"
+    }
+
+@invoices_router.get("/get-electricity-invoices", tags=["Invoices"])
+async def get_electricity_invoices(request: Request):
+
+    token = request.headers["Authorization"]
+    decodedToken = decodeJWT(token)
+
+    role = decodedToken.get("role")
+
+    if role is None:
+        return {"status": False, "msg": "Token expired"}
+    
+    username = decodedToken["username"]
+    
+    if role == "student":
+        getInvoicesQuery = f"SELECT `invoice_id`, `student_id`, `name`, `room_number`, `payable_amount`, `date_of_issuance`, `due_date`, GET_INVOICE_STATUS(`status`) FROM `electric_invoice` NATURAL JOIN `student` WHERE `email` = '{username}' ORDER BY `date_of_issuance` DESC"
+    else: 
+        getInvoicesQuery = f"SELECT `invoice_id`, `student_id`, `name`, `room_number`, `payable_amount`, `date_of_issuance`, `due_date`, GET_INVOICE_STATUS(`status`) FROM `electric_invoice` NATURAL JOIN `student` ORDER BY `date_of_issuance` DESC"
+
+    try:
+        cursor.execute(getInvoicesQuery)
+        result = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+                "status" : False,
+                "msg" : "Unable to fetch electric invoices"
+        }
+    
+    if result == None:
+        return {
+            "status" : False,
+            "msg" : "Electric invoices not found"
+        }
+    
+    invoices = []
+    for invoice in result:
+        invoices.append({"id" : invoice[0], "studentId": invoice[1], "roomNumber": invoice[2], "amount" : invoice[3], "issueDate" : invoice[4], "dueDate": invoice[5], "status" : invoice[6]})
+
+    return {
+        "data" : invoices,
+        "status" : True,
+        "msg" : "Electric invoices fetched successfully"
+    }
