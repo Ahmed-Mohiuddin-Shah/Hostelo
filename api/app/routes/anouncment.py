@@ -33,7 +33,7 @@ async def add_announcement(request: Request,):
     description = request_json.get("description")
 
     try:
-        query = f"INSERT INTO `announcement` (`title`, `description`, `announcement_date`) VALUES ('{title}', '{description}', CURRENT_DATE())"
+        query = f"""INSERT INTO `announcement` (`title`, `description`, `announcement_date`) VALUES ('{title}', '{description}', CURRENT_DATE())"""
         cursor.execute(query)
         connection.commit()
     except Exception as e:
