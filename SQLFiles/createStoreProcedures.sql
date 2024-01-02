@@ -12,6 +12,7 @@ CREATE PROCEDURE GET_STATUS(IN BOOLEANSTATUS BOOLEAN
 	SELECT
 	SELECT
 	SELECT
+	SELECT
 	SELECT (
 	        CASE
 	            WHEN booleanStatus <> 0 THEN 'pending'
@@ -56,14 +57,21 @@ ORDER BY
 
 CREATE FUNCTION GET_STATUS(BOOLEANSTATUS BOOLEAN) RETURNS 
 VARCHAR(10) DETERMINISTIC BEGIN RETURN 
-	RETURN
-	RETURN
-	RETURN
-	RETURN
 	RETURN (
 	        CASE
 	            WHEN booleanStatus <> 0 THEN 'pending'
 	            ELSE 'resolved'
+	        END
+	    );
+	END;
+
+
+CREATE FUNCTION GET_INVOICE_STATUS(BOOLEANSTATUS BOOLEAN
+) RETURNS VARCHAR(10) DETERMINISTIC BEGIN RETURN 
+	RETURN (
+	        CASE
+	            WHEN booleanStatus <> 1 THEN 'Paid'
+	            ELSE 'Unpaid'
 	        END
 	    );
 	END;
