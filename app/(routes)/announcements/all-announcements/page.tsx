@@ -24,12 +24,15 @@ export default function Page() {
   const [selectedAnnouncement, setSelectedAnnouncement] =
     useState<IAnnouncement>();
 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const hasAccess = useAccess(["student", "manager", "admin"]);
   const auth = useAuth();
   const authContext = useContext(AuthContext);
 
   useEffect(() => {
     const getAnnoucements = async () => {
+      setIsLoading(true);
       let data;
       try {
         const response = await axios.get(
@@ -48,6 +51,7 @@ export default function Page() {
       }
 
       setAnnouncements(data.data);
+      setIsLoading(false);
     };
     getAnnoucements();
   }, []);
@@ -241,7 +245,9 @@ export default function Page() {
             Annoucements
           </h1>
 
-          {authContext?.userInfo?.role === "student" && (
+          {isLoading && <Loader heightClass="h-24" />}
+
+          {authContext?.userInfo?.role === "student" && !isLoading && (
             <div className="grid grid-cols-12 gap-4">
               {announcements.map((announcement) => (
                 <div
@@ -258,7 +264,7 @@ export default function Page() {
             </div>
           )}
 
-          {authContext?.userInfo?.role !== "student" && (
+          {authContext?.userInfo?.role !== "student" && !isLoading && (
             <table className="w-full">
               <thead className="text-left">
                 <tr className="border-b pb-2">
