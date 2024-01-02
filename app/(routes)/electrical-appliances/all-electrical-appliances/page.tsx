@@ -147,29 +147,38 @@ export default function Page() {
     <>
       <section className="bg-white p-8 dark:bg-boxdark">
         <h1 className="text-4xl text-black mb-4 dark:text-white">Appliances</h1>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center w-full">
-            <input
-              type="search"
-              name="search"
-              placeholder="Search by name, room number or date"
-              className="w-full rounded-lg border-[1.5px] border-black bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-              value={filterText}
-              onChange={(e) => {
-                setFilterText(e.target.value);
-              }}
-            />
+
+        {currentRole !== "student" && (
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center w-full">
+              <input
+                type="search"
+                name="search"
+                placeholder="Search by name, room number or date"
+                className="w-full rounded-lg border-[1.5px] border-black bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                value={filterText}
+                onChange={(e) => {
+                  setFilterText(e.target.value);
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
         <div className="overflow-auto">
-          <table className="w-full">
+          <table className="w-full text-lg">
             <thead className="text-left">
               <tr className="border-b pb-2">
-                <th className="px-4 py-2">Student Id</th>
-                <th className="px-4 py-2">Student Name</th>
-                <th className="px-4 py-2">Room Number</th>
-                <th className="px-4 py-2">Appliance Name</th>
-                <th className="px-4 py-2">Actions</th>
+                {currentRole !== "student" && (
+                  <th className="px-4 py-4">Student Id</th>
+                )}
+                <th className="px-4 py-4">Student Name</th>
+                {currentRole !== "student" && (
+                  <th className="px-4 py-4">Room Number</th>
+                )}
+                <th className="px-4 py-4">Appliance Name</th>
+                {currentRole !== "student" && (
+                  <th className="px-4 py-4">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -185,25 +194,30 @@ export default function Page() {
                   key={appliance.student_id + "-" + appliance.appliance_id}
                   className="border-b"
                 >
-                  <td className="px-4 py-2">{appliance.student_id}</td>
-                  <td className="px-4 py-2">{appliance.student_name}</td>
-                  <td className="px-4 py-2">{appliance.room_number}</td>
-                  <td className="px-4 py-2">{appliance.appliance_name}</td>
-
-                  <td className="px-4 py-2">
-                    <button
-                      className="bg-red-500 hover:bg-red-700 text-meta-1 font-bold py-2 px-4 rounded dark:text-white"
-                      onClick={(e) =>
-                        handleDelete(
-                          e,
-                          appliance.appliance_id,
-                          appliance.student_id
-                        )
-                      }
-                    >
-                      <FaTrash className="text-lg text-current" />
-                    </button>
-                  </td>
+                  {currentRole !== "student" && (
+                    <td className="px-4 py-4">{appliance.student_id}</td>
+                  )}
+                  <td className="px-4 py-4">{appliance.student_name}</td>
+                  {currentRole !== "student" && (
+                    <td className="px-4 py-4">{appliance.room_number}</td>
+                  )}
+                  <td className="px-4 py-4">{appliance.appliance_name}</td>
+                  {currentRole !== "student" && (
+                    <td className="px-4 py-4">
+                      <button
+                        className="bg-red-500 hover:bg-red-700 text-meta-1 font-bold py-4 px-4 rounded dark:text-white"
+                        onClick={(e) =>
+                          handleDelete(
+                            e,
+                            appliance.appliance_id,
+                            appliance.student_id
+                          )
+                        }
+                      >
+                        <FaTrash className="text-lg text-current" />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
