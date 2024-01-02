@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Body, Depends, Request
+import bcrypt
 from numpy import integer
 from app.auth.auth_handler import signAndGetJWT, decodeJWT
 from app.my_sql_connection_cursor import cursor, connection # type: ignore
@@ -8,8 +9,11 @@ auth_router = APIRouter()
 @auth_router.post("/signin", tags=["Authentication"])
 async def sign_in(request: Request):
     request_json = await request.json()
-    print(request_json)
-    query = f"SELECT * FROM `user` WHERE `username`='{request_json.get('username')}' AND `password`='{request_json.get('password')}'"
+
+    username = request_json.get('username')
+    password = request_json.get('password')
+
+    query = f"SELECT * FROM `user` WHERE `username`='{username}' AND `password`='{password}'"
     
     cursor.execute(query)
 
