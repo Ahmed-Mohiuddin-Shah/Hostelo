@@ -26,6 +26,7 @@ interface IRoomService {
 export default function Page() {
   const hasAccess = useAccess(["student", "manager", "admin", "worker"]);
   const [roomServices, setRoomServices] = useState<IRoomService[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const auth = useAuth();
   const authContext = useContext(AuthContext);
@@ -36,6 +37,7 @@ export default function Page() {
     }
 
     const getRoomServices = async () => {
+      setIsLoading(true);
       let data;
       try {
         const response = await axios.get(
@@ -49,8 +51,9 @@ export default function Page() {
         data = response.data;
       } catch (e) {
         console.log(e);
-        return toast.error("Unable to fetch room services");
+        toast.error("Unable to fetch room services");
       }
+      setIsLoading(false);
 
       if (!data.status) {
         return toast.error(data.msg);
@@ -120,100 +123,105 @@ export default function Page() {
 
   return (
     <>
-      {
-        <section className="bg-white p-8 dark:bg-boxdark">
-          <h1 className="text-4xl text-black mb-4 dark:text-white">
-            Room Service Requests
-          </h1>
-          <table className="w-full">
-            <thead className="text-left">
-              <tr className="border-b pb-2">
+      <section className="bg-white p-8 dark:bg-boxdark">
+        <h1 className="text-4xl text-black mb-4 dark:text-white">
+          Room Service Requests
+        </h1>
+        <table className="w-full text-lg">
+          <thead className="text-left">
+            <tr className="border-b pb-2">
+              {authContext.userInfo?.role === "student" ? (
+                <>
+                  <th className="px-4 py-2">Service Type</th>
+                  <th className="px-4 py-2">Request Date</th>
+                  <th className="px-4 py-2">Status</th>
+                </>
+              ) : (
+                <>
+                  <th className="px-4 py-2">Student Name</th>
+                  <th className="px-4 py-2">Room Number</th>
+                  <th className="px-4 py-2">Service Type</th>
+                  <th className="px-4 py-2">Request Date</th>
+                  <th className="px-4 py-2">Status</th>
+                  <th className="px-4 py-2">Staff Name</th>
+                </>
+              )}
+              {authContext.userInfo?.role === "worker" && (
+                <th className="px-4 py-2">Actions</th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading && (
+              <tr className="">
+                <td colSpan={4} className="text-center pt-4 text-2xl">
+                  <Loader heightClass="h-24" />
+                </td>
+              </tr>
+            )}
+            {roomServices.length === 0 && !isLoading && (
+              <tr className="">
+                <td colSpan={4} className="text-center pt-4 text-2xl">
+                  No room service requests found
+                </td>
+              </tr>
+            )}
+            {roomServices.map((service) => (
+              <tr key={service.id} className="border-b">
                 {authContext.userInfo?.role === "student" ? (
                   <>
-                    <th className="px-4 py-2">Service Type</th>
-                    <th className="px-4 py-2">Request Date</th>
-                    <th className="px-4 py-2">Status</th>
+                    <td className="px-4 py-4">{service.serviceType}</td>
+                    <td className="px-4 py-4">{service.requestDate}</td>
+                    <td className="px-4 py-4">
+                      <span
+                        className={`p-2 text-white rounded ${
+                          service.status === "pending"
+                            ? "bg-meta-8"
+                            : "bg-success"
+                        }`}
+                      >
+                        {service.status}
+                      </span>
+                    </td>
                   </>
                 ) : (
                   <>
-                    <th className="px-4 py-2">Student Name</th>
-                    <th className="px-4 py-2">Room Number</th>
-                    <th className="px-4 py-2">Service Type</th>
-                    <th className="px-4 py-2">Request Date</th>
-                    <th className="px-4 py-2">Status</th>
-                    <th className="px-4 py-2">Staff Name</th>
+                    <td className="px-4 py-4">{service.studentName}</td>
+                    <td className="px-4 py-4">{service.roomNumber}</td>
+                    <td className="px-4 py-4">{service.serviceType}</td>
+                    <td className="px-4 py-4">{service.requestDate}</td>
+                    <td className="px-4 py-4">
+                      <span
+                        className={`p-2 text-white rounded ${
+                          service.status === "pending"
+                            ? "bg-meta-8"
+                            : "bg-success"
+                        }`}
+                      >
+                        {service.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      {service.staffName ? service.staffName : "Not done yet"}
+                    </td>
                   </>
                 )}
-                {authContext.userInfo?.role === "worker" && (
-                  <th className="px-4 py-2">Actions</th>
-                )}
+                <td className="px-4 py-2 flex">
+                  {authContext.userInfo?.role === "worker" &&
+                    service.status !== "resolved" && (
+                      <button
+                        className="bg-meta-3 hover:bg-opacity-90 text-white font-bold py-4 px-2 rounded dark:text-white"
+                        onClick={(e) => handleCompleted(e, service.id)}
+                      >
+                        Mark as completed
+                      </button>
+                    )}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {roomServices.length === 0 && (
-                <tr className="">
-                  <td colSpan={4} className="text-center pt-4 text-2xl">
-                    No room service requests found
-                  </td>
-                </tr>
-              )}
-              {roomServices.map((service) => (
-                <tr key={service.id} className="border-b">
-                  {authContext.userInfo?.role === "student" ? (
-                    <>
-                      <td className="px-4 py-4">{service.serviceType}</td>
-                      <td className="px-4 py-4">{service.requestDate}</td>
-                      <td className="px-4 py-4">
-                        <span
-                          className={`p-2 text-white rounded ${
-                            service.status === "pending"
-                              ? "bg-meta-8"
-                              : "bg-success"
-                          }`}
-                        >
-                          {service.status}
-                        </span>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className="px-4 py-4">{service.studentName}</td>
-                      <td className="px-4 py-4">{service.roomNumber}</td>
-                      <td className="px-4 py-4">{service.serviceType}</td>
-                      <td className="px-4 py-4">{service.requestDate}</td>
-                      <td className="px-4 py-4">
-                        <span
-                          className={`p-2 text-white rounded ${
-                            service.status === "pending"
-                              ? "bg-meta-8"
-                              : "bg-success"
-                          }`}
-                        >
-                          {service.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        {service.staffName ? service.staffName : "Not done yet"}
-                      </td>
-                    </>
-                  )}
-                  <td className="px-4 py-2 flex">
-                    {authContext.userInfo?.role === "worker" &&
-                      service.status !== "resolved" && (
-                        <button
-                          className="bg-meta-3 hover:bg-opacity-90 text-white font-bold py-4 px-2 rounded dark:text-white"
-                          onClick={(e) => handleCompleted(e, service.id)}
-                        >
-                          Mark as completed
-                        </button>
-                      )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      }
+            ))}
+          </tbody>
+        </table>
+      </section>
       <ToastContainer />
     </>
   );
