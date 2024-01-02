@@ -14,6 +14,7 @@ from app.routes.roomservices import roomservice_router
 from app.routes.rooms import rooms_router
 from app.routes.staff import staff_router
 from app.routes.students import students_router
+from app.routes.users import users_router
 
 
 def get_application() -> FastAPI:
@@ -33,12 +34,13 @@ def get_application() -> FastAPI:
     application.include_router(attendance_router, prefix="/api/attendance")
     application.include_router(auth_router, prefix="/api/auth")
     application.include_router(complaints_router, prefix="/api/complaints")
-    application.include_router(invoices_router, prefix="/api/invoices")
+    application.include_router(invoices_router, prefix="/api/invoice")
     application.include_router(mess_router, prefix="/api/mess")
     application.include_router(roomservice_router, prefix="/api/room-services")
     application.include_router(rooms_router, prefix="/api/rooms")
     application.include_router(staff_router, prefix="/api/staff")
     application.include_router(students_router, prefix="/api/students")
+    application.include_router(users_router, prefix="/api/users")
 
     return application
 

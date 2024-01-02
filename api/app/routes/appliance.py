@@ -1,7 +1,7 @@
 from cv2 import add
 from fastapi import APIRouter, Body, Depends, Request
 from mysql.connector import connect, Error
-from decouple import config # type: ignore
+from app.auth.auth_handler import decodeJWT # type: ignore
 from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
 appliance_router = APIRouter()
@@ -94,8 +94,24 @@ async def add_student_appliance(request: Request):
     }
 
 @appliance_router.get("/all-appliances", tags=["Appliance"])
-async def all_appliances():
-    allStudentsAppliancesQuery = "SELECT `student_id`, `name`, `room_number`, `appliance_id` FROM `hasappliance` NATURAL JOIN `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
+async def all_appliances(request: Request):
+
+    token = request.headers["Authorization"]  # type: ignore
+
+    decodedToken = decodeJWT(token)
+
+    role = decodedToken.get("role", None)
+
+    if role is None:
+        return {"status": False, "msg": "Role is not defined"}
+
+    username = decodedToken["username"]
+
+    if role == "student":
+        allStudentsAppliancesQuery = f"SELECT `student_id`, `name`, `room_number`, `appliance_id` FROM `hasappliance` NATURAL JOIN `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`) AND `email` IN ('{username}')"
+    else:
+        allStudentsAppliancesQuery = "SELECT `student_id`, `name`, `room_number`, `appliance_id` FROM `hasappliance` NATURAL JOIN `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
+
     applianceQuery = "SELECT `appliance_id`, `name` FROM `electricappliance`"
 
     try:

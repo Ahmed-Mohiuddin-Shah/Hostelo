@@ -70,7 +70,7 @@ async def sign_off_from_mess(request:Request):
                 "msg" : "Unable to fetch mess off request"
         }
     
-    getCurrentDaysOffQuery = f"SELECT `daysoff` FROM `messoff` WHERE `student_id` = 407251 AND MONTH(CURRENT_DATE()) IN ( SELECT MONTH(`request_date`) FROM messoff WHERE `student_id` = 407251)"
+    getCurrentDaysOffQuery = f"SELECT `daysoff` FROM `messoff` WHERE `student_id` = {student_id} AND MONTH(CURRENT_DATE()) IN ( SELECT MONTH(`request_date`) FROM messoff WHERE `student_id` = {student_id})"
 
     try:
         new_days_off = days_off
