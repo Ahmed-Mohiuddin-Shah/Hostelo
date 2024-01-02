@@ -169,8 +169,6 @@ const Dashboard: React.FC = () => {
       } else {
         console.log(data.msg);
       }
-
-      console.log(data);
     };
 
     getTotalStudents();
