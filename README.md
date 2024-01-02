@@ -29,19 +29,21 @@ Manager would be able to switch rooms of the students. The manager would also be
 
 - Muhammad Hamza ([profile](https://github.com/CodeWhizHamza))
 - Ahmed Mohiuddin Shah ([profile](https://github.com/Ahmed-Mohiuddin-Shah))
-- Aqsa Batool
+- Aqsa Batool ([profile](https://github.com/WhizAqsa))
 
 ## How to run
 
 ```bash
 npm install
-npm run dev
+npm run dev (for development)
+npm run build && npm run start (for production)
 ```
 
 ## How to Configure and Run API Server
 
 - Create a .env file inside the api folder
 - Inside the .env folder paste the following:
+
   ```bash
   mySQLServerIP = "0.0.0.0"
   apiUserName = "dummyValue"
@@ -53,6 +55,7 @@ npm run dev
   secret = veryDummyKey
   algorithm = HS256
   ```
+
 - Then replace the dummy values with your own
 - Then run the main.py file in the api folder file using following command:
   ```bash
