@@ -2,6 +2,8 @@ from fastapi import APIRouter, Body, Depends, Request
 from app.auth.auth_handler import signAndGetJWT, decodeJWT
 from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
+from app.auth.security import encrypt_password, check_encrypted_password
+
 users_router = APIRouter()
 
 @users_router.post("/update-profile-picture", tags=["Users"])
@@ -36,6 +38,8 @@ async def verify_password(request: Request):
     request_json = await request.json()
     password = request_json.get('password')
     token = request.headers['Authorization']
+
+    password = encrypt_password(password)
 
     decodedToken = decodeJWT(token)
     
@@ -79,6 +83,8 @@ async def change_password(request: Request):
     decodedToken = decodeJWT(token)
     
     username = decodedToken.get('username')
+
+    password = encrypt_password(password)
 
     query = f"UPDATE `user` SET `password`='{password}' WHERE `username`='{username}'"
     
