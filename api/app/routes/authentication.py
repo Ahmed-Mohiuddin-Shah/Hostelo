@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Body, Depends, Request
-import bcrypt
-from numpy import integer
 from app.auth.auth_handler import signAndGetJWT, decodeJWT
 from app.my_sql_connection_cursor import cursor, connection # type: ignore
+from app.auth.security import check_encrypted_password
 
 auth_router = APIRouter()
 
@@ -13,7 +12,7 @@ async def sign_in(request: Request):
     username = request_json.get('username')
     password = request_json.get('password')
 
-    query = f"SELECT * FROM `user` WHERE `username`='{username}' AND `password`='{password}'"
+    query = f"SELECT * FROM `user` WHERE `username`='{username}'"
     
     cursor.execute(query)
 
@@ -21,10 +20,16 @@ async def sign_in(request: Request):
     if user is None:
         return {
             "status": False,
-            "msg": "Username or password is incorrect"
+            "msg": "Username not found"
         }
     
-    username, _, role, image_url = user
+    username, hashed_password, role, image_url = user
+
+    if check_encrypted_password(password, hashed_password) is False: #type: ignore  
+        return {
+            "status": False,
+            "msg": "Incorrect password"
+        }
 
     if role == "admin":
         name = "admin"
@@ -57,9 +62,9 @@ async def sign_in(request: Request):
         "msg": "Login successful",
         "token": token
     }
+
 @auth_router.post("/validate-token", tags=["Authentication"])
 async def validate_tokem(request: Request):
     request_json = await request.json()
     token = request_json.get('token')
     return decodeJWT(token)
-
