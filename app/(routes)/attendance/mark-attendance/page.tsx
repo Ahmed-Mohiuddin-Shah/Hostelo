@@ -24,9 +24,11 @@ export default function Page() {
   const [students, setStudents] = useState<IAttendance[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const hasAccess = useAccess(["admin", "manager"]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchStudents = async () => {
+      setIsLoading(true);
       let data;
       try {
         const response = await axios.get("/api/attendance/student-details");
@@ -44,7 +46,7 @@ export default function Page() {
       } else {
         toast.error(data.message);
       }
-      console.log(data);
+      setIsLoading(false);
     };
     fetchStudents();
   }, []);
@@ -87,7 +89,7 @@ export default function Page() {
         <h1 className="text-4xl text-black mb-4 dark:text-white">
           Mark Attendance
         </h1>
-        <table className="w-full">
+        <table className="w-full text-lg">
           <thead className="text-left">
             <tr className="border-b pb-2">
               <th className="px-4 py-2">Image</th>
@@ -97,6 +99,20 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
+            {isLoading && (
+              <tr>
+                <td colSpan={4} className="text-center py-4">
+                  <Loader heightClass="h-24" />
+                </td>
+              </tr>
+            )}
+            {students.length === 0 && !isLoading && (
+              <tr>
+                <td colSpan={4} className="text-center py-4">
+                  No students found
+                </td>
+              </tr>
+            )}
             {students.map((student) => (
               <tr key={student.student_id} className="border-b">
                 <td className="px-4 py-2">

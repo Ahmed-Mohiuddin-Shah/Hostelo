@@ -71,6 +71,7 @@ export default function Page() {
   const [viewingStudent, setViewingStudent] = useState<IStudent>();
   const [freeRooms, setFreeRooms] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const getStudents = async () => {
@@ -89,7 +90,6 @@ export default function Page() {
         console.log(data.msg);
       }
     };
-    getStudents();
 
     const getFreeRooms = async () => {
       let data;
@@ -107,7 +107,10 @@ export default function Page() {
         console.log(data.msg);
       }
     };
+    setIsLoading(true);
+    getStudents();
     getFreeRooms();
+    setIsLoading(false);
   }, []);
 
   if (auth === false) {
@@ -626,7 +629,7 @@ export default function Page() {
         <section className="bg-white p-8 dark:bg-boxdark">
           <h1 className="text-4xl text-black mb-4 dark:text-white">Students</h1>
           <div className="overflow-auto">
-            <table className="w-full">
+            <table className="w-full text-lg">
               <thead className="text-left">
                 <tr className="border-b pb-2">
                   <th className="px-4 py-2">Image</th>
@@ -639,6 +642,13 @@ export default function Page() {
                 </tr>
               </thead>
               <tbody>
+                {students.length === 0 && !isLoading && (
+                  <tr>
+                    <td colSpan={7} className="text-center py-4">
+                      No students found
+                    </td>
+                  </tr>
+                )}
                 {students.map((student) => (
                   <tr key={student.student_id} className="border-b">
                     <td className="px-4 py-2">

@@ -27,9 +27,11 @@ export default function Page() {
   const [isEditing, setIsEditing] = useState<boolean | null>(false);
   const [staffMembers, setStaffMembers] = useState<IStaff[]>([]);
   const [selectedStaff, setSelectedStaff] = useState<IStaff>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const getStaffMembers = async () => {
+      setIsLoading(true);
       let data;
       try {
         const response = await axios.get("/api/staff/get-all-staff");
@@ -38,7 +40,7 @@ export default function Page() {
         console.log(error);
         toast.error("Error fetching staff members");
       }
-
+      setIsLoading(false);
       if (!data.status) {
         toast.error("Error fetching staff members");
         return;
@@ -227,7 +229,7 @@ export default function Page() {
           <h1 className="text-4xl text-black mb-4 dark:text-white">Staff</h1>
 
           <div className="overflow-auto">
-            <table className="w-full">
+            <table className="w-full text-lg">
               <thead className="text-left">
                 <tr className="border-b pb-2">
                   <th className="px-4 py-2">Staff Image</th>
@@ -240,6 +242,20 @@ export default function Page() {
                 </tr>
               </thead>
               <tbody>
+                {isLoading && (
+                  <tr className="">
+                    <td colSpan={7} className="text-center pt-4 text-2xl">
+                      <Loader heightClass="h-24" />
+                    </td>
+                  </tr>
+                )}
+                {staffMembers.length === 0 && !isLoading && (
+                  <tr className="">
+                    <td colSpan={7} className="text-center pt-4 text-2xl">
+                      No staff members found
+                    </td>
+                  </tr>
+                )}
                 {staffMembers.map((staff) => (
                   <tr key={staff.staffID} className="border-b">
                     <td className="px-4 py-2">

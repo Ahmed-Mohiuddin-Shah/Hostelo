@@ -171,6 +171,12 @@ const Profile = () => {
         if (!value) {
           return "You need to write something!";
         }
+        if (value.length < 8) {
+          return "Password must be atleast 8 characters long";
+        }
+        if (value === previousPassword) {
+          return "New password must be different from previous password";
+        }
       },
     });
 

@@ -12,7 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 export default function Page() {
   const auth = useAuth();
   const [studentDetails, setStudentDetails] = useState<
-    { name: string; student_id: number }[]
+    { name: string; student_id: number; roomNumber: number }[]
   >([]);
   const [appliances, setAppliances] = useState<
     { appliance_id: number; appliance_name: string }[]
@@ -36,6 +36,7 @@ export default function Page() {
         toast.error(data.msg);
         return;
       }
+      console.log(data);
       setStudentDetails(data.data);
     };
     getStudentDetails();
@@ -147,15 +148,25 @@ export default function Page() {
               ))}
             </select>
           </div>
-          <div className="mb-4 col-span-12 sm:col-span-6 flex items-end">
+          <div className="mb-1 col-span-12 sm:col-span-6 flex items-end">
             {selectedId && (
-              <div className="pb-3 text-black font-bold dark:text-white">
-                Student Name:{" "}
-                {
-                  studentDetails.find(
-                    (x) => x.student_id === Number(selectedId)
-                  )?.name
-                }
+              <div className="pb-3 text-black font-bold dark:text-white flex flex-col">
+                <span className="flex gap-2">
+                  Student Name:{" "}
+                  {
+                    studentDetails.find(
+                      (x) => x.student_id === Number(selectedId)
+                    )?.name
+                  }
+                </span>
+                <span className="flex gap-2">
+                  Room Number:{" "}
+                  {
+                    studentDetails.find(
+                      (x) => x.student_id === Number(selectedId)
+                    )?.roomNumber
+                  }
+                </span>
               </div>
             )}
           </div>

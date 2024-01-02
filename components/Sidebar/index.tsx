@@ -78,7 +78,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     {
       name: "Dashboard",
       path: "/",
-      access: "a|s|m|w",
+      access: "a|s|m",
       Icon: () => <FaHive className="fill-current text-lg" />,
     },
     {

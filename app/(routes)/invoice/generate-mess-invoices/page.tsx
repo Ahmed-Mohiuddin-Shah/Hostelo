@@ -1,15 +1,22 @@
 "use client";
+import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
+import { AuthContext } from "@/contexts/UserAuthContext";
+import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
+import axios from "axios";
 import { redirect } from "next/navigation";
-import { useEffect } from "react";
-import { ToastContainer } from "react-toastify";
-
+import { useContext, useEffect, useState } from "react";
+import { FaSpinner } from "react-icons/fa6";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function Page() {
   const auth = useAuth();
+  const authContext = useContext(AuthContext);
+  const hasAccess = useAccess(["admin", "manager"]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => { }, []);
+  useEffect(() => {}, []);
 
   if (auth === false) {
     return <>{redirect("/auth/signin")}</>;
@@ -19,28 +26,111 @@ export default function Page() {
     return <Loader />;
   }
 
+  if (!hasAccess) {
+    return <NotAuthorized />;
+  }
+
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    const costPerDay = parseInt(e.target.costPerDay.value);
+    const inputInvoiceDate = e.target.invoiceMonth.value + "-01";
+    const currentDateString = new Date().toISOString().split("T")[0];
+
+    const invoiceDate = new Date(inputInvoiceDate);
+    const currentDate = new Date(currentDateString);
+
+    if (invoiceDate > currentDate) {
+      setIsSubmitting(false);
+      return toast.error("Invoice month cannot be in future");
+    }
+
+    // invoice can be made only for this month or previous
+    const diffTime = Math.abs(currentDate.getTime() - invoiceDate.getTime());
+    let diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    diffMonths = Math.floor(diffMonths / 30);
+
+    if (diffMonths > 1) {
+      setIsSubmitting(false);
+      return toast.error(
+        "Invoice can be made for current month, or previous month only"
+      );
+    }
+
+    if (isNaN(costPerDay)) {
+      setIsSubmitting(false);
+      return toast.error("Please enter a valid number");
+    }
+    if (costPerDay <= 0) {
+      setIsSubmitting(false);
+      return toast.error("Cost per day can only be positive");
+    }
+
+    let data;
+    try {
+      const response = await axios.post(
+        "/api/invoice/generate-mess-invoices",
+        {
+          perDayCost: costPerDay,
+          invoiceDate: inputInvoiceDate,
+        },
+        {
+          headers: {
+            Authorization: `${authContext.token}`,
+          },
+        }
+      );
+      data = response.data;
+    } catch (err) {
+      setIsSubmitting(false);
+      return toast.error("Something went wrong, please try again");
+    }
+
+    if (!data.status) {
+      setIsSubmitting(false);
+      return toast.error(data.msg);
+    }
+
+    toast.success(data.msg);
+    e.target.reset();
+    setIsSubmitting(false);
   };
 
   return (
     <>
       <section className="bg-white p-8 dark:bg-boxdark">
-        <h1 className="text-4xl text-black mb-4 dark:text-white">Title</h1>
+        <h1 className="text-4xl text-black mb-4 dark:text-white">
+          Generate Mess Invoices
+        </h1>
 
         <form onSubmit={handleFormSubmit}>
           <div className="mb-4">
             <label
-              htmlFor="input1"
+              htmlFor="costPerDay"
               className="mb-3 block text-black dark:text-white"
             >
-              Input 1
+              Per Day Cost
             </label>
             <input
-              type="text"
-              placeholder="placeholder"
-              id="input1"
-              name="input1"
+              type="number"
+              placeholder="Per day cost of mess"
+              id="costPerDay"
+              name="costPerDay"
+              className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="invoiceMonth"
+              className="mb-3 block text-black dark:text-white"
+            >
+              Invoice Month
+            </label>
+            <input
+              type="month"
+              id="invoiceMonth"
+              name="invoiceMonth"
               className="w-full rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
               required
             />
@@ -50,8 +140,10 @@ export default function Page() {
             <button
               type="submit"
               className="inline-flex items-center justify-center rounded-md bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              disabled={isSubmitting}
             >
-              Submit button
+              {isSubmitting && <FaSpinner className="animate-spin mr-4" />}
+              Generate Invoices and Send Emails
             </button>
           </div>
         </form>

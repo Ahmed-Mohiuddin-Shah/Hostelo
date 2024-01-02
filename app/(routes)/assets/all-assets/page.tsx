@@ -28,9 +28,11 @@ export default function Page() {
   const [underEdit, setUnderEdit] = useState<IAsset>();
 
   const hasAccess = useAccess(["admin", "manager"]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const getAssets = async () => {
+      setIsLoading(true);
       let data;
       try {
         const res = await axios.get("/api/assets/all-assets");
@@ -48,6 +50,7 @@ export default function Page() {
         }));
         setAssets(formattedData);
       }
+      setIsLoading(false);
     };
 
     getAssets();
@@ -216,7 +219,7 @@ export default function Page() {
       ) : (
         <section className="bg-white p-8 dark:bg-boxdark">
           <h1 className="text-4xl text-black mb-4 dark:text-white">Assets</h1>
-          <table className="w-full">
+          <table className="w-full text-lg">
             <thead className="text-left">
               <tr className="border-b pb-2">
                 <th className="px-4 py-2">Name</th>
@@ -225,6 +228,20 @@ export default function Page() {
               </tr>
             </thead>
             <tbody>
+              {isLoading && (
+                <tr>
+                  <td colSpan={3} className="text-center py-4">
+                    <Loader heightClass="h-24" />
+                  </td>
+                </tr>
+              )}
+              {assets.length === 0 && !isLoading && (
+                <tr>
+                  <td colSpan={3} className="text-center py-4">
+                    No assets found
+                  </td>
+                </tr>
+              )}
               {assets.map((asset, i) => (
                 <tr key={i} className="border-b">
                   <td className="px-4 py-2">{asset.name}</td>
