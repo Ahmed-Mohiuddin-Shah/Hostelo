@@ -1,12 +1,13 @@
 "use client";
 import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
+import { AuthContext } from "@/contexts/UserAuthContext";
 import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaCamera, FaPenToSquare, FaTrash } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -28,6 +29,12 @@ export default function Page() {
   const [staffMembers, setStaffMembers] = useState<IStaff[]>([]);
   const [selectedStaff, setSelectedStaff] = useState<IStaff>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const authContext = useContext(AuthContext);
+  const [currentRole, setCurrentRole] = useState<string>("");
+
+  useEffect(() => {
+    setCurrentRole(authContext.userInfo?.role || "");
+  }, [authContext.userInfo?.role]);
 
   useEffect(() => {
     const getStaffMembers = async () => {
@@ -46,15 +53,20 @@ export default function Page() {
         return;
       }
 
-      const filteredStaff = data.data.filter(
-        (staff: IStaff) =>
-          staff.staffRole !== "admin" && staff.staffRole !== "manager"
-      );
+      const filteredStaff = data.data.filter((staff: IStaff) => {
+        if (currentRole === "manager") {
+          return staff.staffRole !== "manager";
+        }
+        if (currentRole === "admin") {
+          return true;
+        }
+        return false;
+      });
 
       setStaffMembers(filteredStaff);
     };
     getStaffMembers();
-  }, []);
+  }, [currentRole]);
 
   if (auth === false) {
     return <>{redirect("/auth/signin")}</>;
