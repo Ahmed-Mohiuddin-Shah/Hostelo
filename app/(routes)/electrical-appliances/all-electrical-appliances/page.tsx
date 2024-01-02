@@ -68,7 +68,7 @@ export default function Page() {
     });
 
     setFilteredAppliances(filtered);
-  }, [filterText]);
+  }, [filterText, appliances]);
 
   if (auth === false) {
     return <>{redirect("/auth/signin")}</>;
