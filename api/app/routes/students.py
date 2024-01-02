@@ -37,11 +37,11 @@ async def add_student(request: Request):
     request_json = await request.json()
 
     studentID = int(request_json["student_id"])
-    password = "".join(
+    originalPassword = "".join(
         secrets.choice(string.ascii_uppercase + string.digits) for i in range(8)
     )
 
-    password = encrypt_password(password)
+    password = encrypt_password(originalPassword)
 
     isDeletedQuery = f"SELECT * FROM `deletedstudent` WHERE `student_id` = {studentID}"
 
@@ -87,7 +87,7 @@ async def add_student(request: Request):
     try:
         # send mail
         msg = mailServer.makeLoginDetailsEmailMessage(
-            request_json["email"], str(studentID), str(password)
+            request_json["email"], str(studentID), str(originalPassword)
         )
         mailServer.sendEmail(msg)
         print("Mail sent")
