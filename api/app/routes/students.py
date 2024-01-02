@@ -357,12 +357,12 @@ async def delete_student(request: Request, student_id: int):
 
 @students_router.get("/get-students", tags=["Student"])
 async def get_student_ids():
-    getStudentsQuery = "SELECT `student_id`, `name` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
+    getStudentsQuery = "SELECT `student_id`, `name`, `room_number` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
 
     try:
         cursor.execute(getStudentsQuery)
         allStudents = [
-            {"student_id": _id, "name": name} for _id, name in cursor.fetchall()
+            {"student_id": _id, "name": name, "roomNumber": roomNumber} for _id, name, roomNumber in cursor.fetchall()
         ]
     except Error as e:
         print(e)
