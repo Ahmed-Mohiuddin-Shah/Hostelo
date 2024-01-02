@@ -33,7 +33,9 @@ export default function Page() {
   const [currentRole, setCurrentRole] = useState("");
 
   useEffect(() => {
-    const fetchStudents = async () => {
+    if (!authContext.token) return;
+
+    const fetchAttendance = async () => {
       let data;
       try {
         const response = await axios.get("/api/attendance/get-attendance", {
@@ -44,27 +46,44 @@ export default function Page() {
         data = response.data;
       } catch (error) {
         console.error(error);
+        return toast.error("Something went wrong, please try again later.");
       }
 
-      if (data.status) {
-        setAttendance(data.data);
-        setFilteredAttendance(data.data);
-      } else {
-        toast.error(data.message);
-      }
+      if (!data.status) return toast.error(data.msg);
 
-      console.log(data.data);
+      setAttendance(data.data);
+      setFilteredAttendance(data.data);
     };
-    fetchStudents();
-  }, []);
+    fetchAttendance();
+  }, [authContext.token]);
 
   useEffect(() => {
     setCurrentRole(authContext.userInfo?.role || "");
   }, [authContext.userInfo?.role]);
 
   useEffect(() => {
+    function handleFilterTextChange() {
+      if (filterText.length === 0) {
+        setFilteredAttendance(attendance);
+        return;
+      }
+
+      const filtered = attendance.filter((student) => {
+        const name = student.name.toLowerCase();
+        const roomNumber = String(student.room_number).toLowerCase();
+        const date = student.date.toLowerCase();
+        const query = filterText.toLowerCase();
+
+        return (
+          name.includes(query) ||
+          roomNumber.includes(query) ||
+          date.includes(query)
+        );
+      });
+      setFilteredAttendance(filtered);
+    }
     handleFilterTextChange();
-  }, [filterText]);
+  }, [filterText, attendance]);
 
   if (auth === false) {
     return <>{redirect("/auth/signin")}</>;
@@ -76,27 +95,6 @@ export default function Page() {
 
   if (!hasAccess) {
     return <NotAuthorized />;
-  }
-
-  function handleFilterTextChange() {
-    if (filterText.length === 0) {
-      setFilteredAttendance(attendance);
-      return;
-    }
-
-    const filtered = attendance.filter((student) => {
-      const name = student.name.toLowerCase();
-      const roomNumber = String(student.room_number).toLowerCase();
-      const date = student.date.toLowerCase();
-      const query = filterText.toLowerCase();
-
-      return (
-        name.includes(query) ||
-        roomNumber.includes(query) ||
-        date.includes(query)
-      );
-    });
-    setFilteredAttendance(filtered);
   }
 
   const handleChangeAttendance = async (student_id: number) => {
