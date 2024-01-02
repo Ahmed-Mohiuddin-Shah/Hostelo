@@ -99,11 +99,6 @@ async def get_attendance(request: Request):
     if role is None:
         return {"status": False, "msg": "Role is not defined"}
 
-    try:
-        role = decodedToken["role"]
-    except:
-        return {"status": False, "msg": "Token expired"}
-
     username = decodedToken["username"]
 
     if role == "student":
