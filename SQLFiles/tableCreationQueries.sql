@@ -284,13 +284,15 @@ DROP TABLE attendance;
 CREATE TABLE
     User(
         username VARCHAR(150) PRIMARY KEY,
-        password VARCHAR(8) NOT NULL,
+        password VARCHAR(150) NOT NULL,
         role VARCHAR(20) NOT NULL,
         image_path VARCHAR(500) NOT NULL
     );
 
 ALTER TABLE
     `user` MODIFY COLUMN `username` VARCHAR(150) NOT NULL UNIQUE;
+
+ALTER TABLE `user` MODIFY COLUMN `password` VARCHAR(150) NOT NULL;
 
 USE Hostelo;
 
