@@ -6,6 +6,7 @@ import { AuthContext } from "@/contexts/UserAuthContext";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
@@ -25,6 +26,18 @@ interface IAnnouncement {
   date: string;
 }
 
+interface IStudent {
+  student_id: number;
+  student_name: string;
+  email: string;
+  phone_number: string;
+  room_number: string;
+  student_image: string;
+  semester: string;
+  school: string;
+  gender: string;
+}
+
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const authContext = useContext(AuthContext);
@@ -32,6 +45,7 @@ export default function Home() {
   const auth = useAuth();
 
   const [announcements, setAnnouncements] = useState<IAnnouncement[]>([]);
+  const [currentStudent, setCurrentStudent] = useState<IStudent>();
 
   useEffect(() => {
     const getAnnoucements = async () => {
@@ -64,6 +78,36 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!authContext.token) return;
+    const getStudents = async () => {
+      let data;
+      try {
+        const response = await axios.get("/api/students/get-all-students");
+        data = await response.data;
+      } catch (error) {
+        toast.error("Unable to connect to server.");
+      }
+
+      if (!data.status) {
+        toast.error(data.msg);
+        return;
+      }
+
+      const student = data.data.find(
+        (student: any) => student.email === authContext.userInfo?.username
+      );
+
+      if (!student) {
+        toast.error("Student not found.");
+        return;
+      }
+
+      setCurrentStudent(student);
+    };
+    getStudents();
+  }, [authContext.token, authContext.userInfo?.username]);
+
+  useEffect(() => {
     if (!authContext.userInfo?.role) return;
     setCurrentRole(authContext.userInfo?.role);
   }, [authContext.userInfo?.role]);
@@ -85,9 +129,77 @@ export default function Home() {
 
   if (currentRole !== "student") return <AdminDashboard />;
 
+  console.log(currentStudent);
+
   return (
     <>
       <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
+        <div
+          className={`col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5`}
+        >
+          <h1 className="text-4xl text-black mb-4 dark:text-white">
+            Welcome {currentStudent?.student_name}
+          </h1>
+
+          <div className="flex gap-8 items-center flex-wrap">
+            <div className="flex items-center gap-4 sm:flex-col sm:gap-5">
+              <div className="overflow-hidden rounded-full w-40 h-40 relative">
+                <Image
+                  src={
+                    currentStudent?.student_image || "/images/user/avatar.png"
+                  }
+                  alt="user image"
+                  className="w-full h-full object-cover"
+                  width={160}
+                  height={160}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl font-bold text-black dark:text-white">
+                  Email:
+                </h2>
+                <p className="text-lg text-black dark:text-white break-all">
+                  {currentStudent?.email}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl font-bold text-black dark:text-white">
+                  Phone Number:
+                </h2>
+                <p className="text-lg text-black dark:text-white">
+                  {currentStudent?.phone_number}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl font-bold text-black dark:text-white">
+                  Room Number:
+                </h2>
+                <p className="text-lg text-black dark:text-white">
+                  {currentStudent?.room_number}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl font-bold text-black dark:text-white">
+                  Semester:
+                </h2>
+                <p className="text-lg text-black dark:text-white">
+                  {currentStudent?.semester}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-xl font-bold text-black dark:text-white">
+                  School:
+                </h2>
+                <p className="text-lg text-black dark:text-white uppercase">
+                  {currentStudent?.school}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="col-span-12 rounded-sm border border-stroke bg-white px-5 pt-7.5 pb-5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:col-span-8">
           <div className="flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap">
             <div className="flex w-full flex-wrap gap-3 sm:gap-5">
@@ -104,7 +216,7 @@ export default function Home() {
                   {announcements.map((announcement) => (
                     <div
                       key={announcement.id}
-                      className="border border-stroke rounded-md col-span-12 p-4 text-2xl"
+                      className="border border-stroke rounded-md col-span-12 p-4 text-2xl dark:bg-black dark:border-black-2"
                     >
                       <p className="text-meta-5 font-medium text-sm uppercase dark:text-white">
                         {announcement.date}
