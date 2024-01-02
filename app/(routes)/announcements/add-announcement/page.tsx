@@ -7,6 +7,7 @@ import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect, useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
+import { FaSpinner } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 
 export default function Page() {
@@ -15,6 +16,7 @@ export default function Page() {
 
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useEffect(() => {}, []);
 
@@ -30,6 +32,7 @@ export default function Page() {
 
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     let data;
     try {
@@ -40,17 +43,20 @@ export default function Page() {
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong, please try again later.");
+      setIsSubmitting(false);
       return;
     }
 
     if (!data.status) {
       toast.error("Something went wrong, please try again later.");
+      setIsSubmitting(false);
       return;
     }
 
     toast.success("Announcement created successfully.");
     setTitle("");
     setDescription("");
+    setIsSubmitting(false);
   };
 
   return (
@@ -121,7 +127,11 @@ export default function Page() {
             <button
               type="submit"
               className="inline-flex items-center justify-center rounded-md bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
+              disabled={isSubmitting}
             >
+              {isSubmitting && (
+                <FaSpinner className="text-lg animate-spin mr-2" />
+              )}
               Create announcement
             </button>
           </div>
