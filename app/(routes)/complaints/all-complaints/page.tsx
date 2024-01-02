@@ -26,7 +26,7 @@ export default function Page() {
   const [isEditing, setIsEditing] = useState<boolean | null>(false);
   const [complaints, setComplaints] = useState<IComplaint[]>([]);
   const [selectedComplaint, setSelectedComplaint] = useState<IComplaint>();
-
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const auth = useAuth();
   const hasAccess = useAccess(["admin", "manager", "student"]);
 
@@ -34,6 +34,7 @@ export default function Page() {
     const getComplaints = async () => {
       if (!authContext.token) return;
 
+      setIsLoading(true);
       let data;
       try {
         const response = await axios.get(`/api/complaints/all-complaints/`, {
@@ -45,6 +46,7 @@ export default function Page() {
       } catch (error) {
         console.log(error);
       }
+      setIsLoading(false);
 
       if (!data.status) {
         return;
@@ -111,7 +113,6 @@ export default function Page() {
     }
 
     toast.success(data.msg);
-
     setIsEditing(false);
 
     const newComplaints = complaints.map((complaint) => {
@@ -333,7 +334,7 @@ export default function Page() {
             Complaints
           </h1>
           <div className="overflow-auto">
-            <table className="w-full">
+            <table className="w-full text-lg">
               <thead className="text-left">
                 <tr className="border-b pb-2">
                   {authContext.userInfo?.role !== "student" && (
@@ -350,6 +351,16 @@ export default function Page() {
                 </tr>
               </thead>
               <tbody>
+                {isLoading && (
+                  <tr>
+                    <td
+                      colSpan={authContext.userInfo?.role !== "student" ? 6 : 5}
+                      className="text-center py-4"
+                    >
+                      <Loader heightClass="h-24" />
+                    </td>
+                  </tr>
+                )}
                 {complaints.length === 0 && (
                   <tr>
                     <td
