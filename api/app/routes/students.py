@@ -8,6 +8,7 @@ from decouple import config  # type: ignore
 from app.mail_server import mailServer  # type: ignore
 from app.my_sql_connection_cursor import cursor, connection  # type: ignore
 from app.auth.auth_handler import decodeJWT
+from app.auth.security import encrypt_password
 
 import string
 import secrets
@@ -31,7 +32,6 @@ async def get_total_students(request: Request):
     else:
         return {"status": False, "msg": "Retrieval Not Successful"}
 
-
 @students_router.post("/add-student", tags=["Student"])
 async def add_student(request: Request):
     request_json = await request.json()
@@ -40,6 +40,8 @@ async def add_student(request: Request):
     password = "".join(
         secrets.choice(string.ascii_uppercase + string.digits) for i in range(8)
     )
+
+    password = encrypt_password(password)
 
     isDeletedQuery = f"SELECT * FROM `deletedstudent` WHERE `student_id` = {studentID}"
 
@@ -171,7 +173,6 @@ async def add_student(request: Request):
 
     return {"status": True, "msg": "Student added successfully"}
 
-
 @students_router.get("/get-all-students", tags=["Student"])
 async def get_all_students(request: Request):
     getStudentsQuery = "SELECT `student_id`, `name`, `email`, `CNIC`, `gender`, `school`, `department`, `sem`, `batch`, `room_number`, `phone_number`, `permament_address`, `temporary_address`, `problem`, `description`, `regular_medicine`, `blood_group`, `smoker` FROM `student` NATURAL JOIN `studentaddress` NATURAL JOIN `studentmedicalrecord` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
@@ -251,7 +252,6 @@ async def get_all_students(request: Request):
     else:
         return {"status": False, "msg": "Retrieval not successful"}
 
-
 @students_router.put("/edit-student/{student_id}", tags=["Student"])
 async def edit_student(request: Request, student_id: int):
     request_json = await request.json()
@@ -322,7 +322,6 @@ async def edit_student(request: Request, student_id: int):
 
     return {"status": True, "msg": "Student updated successfully"}
 
-
 @students_router.delete("/delete-student/{student_id}", tags=["Student"])
 async def delete_student(request: Request, student_id: int):
     deleteStudentQuery = (
@@ -354,7 +353,6 @@ async def delete_student(request: Request, student_id: int):
 
     return {"status": True, "msg": "Student deleted successfully"}
 
-
 @students_router.get("/get-students", tags=["Student"])
 async def get_student_ids():
     getStudentsQuery = "SELECT `student_id`, `name`, `room_number` FROM `student` WHERE `student_id` NOT IN (SELECT `student_id` FROM `deletedstudent`)"
@@ -369,7 +367,6 @@ async def get_student_ids():
         return {"status": False, "message": "Error getting student ids"}
 
     return {"status": True, "data": allStudents, "msg": "Student ids retrieved"}
-
 
 @students_router.get("/swap-details", tags=["Student"])
 async def swap_details(request: Request):
@@ -421,7 +418,6 @@ async def swap_details(request: Request):
                 student["image"] = user[1]
 
     return {"status": True, "data": allStudents, "msg": "Students retrieved"}
-
 
 @students_router.post("/swap-room", tags=["Rooms"])
 async def swap_rooms(request: Request):
