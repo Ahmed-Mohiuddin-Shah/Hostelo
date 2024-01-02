@@ -1,11 +1,12 @@
 "use client";
 import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
+import { AuthContext } from "@/contexts/UserAuthContext";
 import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaPenToSquare, FaTrash } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -24,8 +25,8 @@ export default function Page() {
     useState<IAnnouncement>();
 
   const hasAccess = useAccess(["student", "manager", "admin"]);
-
   const auth = useAuth();
+  const authContext = useContext(AuthContext);
 
   useEffect(() => {
     const getAnnoucements = async () => {
@@ -236,40 +237,62 @@ export default function Page() {
         </section>
       ) : (
         <section className="bg-white p-8 dark:bg-boxdark">
-          <h1 className="text-4xl text-black mb-4 dark:text-white">Rooms</h1>
-          <table className="w-full">
-            <thead className="text-left">
-              <tr className="border-b pb-2">
-                <th className="px-4 py-2">Title</th>
-                <th className="px-4 py-2">Description</th>
-                <th className="px-4 py-2">Date</th>
-                <th className="px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+          <h1 className="text-4xl text-black mb-4 dark:text-white">
+            Annoucements
+          </h1>
+
+          {authContext?.userInfo?.role === "student" && (
+            <div className="grid grid-cols-12 gap-4">
               {announcements.map((announcement) => (
-                <tr key={announcement.id} className="border-b">
-                  <td className="px-4 py-2">{announcement.title}</td>
-                  <td className="px-4 py-2">{announcement.description}</td>
-                  <td className="px-4 py-2">{announcement.date}</td>
-                  <td className="px-4 py-2 flex">
-                    <button
-                      className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded dark:text-white"
-                      onClick={(e) => handleEditClicked(e, announcement.id)}
-                    >
-                      <FaPenToSquare className="text-lg text-current" />
-                    </button>
-                    <button
-                      className="bg-red-500 hover:bg-red-700 text-black font-bold py-4 px-2 rounded dark:text-white"
-                      onClick={(e) => handleDelete(e, announcement.id)}
-                    >
-                      <FaTrash className="text-lg text-current" />
-                    </button>
-                  </td>
-                </tr>
+                <div
+                  key={announcement.id}
+                  className="border border-stroke rounded-md col-span-12 p-4 sm:col-span-6 text-2xl"
+                >
+                  <p className="text-meta-5 font-medium text-sm uppercase dark:text-white">
+                    {announcement.date}
+                  </p>
+                  <h4 className="text-2xl mb-4">{announcement.title}</h4>
+                  <p className="text-lg">{announcement.description}</p>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          )}
+
+          {authContext?.userInfo?.role !== "student" && (
+            <table className="w-full">
+              <thead className="text-left">
+                <tr className="border-b pb-2">
+                  <th className="px-4 py-2">Title</th>
+                  <th className="px-4 py-2">Description</th>
+                  <th className="px-4 py-2">Date</th>
+                  <th className="px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {announcements.map((announcement) => (
+                  <tr key={announcement.id} className="border-b">
+                    <td className="px-4 py-2">{announcement.title}</td>
+                    <td className="px-4 py-2">{announcement.description}</td>
+                    <td className="px-4 py-2">{announcement.date}</td>
+                    <td className="px-4 py-2 flex">
+                      <button
+                        className="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded dark:text-white"
+                        onClick={(e) => handleEditClicked(e, announcement.id)}
+                      >
+                        <FaPenToSquare className="text-lg text-current" />
+                      </button>
+                      <button
+                        className="bg-red-500 hover:bg-red-700 text-black font-bold py-4 px-2 rounded dark:text-white"
+                        onClick={(e) => handleDelete(e, announcement.id)}
+                      >
+                        <FaTrash className="text-lg text-current" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </section>
       )}
       <ToastContainer />
