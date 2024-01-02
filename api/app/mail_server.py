@@ -34,6 +34,14 @@ class EmailServer:
         msg.set_content(f"Hey there {studentName}!\n\nYour Hostelo electricity invoice for {invoiceDate} is here! 🧾\n\n🧾 Invoice ID: {invoiceID} \n👤 Student ID: {studentID}\n💰 Total Cost: {totalCost}\n\nIf you have any questions or need assistance, just give us a shout at hostelo275@gmail.com. Stay Happy! 🚀\n\nBest regards,\n{managerName}\n{role}")
         return msg
     
+    def makeAnnouncementEmailMessage(self, to: str, title: str, description: str, managerName: str, role: str) -> EmailMessage:
+        msg = EmailMessage()
+        msg['Subject'] = f'📢 {title}'
+        msg['From'] = config("email_name")
+        msg['To'] = to
+        msg.set_content(f"\n\n{description}\n\nBest regards,\n{managerName}\n{role}")
+        return msg
+
     def sendEmail(self, msg: EmailMessage) -> None:
         self.mailServer.send_message(msg)
 
