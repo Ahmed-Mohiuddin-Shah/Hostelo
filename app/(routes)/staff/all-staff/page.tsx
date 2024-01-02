@@ -45,7 +45,13 @@ export default function Page() {
         toast.error("Error fetching staff members");
         return;
       }
-      setStaffMembers(data.data);
+
+      const filteredStaff = data.data.filter(
+        (staff: IStaff) =>
+          staff.staffRole !== "admin" && staff.staffRole !== "manager"
+      );
+
+      setStaffMembers(filteredStaff);
     };
     getStaffMembers();
   }, []);
