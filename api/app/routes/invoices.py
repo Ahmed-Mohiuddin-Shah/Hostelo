@@ -361,7 +361,8 @@ async def get_mess_invoices(request: Request):
     
     invoices = []
     for invoice in result:
-        invoices.append({"id" : invoice[0], "studentId": invoice[1], "roomNumber": invoice[2], "amount" : invoice[3], "issueDate" : invoice[4], "dueDate": invoice[5], "status" : invoice[6]})
+        if invoice[4] > 0: #type: ignore
+            invoices.append({"id" : invoice[0], "studentId": invoice[1], "studentName": invoice[2] ,"roomNumber": invoice[3], "amount" : invoice[4], "issueDate" : invoice[5], "dueDate": invoice[6], "status" : invoice[7]})
 
     return {
         "data" : invoices,
@@ -405,10 +406,53 @@ async def get_electricity_invoices(request: Request):
     
     invoices = []
     for invoice in result:
-        invoices.append({"id" : invoice[0], "studentId": invoice[1], "roomNumber": invoice[2], "amount" : invoice[3], "issueDate" : invoice[4], "dueDate": invoice[5], "status" : invoice[6]})
+        if invoice[4] > 0: #type: ignore
+            invoices.append({"id" : invoice[0], "studentId": invoice[1], "studentName": invoice[2] ,"roomNumber": invoice[3], "amount" : invoice[4], "issueDate" : invoice[5], "dueDate": invoice[6], "status" : invoice[7]})
 
     return {
         "data" : invoices,
         "status" : True,
         "msg" : "Electric invoices fetched successfully"
+    }
+
+@invoices_router.post("/mark-as-paid", tags=["Invoices"])
+async def mark_as_paid(request: Request):
+
+    token = request.headers["Authorization"]
+    decodedToken = decodeJWT(token)
+
+    role = decodedToken.get("role")
+
+    if role is None:
+        return {"status": False, "msg": "Token expired"}
+
+    request_json = await request.json()
+
+    invoiceID = request_json["id"]
+    invoiceType = request_json["type"]
+
+    if role != "manager" and role != "admin":
+        return {
+            "status": False,
+            "msg": "You are not authorized to mark invoices as paid",
+        }
+    
+    if invoiceType == "mess":
+        markAsPaidQuery = f"UPDATE `mess_invoice` SET `status` = TRUE WHERE `invoice_id` = {invoiceID}"
+    else:
+        markAsPaidQuery = f"UPDATE `electric_invoice` SET `status` = TRUE WHERE `invoice_id` = {invoiceID}"
+
+    try:
+        cursor.execute(markAsPaidQuery)
+        connection.commit()
+    except Error as e:
+        print(e)
+        return {
+                "status" : False,
+                "msg" : "Unable to mark invoice as paid"
+        }
+    
+    return {
+        "status" : True,
+        "msg" : "Invoice marked as paid successfully"
     }
