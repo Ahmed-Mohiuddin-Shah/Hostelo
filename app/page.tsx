@@ -79,6 +79,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!authContext.token) return;
+    if (authContext.userInfo?.role !== "student") return;
     const getStudents = async () => {
       let data;
       try {
@@ -128,8 +129,6 @@ export default function Home() {
   }
 
   if (currentRole !== "student") return <AdminDashboard />;
-
-  console.log(currentStudent);
 
   return (
     <>
