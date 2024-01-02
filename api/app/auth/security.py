@@ -10,8 +10,6 @@ def encrypt_password(password: str) -> str:
         exit(1)
 
     salt_str = str(mainSalt)
-
-    print(salt_str)
     # convert salt into bytes
     salt = salt_str.encode('utf-8')
     encoded_password = password.encode('utf-8')
