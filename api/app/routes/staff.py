@@ -84,10 +84,21 @@ async def add_staff(
     except Exception as e:
         print(e)
         return {"status": False, "msg": "Unable check if email exists"}
+    
+    getManagerDetailsQuery = f"SELECT `name`, role FROM `staff`, `user` WHERE `staff`.`email` = `user`.`username` AND `user`.`role` = 'manager'"
+
+    try:
+        cursor.execute(getManagerDetailsQuery)
+        managerDetails = cursor.fetchone()
+    except Exception as e:
+        print(e)
+        return {"status": False, "msg": "Unable to get manager details"}
+    
+    managerName, managerRole = managerDetails #type: ignore
 
     try:
         # send mail
-        msg = mailServer.makeLoginDetailsEmailMessage(email, str(email), str(originalPassword))
+        msg = mailServer.makeLoginDetailsEmailMessage(email, str(email), str(originalPassword), managerName, managerRole) #type: ignore
         mailServer.sendEmail(msg)
         print("Mail sent")
     except SMTPSenderRefused:
