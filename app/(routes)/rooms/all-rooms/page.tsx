@@ -31,12 +31,14 @@ export default function Page() {
   const [isEditing, setIsEditing] = useState<boolean | null>(false);
   const [underEditingRoom, setUnderEditingRoom] = useState<IRoom | null>(null);
   const [roomTypes, setRoomTypes] = useState<IRoomType[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const auth = useAuth();
   const hasAccess = useAccess(["admin", "manager"]);
 
   useEffect(() => {
     const getRooms = async () => {
+      setIsLoading(true);
       let data;
       try {
         const response = await axios.get("/api/rooms/all-rooms");
@@ -55,6 +57,7 @@ export default function Page() {
       } else {
         console.log(data.message);
       }
+      setIsLoading(false);
     };
 
     getRooms();
@@ -264,7 +267,7 @@ export default function Page() {
       ) : (
         <section className="bg-white p-8 dark:bg-boxdark">
           <h1 className="text-4xl text-black mb-4 dark:text-white">Rooms</h1>
-          <table className="w-full">
+          <table className="w-full text-lg">
             <thead className="text-left">
               <tr className="border-b pb-2">
                 <th className="px-4 py-2">Room Number</th>
@@ -273,6 +276,20 @@ export default function Page() {
               </tr>
             </thead>
             <tbody>
+              {isLoading && (
+                <tr>
+                  <td colSpan={3} className="text-center py-4">
+                    <Loader heightClass="h-24" />
+                  </td>
+                </tr>
+              )}
+              {rooms.length === 0 && !isLoading && (
+                <tr>
+                  <td colSpan={3} className="text-center py-4">
+                    No rooms found
+                  </td>
+                </tr>
+              )}
               {rooms.map((room) => (
                 <tr className="border-b pb-2" key={room.roomNumber}>
                   <td className="px-4 py-2">{room.roomNumber}</td>
