@@ -37,11 +37,11 @@ async def add_student(request: Request):
     request_json = await request.json()
 
     studentID = int(request_json["student_id"])
-    password = "".join(
+    originalPassword = "".join(
         secrets.choice(string.ascii_uppercase + string.digits) for i in range(8)
     )
 
-    password = encrypt_password(password)
+    password = encrypt_password(originalPassword)
 
     isDeletedQuery = f"SELECT * FROM `deletedstudent` WHERE `student_id` = {studentID}"
 
@@ -83,12 +83,21 @@ async def add_student(request: Request):
                 return {"status": False, "msg": "Unable to re-add student"}
 
             return {"status": True, "msg": "Student re-added successfully"}
+        
+    getManagerDetailsQuery = f"SELECT `name`, role FROM `staff`, `user` WHERE `staff`.`email` = `user`.`username` AND `user`.`role` = 'manager'"
+
+    try:
+        cursor.execute(getManagerDetailsQuery)
+        managerDetails = cursor.fetchone()
+    except Exception as e:
+        print(e)
+        return {"status": False, "msg": "Unable to get manager details"}
+    
+    managerName, managerRole = managerDetails #type: ignore
 
     try:
         # send mail
-        msg = mailServer.makeLoginDetailsEmailMessage(
-            request_json["email"], str(studentID), str(password)
-        )
+        msg = mailServer.makeLoginDetailsEmailMessage( request_json["email"], str(studentID), str(originalPassword) , managerName, managerRole) #type: ignore
         mailServer.sendEmail(msg)
         print("Mail sent")
     except SMTPSenderRefused:
