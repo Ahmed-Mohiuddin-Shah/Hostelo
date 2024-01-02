@@ -26,14 +26,14 @@ async def get_all_announcements(request: Request):
     }
 
 @announcements_router.post("/add-announcement", tags=["Announcements"])
-async def add_announcement(request: Request,):
+async def add_announcement(request: Request):
     request_json = await request.json()
 
     title = request_json.get("title")
     description = request_json.get("description")
 
     try:
-        query = f"INSERT INTO `announcement` (`title`, `description`, `announcement_date`) VALUES ('{title}', '{description}', CURRENT_DATE())"
+        query = f"""INSERT INTO `announcement` (`title`, `description`, `announcement_date`) VALUES ('{title}', '{description}', CURRENT_DATE())"""
         cursor.execute(query)
         connection.commit()
     except Exception as e:

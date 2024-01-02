@@ -219,34 +219,33 @@ ALTER TABLE `asset` CHANGE `quantity` `quantity` int DEFAULT 0;
 
 UPDATE Asset ADD CONSTRAINT ck_quantity CHECK (quantity >= 0);
 
-CREATE TABLE
-    Invoice (
-        invoice_id INTEGER PRIMARY KEY,
-        date_of_issuance DATE NOT NULL,
-        payable_amount DECIMAL (9, 2) NOT NULL,
-        due_date DATE NOT NULL,
-        student_id INT,
-        FOREIGN KEY (student_id) REFERENCES Student(student_id)
-    );
-
 DROP TABLE invoice;
 
 CREATE TABLE
-    MessInvoice (
-        invoice_id INTEGER PRIMARY KEY,
-        FOREIGN KEY (invoice_id) REFERENCES Invoice(invoice_id)
+    mess_invoice (
+        invoice_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        date_of_issuance DATE NOT NULL,
+        payable_amount DECIMAL (9, 2) NOT NULL,
+        due_date DATE NOT NULL,
+        student_id INTEGER,
+        status BOOLEAN NOT NULL,
+        FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
 
-DROP TABLE messinvoice;
+DROP TABLE mess_invoice;
 
 CREATE TABLE
-    ElectricApplianceInvoice (
-        invoice_id INTEGER PRIMARY KEY,
-        quantity VARCHAR (5),
-        FOREIGN KEY (invoice_id) REFERENCES Invoice(invoice_id)
+    electric_invoice (
+        invoice_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        date_of_issuance DATE NOT NULL,
+        payable_amount DECIMAL (9, 2) NOT NULL,
+        due_date DATE NOT NULL,
+        student_id INTEGER,
+        status BOOLEAN NOT NULL,
+        FOREIGN KEY (student_id) REFERENCES Student(student_id)
     );
 
-DROP TABLE electricapplianceinvoice;
+DROP TABLE electric_invoice;
 
 CREATE TABLE
     HasAppliance (
@@ -285,13 +284,15 @@ DROP TABLE attendance;
 CREATE TABLE
     User(
         username VARCHAR(150) PRIMARY KEY,
-        password VARCHAR(8) NOT NULL,
+        password VARCHAR(150) NOT NULL,
         role VARCHAR(20) NOT NULL,
         image_path VARCHAR(500) NOT NULL
     );
 
 ALTER TABLE
     `user` MODIFY COLUMN `username` VARCHAR(150) NOT NULL UNIQUE;
+
+ALTER TABLE `user` MODIFY COLUMN `password` VARCHAR(150) NOT NULL;
 
 USE Hostelo;
 

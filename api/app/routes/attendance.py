@@ -1,7 +1,7 @@
 from tabnanny import check
 from fastapi import APIRouter, Body, Depends, Request
 from mysql.connector import connect, Error
-from decouple import config # type: ignore
+from app.auth.auth_handler import decodeJWT # type: ignore
 from app.my_sql_connection_cursor import cursor, connection # type: ignore
 
 attendance_router = APIRouter()
@@ -89,7 +89,23 @@ async def mark_attendance(request: Request):
 
 @attendance_router.get("/get-attendance", tags=["Attendance"])
 async def get_attendance(request: Request):
-    getAttendanceQuery = "SELECT `email`, `student_id`, name, `room_number`, `date`, `status` FROM `attendance` NATURAL JOIN `student` ORDER BY `date` DESC"
+
+    token = request.headers["Authorization"]  # type: ignore
+
+    decodedToken = decodeJWT(token)
+
+    role = decodedToken.get("role", None)
+
+    if role is None:
+        return {"status": False, "msg": "Role is not defined"}
+
+    username = decodedToken["username"]
+
+    if role == "student":
+        getAttendanceQuery = f"SELECT `email`, `student_id`, name, `room_number`, `date`, `status` FROM `attendance` NATURAL JOIN `student` WHERE `email` IN ('{username}') ORDER BY `date` DESC"
+    else:
+        getAttendanceQuery = "SELECT `email`, `student_id`, name, `room_number`, `date`, `status` FROM `attendance` NATURAL JOIN `student` ORDER BY `date` DESC"
+
     getUsersQuery = "SELECT `username`, `image_path` FROM `user` WHERE `role` = 'student'"
 
     try:

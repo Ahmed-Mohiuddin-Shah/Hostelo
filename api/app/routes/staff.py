@@ -1,4 +1,3 @@
-import re
 import secrets
 from smtplib import SMTPSenderRefused
 import string
@@ -6,9 +5,9 @@ from tabnanny import check
 from fastapi import APIRouter, Body, Depends, Request
 from app.my_sql_connection_cursor import cursor, connection  # type: ignore
 from app.mail_server import mailServer  # type: ignore
+from app.auth.security import encrypt_password
 
 staff_router = APIRouter()
-
 
 @staff_router.get("/get-all-staff", tags=["Staff"])
 async def get_all_staff(request: Request):
@@ -49,7 +48,6 @@ async def get_all_staff(request: Request):
 
     return {"data": allStaff, "status": True, "msg": "Get staff successful"}
 
-
 @staff_router.post("/add-staff", tags=["Staff"])
 async def add_staff(
     request: Request,
@@ -75,6 +73,8 @@ async def add_staff(
     password = "".join(
         secrets.choice(string.ascii_uppercase + string.digits) for i in range(8)
     )
+
+    password = encrypt_password(password)
 
     checkEmailQuery = f"SELECT COUNT(*) FROM `staff` WHERE `email` = '{email}'"
     try:
@@ -112,7 +112,6 @@ async def add_staff(
         return {"status": False, "msg": "Unable to add staff User"}
 
     return {"status": True, "msg": "Add staff successful"}
-
 
 @staff_router.put("/update-staff/{staff_id}", tags=["Staff"])
 async def update_staff(request: Request, staff_id: int):
