@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Body, Depends, Request
+from httpx import get
 from mysql.connector import connect, Error
 from app.auth.auth_handler import decodeJWT
 from app.my_sql_connection_cursor import cursor, connection  # type: ignore
@@ -81,6 +82,8 @@ async def request_room_service(request: Request):
 
     return {"status": True, "msg": "Room service requested successfully"}
 
+
+# TODO - Fix staffName
 @roomservice_router.get("/all-room-services", tags=["Room Service"])
 async def get_room_service_requests(request: Request):
     token = request.headers["Authorization"]  # type: ignore
@@ -93,11 +96,11 @@ async def get_room_service_requests(request: Request):
         return {"status": False, "msg": "Token expired"}
 
     if role == "student":
-        query = f"SELECT `service_id`, `student_id`, GET_STATUS(`status`), `room_number`, `service_name`, `request_date` FROM `roomservice` NATURAL JOIN `student` NATURAL JOIN `servicetype` WHERE `email` = '{decodedToken['username']}' ORDER BY `request_date` DESC"
+        query = f"SELECT `service_id`, `student_id`, GET_STATUS(`status`), `room_number`, `service_name`, `request_date`, `staff_id` FROM `roomservice` NATURAL JOIN `student` NATURAL JOIN `servicetype` WHERE `email` = '{decodedToken['username']}' ORDER BY `status` DESC, `request_date` DESC "
     elif role == "worker" or role == "manager":
-        query = f"SELECT `service_id`, `student_id`, `student`.`name`, GET_STATUS(`status`), `room_number`, `service_name`, `request_date` FROM `roomservice` NATURAL JOIN `student` NATURAL JOIN `servicetype` WHERE GET_STATUS(`status`) = 'pending' ORDER BY `request_date` DESC"
+        query = f"SELECT `service_id`, `student_id`, `student`.`name`, GET_STATUS(`status`), `room_number`, `service_name`, `request_date`, `staff_id` FROM `roomservice` NATURAL JOIN `student` NATURAL JOIN `servicetype` ORDER BY `status` DESC, `request_date` DESC "
     elif role == "admin":
-        query = f"SELECT `service_id`, `student_id`, `student`.`name`, GET_STATUS(`status`), `room_number`, `service_name`, `request_date` FROM `roomservice` NATURAL JOIN `student` NATURAL JOIN `servicetype` ORDER BY `request_date` DESC"
+        query = f"SELECT `service_id`, `student_id`, `student`.`name`, GET_STATUS(`status`), `room_number`, `service_name`, `request_date`, `staff_id` FROM `roomservice` NATURAL JOIN `student` NATURAL JOIN `servicetype` ORDER BY `status` DESC, `request_date` DESC"
     else:
         return {
             "status": False,
@@ -113,6 +116,22 @@ async def get_room_service_requests(request: Request):
             "status": False,
             "msg": "Could not fetch room service requests at this time",
         }
+    
+    getStaffDetails = "SELECT `staff_id`, `name` FROM `staff`"
+
+    try:
+        cursor.execute(getStaffDetails)
+        staffDetails = cursor.fetchall()
+    except Error as e:
+        print(e)
+        return {
+            "status": False,
+            "msg": "Could not fetch staff details at this time",
+        }
+    
+    staffDetailsDict = {}
+    for row in staffDetails:
+        staffDetailsDict[row[0]] = row[1]
 
     allRequests = []
 
@@ -125,6 +144,7 @@ async def get_room_service_requests(request: Request):
                 "roomNumber": row[3],
                 "serviceType": row[4],
                 "requestDate": row[5],
+                "staffName": staffDetailsDict.get(row[6], None)
             }
             for row in result
         ]
@@ -138,6 +158,7 @@ async def get_room_service_requests(request: Request):
                 "roomNumber": row[4],
                 "serviceType": row[5],
                 "requestDate": row[6],
+                "staffName": staffDetailsDict.get(row[7], None)
             }
             for row in result
         ]
@@ -151,6 +172,7 @@ async def get_room_service_requests(request: Request):
                 "roomNumber": row[4],
                 "serviceType": row[5],
                 "requestDate": row[6],
+                "staffName": staffDetailsDict.get(row[7], None)
             }
             for row in result
         ]
