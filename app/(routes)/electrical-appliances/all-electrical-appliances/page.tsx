@@ -33,11 +33,17 @@ export default function Page() {
   const hasAccess = useAccess(["admin", "manager", "student"]);
 
   useEffect(() => {
+    if (!authContext.token) return;
+
     const getAppliances = async () => {
       let data;
 
       try {
-        const response = await axios.get("/api/appliance/all-appliances");
+        const response = await axios.get("/api/appliance/all-appliances", {
+          headers: {
+            Authorization: `${authContext.token}`,
+          },
+        });
         data = response.data;
       } catch (error) {
         console.log(error);
@@ -53,7 +59,7 @@ export default function Page() {
       setFilteredAppliances(data.data);
     };
     getAppliances();
-  }, []);
+  }, [authContext.token]);
 
   useEffect(() => {
     if (!authContext.userInfo?.role) return;
@@ -165,44 +171,51 @@ export default function Page() {
           </div>
         )}
         <div className="overflow-auto">
-          <table className="w-full text-lg">
-            <thead className="text-left">
-              <tr className="border-b pb-2">
-                {currentRole !== "student" && (
-                  <th className="px-4 py-4">Student Id</th>
-                )}
-                <th className="px-4 py-4">Student Name</th>
-                {currentRole !== "student" && (
-                  <th className="px-4 py-4">Room Number</th>
-                )}
-                <th className="px-4 py-4">Appliance Name</th>
-                {currentRole !== "student" && (
-                  <th className="px-4 py-4">Actions</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
+          {currentRole === "student" && (
+            <div className="grid grid-cols-12 py-4 text-lg gap-4">
               {filteredAppliances.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="text-center py-4">
-                    No appliances found
-                  </td>
-                </tr>
+                <div className="col-span-12 text-center py-4">
+                  No appliances found
+                </div>
               )}
               {filteredAppliances.map((appliance) => (
-                <tr
+                <div
                   key={appliance.student_id + "-" + appliance.appliance_id}
-                  className="border-b"
+                  className="flex justify-center items-center border border-stroke rounded-md col-span-12 py-8 sm:col-span-6 md:col-span-4 lg:col-span-3 text-2xl"
                 >
-                  {currentRole !== "student" && (
+                  {appliance.appliance_name}
+                </div>
+              ))}
+            </div>
+          )}
+          {currentRole !== "student" && (
+            <table className="w-full text-lg">
+              <thead className="text-left">
+                <tr className="border-b pb-2">
+                  <th className="px-4 py-4">Student Id</th>
+                  <th className="px-4 py-4">Student Name</th>
+                  <th className="px-4 py-4">Room Number</th>
+                  <th className="px-4 py-4">Appliance Name</th>
+                  <th className="px-4 py-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAppliances.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="text-center py-4">
+                      No appliances found
+                    </td>
+                  </tr>
+                )}
+                {filteredAppliances.map((appliance) => (
+                  <tr
+                    key={appliance.student_id + "-" + appliance.appliance_id}
+                    className="border-b"
+                  >
                     <td className="px-4 py-4">{appliance.student_id}</td>
-                  )}
-                  <td className="px-4 py-4">{appliance.student_name}</td>
-                  {currentRole !== "student" && (
+                    <td className="px-4 py-4">{appliance.student_name}</td>
                     <td className="px-4 py-4">{appliance.room_number}</td>
-                  )}
-                  <td className="px-4 py-4">{appliance.appliance_name}</td>
-                  {currentRole !== "student" && (
+                    <td className="px-4 py-4">{appliance.appliance_name}</td>
                     <td className="px-4 py-4">
                       <button
                         className="bg-red-500 hover:bg-red-700 text-meta-1 font-bold py-4 px-4 rounded dark:text-white"
@@ -217,11 +230,11 @@ export default function Page() {
                         <FaTrash className="text-lg text-current" />
                       </button>
                     </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </section>
       <ToastContainer />
