@@ -31,11 +31,13 @@ export default function Page() {
   const hasAccess = useAccess(["admin", "manager", "student"]);
   const authContext = useContext(AuthContext);
   const [currentRole, setCurrentRole] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (!authContext.token) return;
 
     const fetchAttendance = async () => {
+      setIsLoading(true);
       let data;
       try {
         const response = await axios.get("/api/attendance/get-attendance", {
@@ -48,7 +50,7 @@ export default function Page() {
         console.error(error);
         return toast.error("Something went wrong, please try again later.");
       }
-
+      setIsLoading(false);
       if (!data.status) return toast.error(data.msg);
 
       setAttendance(data.data);
@@ -187,7 +189,14 @@ export default function Page() {
               </tr>
             </thead>
             <tbody>
-              {filteredAttendance.length === 0 && (
+              {isLoading && (
+                <tr>
+                  <td colSpan={5} className="text-center py-4">
+                    <Loader heightClass="h-24" />
+                  </td>
+                </tr>
+              )}
+              {filteredAttendance.length === 0 && !isLoading && (
                 <tr>
                   <td colSpan={5} className="text-center py-4">
                     No attendance found
