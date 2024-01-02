@@ -253,7 +253,7 @@ export default function Page() {
                 />
               </div>
             </div>
-            <table className="mt-4 w-full">
+            <table className="mt-4 w-full text-lg">
               <thead className="text-left">
                 <tr className="border-b pb-2">
                   <th className="px-4 py-2">Student Name</th>
