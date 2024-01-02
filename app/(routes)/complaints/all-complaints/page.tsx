@@ -146,7 +146,6 @@ export default function Page() {
       toast.error("You are not authorized to perform this action");
       return;
     }
-
     let data;
     try {
       const response = await axios.delete(
@@ -351,6 +350,16 @@ export default function Page() {
                 </tr>
               </thead>
               <tbody>
+                {complaints.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={authContext.userInfo?.role !== "student" ? 6 : 5}
+                      className="text-center py-4"
+                    >
+                      No complaints found
+                    </td>
+                  </tr>
+                )}
                 {complaints.map((complaint) => (
                   <tr key={complaint.complaint_id} className="border-b">
                     {authContext.userInfo?.role !== "student" && (
