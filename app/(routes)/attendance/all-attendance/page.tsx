@@ -1,12 +1,13 @@
 "use client";
 import NotAuthorized from "@/components/NotAuthorized";
 import Loader from "@/components/common/Loader";
+import { AuthContext } from "@/contexts/UserAuthContext";
 import useAccess from "@/hooks/useAccess";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaCheck, FaXmark } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -28,12 +29,18 @@ export default function Page() {
   );
   const [filterText, setFilterText] = useState("");
   const hasAccess = useAccess(["admin", "manager", "student"]);
+  const authContext = useContext(AuthContext);
+  const [currentRole, setCurrentRole] = useState("");
 
   useEffect(() => {
     const fetchStudents = async () => {
       let data;
       try {
-        const response = await axios.get("/api/attendance/get-attendance");
+        const response = await axios.get("/api/attendance/get-attendance", {
+          headers: {
+            Authorization: `${authContext.token}`,
+          },
+        });
         data = response.data;
       } catch (error) {
         console.error(error);
@@ -45,9 +52,15 @@ export default function Page() {
       } else {
         toast.error(data.message);
       }
+
+      console.log(data.data);
     };
     fetchStudents();
   }, []);
+
+  useEffect(() => {
+    setCurrentRole(authContext.userInfo?.role || "");
+  }, [authContext.userInfo?.role]);
 
   useEffect(() => {
     handleFilterTextChange();
@@ -138,32 +151,41 @@ export default function Page() {
     <>
       <section className="bg-white p-8 dark:bg-boxdark">
         <h1 className="text-4xl text-black mb-4 dark:text-white">Attendance</h1>
+
         {/* Search box */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center w-full">
-            <input
-              type="search"
-              name="search"
-              placeholder="Search by name, room number or date"
-              className="w-full rounded-lg border-[1.5px] border-black bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-              value={filterText}
-              onChange={(e) => {
-                setFilterText(e.target.value);
-              }}
-            />
+        {currentRole !== "student" && (
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center w-full">
+              <input
+                type="search"
+                name="search"
+                placeholder="Search by name, room number, date"
+                className="w-full rounded-lg border-[1.5px] border-black bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                value={filterText}
+                onChange={(e) => {
+                  setFilterText(e.target.value);
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="overflow-auto">
-          <table className="w-full">
+          <table className="w-full text-lg">
             <thead className="text-left">
               <tr className="border-b pb-2">
-                <th className="px-4 py-2">Image</th>
+                {currentRole !== "student" && (
+                  <th className="px-4 py-2">Image</th>
+                )}
                 <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Room Number</th>
+                {currentRole !== "student" && (
+                  <th className="px-4 py-2">Room Number</th>
+                )}
                 <th className="px-4 py-2">Date</th>
                 <th className="px-4 py-2">Present</th>
-                <th className="px-4 py-2">Actions</th>
+                {currentRole !== "student" && (
+                  <th className="px-4 py-2">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -179,21 +201,25 @@ export default function Page() {
                   key={`${student.student_id}-${student.date}`}
                   className="border-b"
                 >
-                  <td className="px-4 py-2">
-                    <Image
-                      src={
-                        student.student_image.length === 0
-                          ? "/images/user/avatar.png"
-                          : student.student_image
-                      }
-                      alt={student.name}
-                      className="w-10 h-10 rounded-full"
-                      width={40}
-                      height={40}
-                    />
-                  </td>
+                  {currentRole !== "student" && (
+                    <td className="px-4 py-2">
+                      <Image
+                        src={
+                          student.student_image.length === 0
+                            ? "/images/user/avatar.png"
+                            : student.student_image
+                        }
+                        alt={student.name}
+                        className="w-10 h-10 rounded-full"
+                        width={40}
+                        height={40}
+                      />
+                    </td>
+                  )}
                   <td className="px-4 py-2">{student.name}</td>
-                  <td className="px-4 py-2">{student.room_number}</td>
+                  {currentRole !== "student" && (
+                    <td className="px-4 py-2">{student.room_number}</td>
+                  )}
                   <td className="px-4 py-2">{student.date}</td>
                   <td className="px-4 py-2">
                     {student.status ? (
@@ -206,16 +232,20 @@ export default function Page() {
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-2">
-                    <button
-                      className={`bg-${
-                        student.status ? "meta-7" : "meta-3"
-                      } text-white rounded px-4 py-2 bg-opacity-90`}
-                      onClick={() => handleChangeAttendance(student.student_id)}
-                    >
-                      Mark as {student.status ? "absent" : "present"}
-                    </button>
-                  </td>
+                  {currentRole !== "student" && (
+                    <td className="px-4 py-2">
+                      <button
+                        className={`bg-${
+                          student.status ? "meta-7" : "meta-3"
+                        } text-white rounded px-4 py-2 bg-opacity-90`}
+                        onClick={() =>
+                          handleChangeAttendance(student.student_id)
+                        }
+                      >
+                        Mark as {student.status ? "absent" : "present"}
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
