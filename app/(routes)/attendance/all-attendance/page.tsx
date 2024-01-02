@@ -175,16 +175,16 @@ export default function Page() {
             <thead className="text-left">
               <tr className="border-b pb-2">
                 {currentRole !== "student" && (
-                  <th className="px-4 py-2">Image</th>
+                  <th className="px-4 py-3">Image</th>
                 )}
-                <th className="px-4 py-2">Name</th>
+                <th className="px-4 py-3">Name</th>
                 {currentRole !== "student" && (
-                  <th className="px-4 py-2">Room Number</th>
+                  <th className="px-4 py-3">Room Number</th>
                 )}
-                <th className="px-4 py-2">Date</th>
-                <th className="px-4 py-2">Present</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Present</th>
                 {currentRole !== "student" && (
-                  <th className="px-4 py-2">Actions</th>
+                  <th className="px-4 py-3">Actions</th>
                 )}
               </tr>
             </thead>
@@ -209,7 +209,7 @@ export default function Page() {
                   className="border-b"
                 >
                   {currentRole !== "student" && (
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-3">
                       <Image
                         src={
                           student.student_image.length === 0
@@ -223,12 +223,12 @@ export default function Page() {
                       />
                     </td>
                   )}
-                  <td className="px-4 py-2">{student.name}</td>
+                  <td className="px-4 py-3">{student.name}</td>
                   {currentRole !== "student" && (
-                    <td className="px-4 py-2">{student.room_number}</td>
+                    <td className="px-4 py-3">{student.room_number}</td>
                   )}
-                  <td className="px-4 py-2">{student.date}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3">{student.date}</td>
+                  <td className="px-4 py-3">
                     {student.status ? (
                       <div className="bg-meta-3 w-fit p-2 rounded">
                         <FaCheck className="text-white" />
@@ -239,20 +239,22 @@ export default function Page() {
                       </div>
                     )}
                   </td>
-                  {currentRole !== "student" && (
-                    <td className="px-4 py-2">
-                      <button
-                        className={`bg-${
-                          student.status ? "meta-7" : "meta-3"
-                        } text-white rounded px-4 py-2 bg-opacity-90`}
-                        onClick={() =>
-                          handleChangeAttendance(student.student_id)
-                        }
-                      >
-                        Mark as {student.status ? "absent" : "present"}
-                      </button>
-                    </td>
-                  )}
+                  {currentRole !== "student" &&
+                    new Date(student.date).toJSON().slice(0, 10) ===
+                      new Date().toJSON().slice(0, 10) && (
+                      <td className="px-4 py-3">
+                        <button
+                          className={`bg-${
+                            student.status ? "meta-7" : "meta-3"
+                          } text-white rounded px-4 py-3 bg-opacity-90`}
+                          onClick={() =>
+                            handleChangeAttendance(student.student_id)
+                          }
+                        >
+                          Mark as {student.status ? "absent" : "present"}
+                        </button>
+                      </td>
+                    )}
                 </tr>
               ))}
             </tbody>
