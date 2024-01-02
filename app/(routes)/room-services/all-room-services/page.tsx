@@ -72,22 +72,6 @@ export default function Page() {
     return <NotAuthorized />;
   }
 
-  const handleDelete = async (e: any, id: number) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    });
-
-    if (!result.isConfirmed) {
-      return;
-    }
-  };
-
   const handleCompleted = async (e: any, id: number) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -160,15 +144,14 @@ export default function Page() {
                     <th className="px-4 py-2">Staff Name</th>
                   </>
                 )}
-                {authContext.userInfo?.role === "student" ||
-                authContext.userInfo?.role === "worker" ? (
+                {authContext.userInfo?.role === "worker" && (
                   <th className="px-4 py-2">Actions</th>
-                ) : null}
+                )}
               </tr>
             </thead>
             <tbody>
               {roomServices.length === 0 && (
-                <tr>
+                <tr className="">
                   <td colSpan={4} className="text-center pt-4 text-2xl">
                     No room service requests found
                   </td>
@@ -178,9 +161,9 @@ export default function Page() {
                 <tr key={service.id} className="border-b">
                   {authContext.userInfo?.role === "student" ? (
                     <>
-                      <td className="px-4 py-2">{service.serviceType}</td>
-                      <td className="px-4 py-2">{service.requestDate}</td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-4">{service.serviceType}</td>
+                      <td className="px-4 py-4">{service.requestDate}</td>
+                      <td className="px-4 py-4">
                         <span
                           className={`p-2 text-white rounded ${
                             service.status === "pending"
@@ -194,11 +177,11 @@ export default function Page() {
                     </>
                   ) : (
                     <>
-                      <td className="px-4 py-2">{service.studentName}</td>
-                      <td className="px-4 py-2">{service.roomNumber}</td>
-                      <td className="px-4 py-2">{service.serviceType}</td>
-                      <td className="px-4 py-2">{service.requestDate}</td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-4">{service.studentName}</td>
+                      <td className="px-4 py-4">{service.roomNumber}</td>
+                      <td className="px-4 py-4">{service.serviceType}</td>
+                      <td className="px-4 py-4">{service.requestDate}</td>
+                      <td className="px-4 py-4">
                         <span
                           className={`p-2 text-white rounded ${
                             service.status === "pending"
@@ -209,20 +192,12 @@ export default function Page() {
                           {service.status}
                         </span>
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-4">
                         {service.staffName ? service.staffName : "Not done yet"}
                       </td>
                     </>
                   )}
                   <td className="px-4 py-2 flex">
-                    {authContext.userInfo?.role === "student" && (
-                      <button
-                        className="bg-red-500 hover:bg-red-700 text-danger font-bold py-4 px-2 rounded dark:text-white"
-                        onClick={(e) => handleDelete(e, service.id)}
-                      >
-                        <FaTrash className="text-lg text-current" />
-                      </button>
-                    )}{" "}
                     {authContext.userInfo?.role === "worker" &&
                       service.status !== "resolved" && (
                         <button
