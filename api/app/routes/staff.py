@@ -70,11 +70,11 @@ async def add_staff(
         print(e)
         return {"status": False, "msg": "Unable check if manager exists"}
 
-    password = "".join(
+    originalPassword = "".join(
         secrets.choice(string.ascii_uppercase + string.digits) for i in range(8)
     )
 
-    password = encrypt_password(password)
+    password = encrypt_password(originalPassword)
 
     checkEmailQuery = f"SELECT COUNT(*) FROM `staff` WHERE `email` = '{email}'"
     try:
@@ -87,7 +87,7 @@ async def add_staff(
 
     try:
         # send mail
-        msg = mailServer.makeLoginDetailsEmailMessage(email, str(email), str(password))
+        msg = mailServer.makeLoginDetailsEmailMessage(email, str(email), str(originalPassword))
         mailServer.sendEmail(msg)
         print("Mail sent")
     except SMTPSenderRefused:
