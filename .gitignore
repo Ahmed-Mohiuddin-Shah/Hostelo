@@ -42,6 +42,7 @@ __pycache__/
 
 # .env ignore
 /api/.env
+/api/hostelo-api/**
 
 # .conda ignore
 .conda/**
