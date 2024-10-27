@@ -2,7 +2,7 @@
 
 ## Problem
 
-We are assigned to create a hostle management system for our university hostels. The system should be able to manage the students and the rooms in the hostel. The system should be able to add new students, add new rooms, assign students to rooms, and print the list of students in a room. The system should also be able to print the list of students in the hostel.
+We are assigned to create a hostel management system for our university hostels. The system should be able to manage the students and the rooms in the hostel. The system should be able to add new students, add new rooms, assign students to rooms, and print the list of students in a room. The system should also be able to print the list of students in the hostel.
 
 Along with these, the system should also be able to generate the invoices for the students. The invoice should contain the details of the student, the room rent, the electricity bill, the mess bill, and the total amount to be paid by the student.
 
@@ -72,3 +72,28 @@ npm run build && npm run start (for production)
   ```bash
   python main.py
   ```
+
+## Screenshots
+
+![Login Page](screenshots/login.png "Login Page")
+![Dashboard](screenshots/dashboard.png "Dashboard")
+![Add Student](screenshots/add_student.png "Add Student")
+![All Students](screenshots/all_students.png "All Students")
+![Swap Rooms](screenshots/swap_rooms.png "Swap Rooms")
+![Mark Attendance](screenshots/mark_attendence.png "Mark Attendance")
+![Attendance](screenshots/attendence.png "Attendance")
+![Mess Invoice](screenshots/mess_invoice.png "Mess Invoice")
+![Electric Invoice](screenshots/electric_invoice.png "Electric Invoice")
+![All Invoices](screenshots/all_invoices.png "All Invoices")
+![Add Appliance](screenshots/add_appliance.png "Add Appliance")
+![All Appliances](screenshots/all_appliances.png "All Appliances")
+![Add Asset](screenshots/add_asset.png "Add Asset")
+![Assets](screenshots/assets.png "Assets")
+![Add Room](screenshots/add_room.png "Add Room")
+![All Rooms](screenshots/all_rooms.png "All Rooms")
+![Room Service](screenshots/room_service.png "Room Service")
+![Complaints](screenshots/complaints.png "Complaints")
+![Create Announcements](screenshots/create_announcements.png "Create Announcements")
+![Announcements](screenshots/announcements.png "Announcements")
+![Add Staff](screenshots/add_staff.png "Add Staff")
+![All Staff](screenshots/all_staff.png "All Staff")
