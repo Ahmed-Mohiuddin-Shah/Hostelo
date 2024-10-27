@@ -1,4 +1,4 @@
--- Active: 1703074437870@@26.94.210.229@3306@hostelo
+-- Active: 1713694011244@@127.0.0.1@3306@hostelo
 
 CREATE DATABASE Hostelo;
 
@@ -362,6 +362,14 @@ CREATE TABLE
 DROP TABLE complaintandquery;
 
 CREATE TABLE
+    ServiceType (
+        service_type_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        service_name VARCHAR (50) NOT NULL
+    );
+
+DROP TABLE servicetype;
+
+CREATE TABLE
     RoomService (
         service_id INTEGER AUTO_INCREMENT PRIMARY KEY,
         student_id INTEGER,
@@ -387,13 +395,6 @@ CREATE TABLE
 
 DROP TABLE announcement;
 
-CREATE TABLE
-    ServiceType (
-        service_type_id INTEGER AUTO_INCREMENT PRIMARY KEY,
-        service_name VARCHAR (50) NOT NULL
-    );
-
-DROP TABLE servicetype;
 
 CREATE TABLE deletedStaff (staff_id INTEGER PRIMARY KEY);
 

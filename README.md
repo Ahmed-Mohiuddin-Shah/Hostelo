@@ -33,6 +33,15 @@ Manager would be able to switch rooms of the students. The manager would also be
 
 ## How to run
 
+- Create a .env file inside the api folder
+- Inside the .env folder paste the following
+
+```bash
+NEXT_PUBLIC_API_BASE_URL = "localhost:3000"
+```
+
+- Then run by using the following commands
+
 ```bash
 npm install
 npm run dev (for development)
