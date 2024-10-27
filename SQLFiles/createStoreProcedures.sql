@@ -1,20 +1,10 @@
+-- Active: 1713694011244@@127.0.0.1@3306@hostelo
 USE Hostelo;
 
 -- ( CASE WHEN `status` <> 0 THEN 'pending' ELSE 'resolved' END )
 
 CREATE PROCEDURE GET_STATUS(IN BOOLEANSTATUS BOOLEAN
-) BEGIN SELECT 
-	SELECT
-	SELECT
-	SELECT
-	SELECT
-	SELECT
-	SELECT
-	SELECT
-	SELECT
-	SELECT
-	SELECT
-	SELECT
+) BEGIN 
 	SELECT (
 	        CASE
 	            WHEN booleanStatus <> 0 THEN 'pending'
