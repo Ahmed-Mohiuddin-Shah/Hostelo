@@ -1,4 +1,3 @@
-from cv2 import add
 from fastapi import APIRouter, Body, Depends, Request
 from mysql.connector import connect, Error
 from app.auth.auth_handler import decodeJWT # type: ignore

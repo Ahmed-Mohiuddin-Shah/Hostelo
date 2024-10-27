@@ -2,7 +2,6 @@ from smtplib import SMTPSenderRefused
 from turtle import st, update
 from unittest import result
 from fastapi import APIRouter, Body, Depends, Request
-from httpx import get
 from mysql.connector import connect, Error
 from decouple import config  # type: ignore
 from app.mail_server import mailServer  # type: ignore

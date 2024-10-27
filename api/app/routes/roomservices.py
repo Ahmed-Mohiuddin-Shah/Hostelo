@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body, Depends, Request
-from httpx import get
+
 from mysql.connector import connect, Error
 from app.auth.auth_handler import decodeJWT
 from app.my_sql_connection_cursor import cursor, connection  # type: ignore
