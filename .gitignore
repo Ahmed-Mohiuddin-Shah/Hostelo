@@ -43,6 +43,9 @@ __pycache__/
 # .env ignore
 /api/.env
 
+# .conda ignore
+.conda/
+
 # .vscode ignore
 .vscode/
 
