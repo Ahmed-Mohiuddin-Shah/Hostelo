@@ -2,6 +2,9 @@ from fastapi import APIRouter, Body, Depends, Request
 from app.auth.auth_handler import signAndGetJWT, decodeJWT
 from app.my_sql_connection_cursor import cursor, connection # type: ignore
 from app.auth.security import check_encrypted_password
+from decouple import config
+
+import bcrypt
 
 auth_router = APIRouter()
 
@@ -25,7 +28,9 @@ async def sign_in(request: Request):
     
     username, hashed_password, role, image_url = user
 
-    if check_encrypted_password(password, hashed_password) is False: #type: ignore  
+    recieved_hashed_password = bcrypt.hashpw(password.encode('utf-8'), config('SALT').encode('utf-8')).decode('utf-8')
+
+    if check_encrypted_password(recieved_hashed_password, hashed_password) is False: #type: ignore  
         return {
             "status": False,
             "msg": "Incorrect password"

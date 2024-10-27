@@ -19,4 +19,7 @@ def encrypt_password(password: str) -> str:
 def check_encrypted_password(password: str, hashed_password: str) -> bool:
     encoded_password = password.encode('utf-8')
     encoded_hashed_password = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(encoded_password, encoded_hashed_password)
+
+    return encoded_password == encoded_hashed_password
+
+    # return bcrypt.checkpw(encoded_password, encoded_hashed_password)

@@ -28,8 +28,18 @@ async def get_active_complaints_count(request: Request):
 
 @complaints_router.get("/recent-complaints", tags=["Complaints"])
 async def get_recent_complaints(request: Request):
-    cursor.execute(f"SELECT `title`, `GET_STATUS`(`status`) FROM `student` NATURAL JOIN `complaintandquery` WHERE `status` = 1 ORDER BY `complaint_id` DESC")
+
+    cursor.execute("USE HOSTELO;")
+
+    cursor.execute(f"SELECT `title`, `status` FROM `student` NATURAL JOIN `complaintandquery` WHERE `status` = 1 ORDER BY `complaint_id` DESC")
     recent_complaints = cursor.fetchall() 
+
+    # replace status with resolved or unresolved
+    for complaint in recent_complaints:
+        if complaint[1] == 1:
+            complaint[1] = "pending"
+        else:
+            complaint[1] = "resolved"
            
     if len(recent_complaints) <= 2: 
         return {

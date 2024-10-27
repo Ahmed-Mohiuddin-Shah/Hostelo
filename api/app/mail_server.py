@@ -56,4 +56,5 @@ class EmailServer:
     def closeEmailServer(self) -> None:
         self.mailServer.close()
 
-mailServer = EmailServer(email_name=config("email_name"), email_password=config("email_password")) #type: ignore
+# mailServer = EmailServer(email_name=config("email_name"), email_password=config("email_password")) #type: ignore
+mailServer = "test"
