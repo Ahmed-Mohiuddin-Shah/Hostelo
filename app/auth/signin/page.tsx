@@ -14,10 +14,10 @@ import useAuth from "@/hooks/useAuth";
 import Loader from "@/components/common/Loader";
 import Swal from "sweetalert2";
 
-export const metadata: Metadata = {
-  title: "Signin | Hostel Management System",
-  description: "Signin Page of Hostel Management System",
-};
+// export const metadata: Metadata = {
+//   title: "Signin | Hostel Management System",
+//   description: "Signin Page of Hostel Management System",
+// };
 
 const SignIn: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);

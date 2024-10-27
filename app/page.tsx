@@ -13,11 +13,11 @@ import { useContext, useEffect, useState } from "react";
 import { FaBellConcierge, FaFilePen, FaSnowflake } from "react-icons/fa6";
 import { ToastContainer, toast } from "react-toastify";
 
-export const metadata: Metadata = {
-  title: "Hostelo | Hostel Management System",
-  description: "This is a hostel management system.",
-  // other metadata
-};
+// export const metadata: Metadata = {
+//   title: "Hostelo | Hostel Management System",
+//   description: "This is a hostel management system.",
+//   // other metadata
+// };
 
 interface IAnnouncement {
   id: number;

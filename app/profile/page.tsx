@@ -13,11 +13,11 @@ import axios from "axios";
 import { FaKey } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import useLocalStorage from "@/hooks/useLocalStorage";
-export const metadata: Metadata = {
-  title: "Profile Page | Next.js E-commerce Dashboard Template",
-  description: "This is Profile page for TailAdmin Next.js",
-  // other metadata
-};
+// export const metadata: Metadata = {
+//   title: "Profile Page | Next.js E-commerce Dashboard Template",
+//   description: "This is Profile page for TailAdmin Next.js",
+//   // other metadata
+// };
 
 const Profile = () => {
   const authContext = useContext(AuthContext);
@@ -267,6 +267,7 @@ const Profile = () => {
                   />
                 </svg>
                 <input
+                  aria-label="Upload profile picture"
                   type="file"
                   name="profile"
                   id="profile"
